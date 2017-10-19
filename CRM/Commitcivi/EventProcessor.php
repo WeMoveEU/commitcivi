@@ -1,6 +1,6 @@
 <?php
 
-class CRM_Commitcivi_Runner {
+class CRM_Commitcivi_EventProcessor {
   public static function run(CRM_Commitcivi_Logic_Event $event) {
     // todo create contact
     $contactId = 0;
