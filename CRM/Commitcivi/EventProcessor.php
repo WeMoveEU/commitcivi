@@ -2,6 +2,8 @@
 
 class CRM_Commitcivi_EventProcessor {
   public static function run(CRM_Commitcivi_Model_Event $event) {
+    // todo set campaign
+
     $params = [
       'firstname' => $event->contact->firstname,
       'lastname' => $event->contact->lastname,
