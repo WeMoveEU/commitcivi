@@ -1,11 +1,11 @@
 <?php
 
 class CRM_Commitcivi_EventProcessor {
-  public static function run(CRM_Commitcivi_Logic_Event $event) {
+  public static function run(CRM_Commitcivi_Model_Event $event) {
     // todo create contact
     $contactId = 0;
 
-    switch ($event->paymentProcessor) {
+    switch ($event->donation->paymentProcessor) {
       case 'sepa':
         // todo create sepa mandate
         break;
