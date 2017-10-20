@@ -38,4 +38,13 @@ class CRM_Commitcivi_Logic_Settings {
     return Civi::settings()->get('default_language');
   }
 
+  /**
+   * Get custom field name for language (locale).
+   *
+   * @return mixed
+   */
+  public static function fieldLanguage() {
+    return Civi::settings()->get('field_language');
+  }
+
 }
