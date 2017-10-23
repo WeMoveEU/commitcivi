@@ -72,6 +72,14 @@ function _civicrm_api3_wemove_contact_set_spec(&$spec) {
     'api.required' => 1,
     'api.default' => '',
   ];
+  $spec['campaign_id'] = [
+    'name' => 'campaign_id',
+    'title' => ts('Campaign ID'),
+    'description' => 'CiviCRM Campaign ID',
+    'type' => CRM_Utils_Type::T_INT,
+    'api.required' => 0,
+    'api.default' => '',
+  ];
 }
 
 function civicrm_api3_wemove_contact_set($params) {
@@ -148,10 +156,9 @@ function civicrm_api3_wemove_contact_set($params) {
   $pagePost = new CRM_Speakcivi_Page_Post();
   $rlg = $pagePost->setLanguageGroup($contactId, $language);
   $pagePost->setLanguageTag($contactId, $language);
-  // todo addJoinActivity
-  // if ($speakcivi->addJoinActivity) {
-  //  CRM_Speakcivi_Logic_Activity::join($contactId, 'donation', $speakcivi->campaignId);
-  //}
+  if ($contactObj->needJoinActivity($contact)) {
+    CRM_Speakcivi_Logic_Activity::join($contactId, 'donation', $params['campaign_id']);
+  }
   // todo where move this?
   if ($contactResult['preferred_language'] != $locale && $rlg == 1) {
     CRM_Speakcivi_Logic_Contact::set($contactId, array('preferred_language' => $locale));

@@ -81,7 +81,6 @@ class CRM_Commitcivi_Logic_Contact {
           'contact_id' => '$value.id',
           'status' => 'Added',
         );
-        // $this->addJoinActivity = TRUE;
       }
     }
     else {
@@ -107,7 +106,6 @@ class CRM_Commitcivi_Logic_Contact {
           'contact_id' => '$value.id',
           'status' => 'Added',
         );
-        // $this->addJoinActivity = TRUE;
       }
     }
     $contact = $address->removeNullAddress($contact);
@@ -252,6 +250,18 @@ class CRM_Commitcivi_Logic_Contact {
     unset($params['email']);
     unset($params['id']);
     return (bool) count($params);
+  }
+
+  /**
+   * Check if contact should have Join activity.
+   * Assupmtion: $params has only Members group.
+   *
+   * @param array $params
+   *
+   * @return bool
+   */
+  public function needJoinActivity($params) {
+    return (bool) CRM_Utils_Array::value(self::API_GROUPCONTACT_CREATE, $params);
   }
 
   /**
