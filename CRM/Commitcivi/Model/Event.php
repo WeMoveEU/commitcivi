@@ -5,7 +5,7 @@ class CRM_Commitcivi_Model_Event {
   public $actionTechnicalType = '';
   public $actionName = '';
   public $createDate = '';
-  public $externalId = '';
+  public $externalIdentifier = '';
   public $contact;
   public $donation;
   public $utm;
@@ -15,7 +15,7 @@ class CRM_Commitcivi_Model_Event {
     $this->actionTechnicalType = $params->action_technical_type;
     $this->actionName = $params->action_name;
     $this->createDate = $params->create_dt;
-    $this->externalId = $params->external_id;
+    $this->externalIdentifier = $params->external_id;
     $this->contact = new CRM_Commitcivi_Model_Contact($params);
     $this->donation = new CRM_Commitcivi_Model_Donation($params);
     $this->utm = new CRM_Commitcivi_Model_Utm($params);

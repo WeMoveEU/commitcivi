@@ -50,7 +50,7 @@ class CRM_Commitcivi_Logic_Campaign {
       'name' => $params['action_name'],
       'title' => $params['action_name'],
       'description' => $params['action_name'],
-      'external_identifier' => $params['external_id'],
+      'external_identifier' => $params['external_identifier'],
       'campaign_type_id' => $params['campaign_type_id'],
       'start_date' => date('Y-m-d H:i:s'),
       CRM_Commitcivi_Logic_Settings::fieldLanguage() => $this->determineLanguage($params['action_name']),

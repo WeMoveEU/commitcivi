@@ -8,8 +8,8 @@ function _civicrm_api3_wemove_campaign_set_spec(&$spec) {
     'api.required' => 1,
     'api.default' => '',
   ];
-  $spec['external_id'] = [
-    'name' => 'external_id',
+  $spec['external_identifier'] = [
+    'name' => 'external_identifier',
     'title' => ts('Campaign External ID'),
     'description' => 'Unique trusted external ID',
     'type' => CRM_Utils_Type::T_STRING,
@@ -29,7 +29,7 @@ function _civicrm_api3_wemove_campaign_set_spec(&$spec) {
 function civicrm_api3_wemove_campaign_set($params) {
   // todo move to cache
   $campaignObj = new CRM_Commitcivi_Logic_Campaign();
-  $campaign = $campaignObj->get($params['external_id'], FALSE, FALSE);
+  $campaign = $campaignObj->get($params['external_identifier'], FALSE, FALSE);
   if ($campaignObj->isValidCampaign($campaign)) {
     return civicrm_api3_create_success([$campaign['id'] => $campaign], $params);
   }

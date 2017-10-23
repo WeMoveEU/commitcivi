@@ -98,7 +98,7 @@ class CRM_Commitcivi_Logic_Contact {
         $contact['email_greeting_id'] = $emailGreetingId;
       }
       $contact['preferred_language'] = $locale;
-      $contact['source'] = 'speakout ' . $params['action_type'] . ' ' . $params['external_id'];
+      $contact['source'] = 'speakout ' . $params['action_type'] . ' ' . $params['external_identifier'];
       $contact = $address->prepareParamsAddressDefault($contact, $params);
       if (!$optIn) {
         $contact[self::API_GROUPCONTACT_CREATE] = array(
