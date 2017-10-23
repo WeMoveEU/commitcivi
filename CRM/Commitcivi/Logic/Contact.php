@@ -61,6 +61,7 @@ class CRM_Commitcivi_Logic_Contact {
     }
 
     $address = new CRM_Commitcivi_Logic_Address();
+    $params['country_id'] = CRM_Commitcivi_Logic_Country::getId($params['country']);
 
     if (is_array($existingContact) && count($existingContact) > 0) {
       $contact['id'] = $existingContact['id'];

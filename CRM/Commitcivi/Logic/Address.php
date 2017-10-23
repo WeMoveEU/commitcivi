@@ -15,15 +15,14 @@ class CRM_Commitcivi_Logic_Address {
    * @return mixed
    */
   public function prepareParamsAddress($contact, $existingContact, $params) {
-    // todo calculate countryId
     if ($existingContact[self::API_ADDRESS_GET]['count'] == 1) {
       // if we have a one address, we update it by new values (?)
       if (($existingContact[self::API_ADDRESS_GET]['values'][0]['postal_code'] != $params['postal_code']) ||
-        ($existingContact[self::API_ADDRESS_GET]['values'][0]['country_id'] != $this->countryId)
+        ($existingContact[self::API_ADDRESS_GET]['values'][0]['country_id'] != $params['country_id'])
       ) {
         $contact[self::API_ADDRESS_CREATE]['id'] = $existingContact[self::API_ADDRESS_GET]['id'];
         $contact[self::API_ADDRESS_CREATE]['postal_code'] = $params['postal_code'];
-        $contact[self::API_ADDRESS_CREATE]['country_id'] = $this->countryId;
+        $contact[self::API_ADDRESS_CREATE]['country_id'] = $params['country_id'];
       }
     }
     elseif ($existingContact[self::API_ADDRESS_GET]['count'] > 1) {
@@ -31,7 +30,7 @@ class CRM_Commitcivi_Logic_Address {
       foreach ($existingContact[self::API_ADDRESS_GET]['values'] as $k => $v) {
         $adr = $this->getAddressValues($v);
         if (
-          array_key_exists('country_id', $adr) && $this->countryId == $adr['country_id'] &&
+          array_key_exists('country_id', $adr) && $params['country_id'] == $adr['country_id'] &&
           array_key_exists('postal_code', $adr) && $params['postal_code'] == $adr['postal_code']
         ) {
           // return without any modification, needed address already exists
@@ -55,7 +54,7 @@ class CRM_Commitcivi_Logic_Address {
         foreach ($existingContact[self::API_ADDRESS_GET]['values'] as $k => $v) {
           $adr = $this->getAddressValues($v);
           if (
-            array_key_exists('country_id', $adr) && $this->countryId == $adr['country_id'] &&
+            array_key_exists('country_id', $adr) && $params['country_id'] == $adr['country_id'] &&
             !array_key_exists('postal_code', $adr)
           ) {
             $contact[self::API_ADDRESS_CREATE]['id'] = $v['id'];
