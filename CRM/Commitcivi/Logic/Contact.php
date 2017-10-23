@@ -44,7 +44,6 @@ class CRM_Commitcivi_Logic_Contact {
   public function prepareParamsContact($params, $contact, $options, $result = array(), $basedOnContactId = 0) {
     $groupId = $options['group_id'];
     $optIn = $options['opt_id'];
-    // todo move locale to params as preferred_language?
     $locale = $options['locale'];
 
     unset($contact['return']);
