@@ -55,7 +55,8 @@ class CRM_Commitcivi_Logic_Campaign {
       'start_date' => date('Y-m-d H:i:s'),
       CRM_Commitcivi_Logic_Settings::fieldLanguage() => $this->determineLanguage($params['action_name']),
     );
-    return civicrm_api3('Campaign', 'create', $params);
+    $result = civicrm_api3('Campaign', 'create', $params);
+    return $result['values'][0];
   }
 
   /**

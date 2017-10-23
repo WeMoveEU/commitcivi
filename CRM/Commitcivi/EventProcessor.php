@@ -4,7 +4,7 @@ class CRM_Commitcivi_EventProcessor {
   public static function run(CRM_Commitcivi_Model_Event $event) {
     $params = [
       'action_name' => $event->actionName,
-      'external_identifier' => $event->externalIdentifier, // todo refactor to external_identifier
+      'external_identifier' => $event->externalIdentifier,
       'campaign_type_id' => CRM_Core_PseudoConstant::getKey('CRM_Campaign_BAO_Campaign', 'campaign_type_id', 'Fundraising'),
     ];
     $result = civicrm_api3('WemoveCampaign', 'set', $params);
