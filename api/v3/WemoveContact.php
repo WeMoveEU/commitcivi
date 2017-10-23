@@ -101,6 +101,9 @@ function civicrm_api3_wemove_contact_set($params) {
 
   $contactObj = new CRM_Commitcivi_Logic_Contact();
   $contacIds = $contactObj->getContactByEmail($params['email']);
+  $updateContact = TRUE;
+  $contactId = 0;
+  $contactResult = [];
   if (is_array($contacIds) && count($contacIds) > 0) {
     $contactParam = $contact;
     $contactParam['id'] = array('IN' => array_keys($contacIds));
@@ -109,7 +112,9 @@ function civicrm_api3_wemove_contact_set($params) {
     if ($result['count'] == 1) {
       $contact = $contactObj->prepareParamsContact($params, $contact, $options, $result, $result['id']);
       if (!$contactObj->needUpdate($contact)) {
-        return civicrm_api3_create_success([$result['id'] => $result['values'][$result['id']]], $params);
+        $updateContact = FALSE;
+        $contactId = $result['id'];
+        $contactResult = $result['values'][$contactId];
       }
     }
     elseif ($result['count'] > 1) {
@@ -122,18 +127,23 @@ function civicrm_api3_wemove_contact_set($params) {
       $contactIdBest = $contactObj->chooseBestContact($similarity);
       $contact = $contactObj->prepareParamsContact($params, $contact, $options, $result, $contactIdBest);
       if (!$contactObj->needUpdate($contact)) {
-        return civicrm_api3_create_success([$contactIdBest => $result['values'][$contactIdBest]], $params);
+        $updateContact = FALSE;
+        $contactId = $contactIdBest;
+        $contactResult = $result['values'][$contactIdBest];
       }
     }
   }
   else {
-    // $speakcivi->newContact = TRUE;
     $contact = $contactObj->prepareParamsContact($params, $contact, $options);
   }
 
-  $result = civicrm_api3('Contact', 'create', $contact);
-  $contactId = $result['id'];
-  $contactResult = $result['values'][$contactId];
+  if ($updateContact) {
+    $result = civicrm_api3('Contact', 'create', $contact);
+    $contactId = $result['id'];
+    $contactResult = $result['values'][$contactId];
+  }
+  $returnResult = [$contactId => $contactResult];
+
 
   $language = substr($locale, 0, 2);
   $pagePost = new CRM_Speakcivi_Page_Post();
@@ -147,5 +157,5 @@ function civicrm_api3_wemove_contact_set($params) {
   if ($contactResult['preferred_language'] != $locale && $rlg == 1) {
     CRM_Speakcivi_Logic_Contact::set($contactId, array('preferred_language' => $locale));
   }
-  return civicrm_api3_create_success([$contactId => $contactResult], $params);
+  return civicrm_api3_create_success($returnResult, $params);
 }
