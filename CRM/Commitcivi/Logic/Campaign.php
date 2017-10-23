@@ -12,7 +12,7 @@ class CRM_Commitcivi_Logic_Campaign {
    * @return array
    */
   public function get($id, $useLocalId = FALSE, $countActivities = TRUE) {
-    if ($id > 0) {
+    if ($id) {
       if ($useLocalId) {
         $field = 'id';
       }
@@ -21,7 +21,7 @@ class CRM_Commitcivi_Logic_Campaign {
       }
       $params = array(
         'sequential' => 1,
-        $field => (int) $id,
+        $field => $id,
       );
       if ($countActivities) {
         $params['api.Activity.getcount'] = array(
