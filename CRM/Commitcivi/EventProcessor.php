@@ -1,7 +1,8 @@
 <?php
 
 class CRM_Commitcivi_EventProcessor {
-  public static function run(CRM_Commitcivi_Model_Event $event) {
+
+  public function process(CRM_Commitcivi_Model_Event $event) {
     $params = [
       'action_name' => $event->actionName,
       'external_identifier' => $event->externalIdentifier,

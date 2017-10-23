@@ -24,6 +24,7 @@ class CRM_Commitcivi_Consumer {
     $this->queue = $queue;
     $this->error_queue = $error_queue;
     $this->retry_exchange = $retry_exchange;
+    $this->processor = new CRM_Commitcivi_EventProcessor();
   }
 
   /**
@@ -37,9 +38,9 @@ class CRM_Commitcivi_Consumer {
     try {
       $json_msg = json_decode($msg->body);
       if ($json_msg) {
-        echo $msg->body;
         try {
-          $result = 1; //$CRM_Commitcivi_EventProcessor::run($json_msg);
+          $event = new CRM_Commitcivi_Model_Event($json_msg);
+          $result = $this->processor->process($event);
           if ($result == 1) {
             $msg->delivery_info['channel']->basic_ack($msg->delivery_info['delivery_tag']);
           } elseif ($result == -1) {
