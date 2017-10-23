@@ -5,6 +5,10 @@ class CRM_Commitcivi_Model_Contact {
   public $lastname = '';
   public $email = '';
   public $postalCode = '';
+
+  /**
+   * @var string Country ISO code
+   */
   public $country = '';
 
   public function __construct($params) {
@@ -12,7 +16,7 @@ class CRM_Commitcivi_Model_Contact {
     $this->lastname = $params->cons_hash->lastname;
     $this->email = $params->cons_hash->emails[0]->email;
     $this->postalCode = $params->cons_hash->addresses[0]->zip;
-    $this->country = $params->cons_hash->addresses[0]->country;
+    $this->country = strtoupper($params->cons_hash->addresses[0]->country);
   }
 
 }
