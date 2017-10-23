@@ -22,7 +22,7 @@ class CRM_Commitcivi_EventProcessor {
       'create_dt' => $event->createDate,
       'external_identifier' => $event->externalIdentifier,
     ];
-    $result = civicrm_api3('WemoveContact', 'create', $params);
+    $result = civicrm_api3('WemoveContact', 'set', $params);
     $contactId = $result['id'];
 
     switch ($event->donation->paymentProcessor) {

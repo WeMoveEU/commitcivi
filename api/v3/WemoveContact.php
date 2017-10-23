@@ -1,8 +1,80 @@
 <?php
-function _civicrm_api3_wemove_contact_create_spec($params) {
+function _civicrm_api3_wemove_contact_set_spec(&$spec) {
+  $spec['firstname'] = [
+    'name' => 'firstname',
+    'title' => ts('First name'),
+    'description' => ts('First name'),
+    'type' => CRM_Utils_Type::T_STRING,
+    'api.required' => 1,
+    'api.default' => '',
+  ];
+  $spec['lastname'] = [
+    'name' => 'lastname',
+    'title' => ts('Last name'),
+    'description' => ts('Last name'),
+    'type' => CRM_Utils_Type::T_STRING,
+    'api.required' => 1,
+    'api.default' => '',
+  ];
+  $spec['email'] = [
+    'name' => 'email',
+    'title' => ts('E-mail'),
+    'description' => ts('E-mail'),
+    'type' => CRM_Utils_Type::T_STRING,
+    'api.required' => 0,
+    'api.default' => '',
+  ];
+  $spec['postal_code'] = [
+    'name' => 'postal_code',
+    'title' => ts('Postal code'),
+    'description' => ts('Postal code'),
+    'type' => CRM_Utils_Type::T_STRING,
+    'api.required' => 0,
+    'api.default' => '',
+  ];
+  $spec['country'] = [
+    'name' => 'country',
+    'title' => ts('Country'),
+    'description' => 'Country ISO code',
+    'type' => CRM_Utils_Type::T_STRING,
+    'api.required' => 0,
+    'api.default' => '',
+  ];
+  $spec['create_dt'] = [
+    'name' => 'create_dt',
+    'title' => ts('Create date'),
+    'description' => ts('Create date of event'),
+    'type' => CRM_Utils_Type::T_STRING,
+    'api.required' => 1,
+    'api.default' => '',
+  ];
+  $spec['action_name'] = [
+    'name' => 'action_name',
+    'title' => 'Action name',
+    'description' => 'Action name where last "-XX" chars determines language of campaign',
+    'type' => CRM_Utils_Type::T_STRING,
+    'api.required' => 1,
+    'api.default' => '',
+  ];
+  $spec['action_type'] = [
+    'name' => 'action_type',
+    'title' => 'Action type',
+    'description' => 'Action type, example: donate, petition, share',
+    'type' => CRM_Utils_Type::T_STRING,
+    'api.required' => 1,
+    'api.default' => '',
+  ];
+  $spec['external_identifier'] = [
+    'name' => 'external_identifier',
+    'title' => ts('Campaign External ID'),
+    'description' => 'Unique trusted external ID',
+    'type' => CRM_Utils_Type::T_STRING,
+    'api.required' => 1,
+    'api.default' => '',
+  ];
 }
 
-function civicrm_api3_wemove_contact_create($params) {
+function civicrm_api3_wemove_contact_set($params) {
   $groupId = CRM_Commitcivi_Logic_Settings::groupId();
   $campaign = new CRM_Commitcivi_Logic_Campaign();
   $locale = $campaign->determineLanguage($params['action_name']);
