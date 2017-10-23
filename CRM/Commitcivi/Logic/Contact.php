@@ -31,6 +31,23 @@ class CRM_Commitcivi_Logic_Contact {
   }
 
   /**
+   * Set contact params
+   *
+   * @param int $contactId
+   * @param array $contactParams
+   */
+  public function set($contactId, $contactParams) {
+    $params = array(
+      'sequential' => 1,
+      'id' => $contactId,
+    );
+    $params = $params + $contactParams;
+    if (count($params) > 2) {
+      civicrm_api3('Contact', 'create', $params);
+    }
+  }
+
+  /**
    * Preparing params for API Contact.create based on retrieved result.
    *
    * @param array $params

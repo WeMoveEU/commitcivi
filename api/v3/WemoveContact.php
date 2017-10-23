@@ -159,9 +159,8 @@ function civicrm_api3_wemove_contact_set($params) {
   if ($contactObj->needJoinActivity($contact)) {
     CRM_Speakcivi_Logic_Activity::join($contactId, 'donation', $params['campaign_id']);
   }
-  // todo where move this?
   if ($contactResult['preferred_language'] != $locale && $rlg == 1) {
-    CRM_Speakcivi_Logic_Contact::set($contactId, array('preferred_language' => $locale));
+    $contactObj->set($contactId, ['preferred_language' => $locale]);
   }
   return civicrm_api3_create_success($returnResult, $params);
 }
