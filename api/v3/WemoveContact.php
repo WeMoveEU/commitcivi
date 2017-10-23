@@ -109,7 +109,7 @@ function civicrm_api3_wemove_contact_set($params) {
     if ($result['count'] == 1) {
       $contact = $contactObj->prepareParamsContact($params, $contact, $options, $result, $result['id']);
       if (!$contactObj->needUpdate($contact)) {
-        return civicrm_api3_create_success($result['values'][$result['id']], $params);
+        return civicrm_api3_create_success([$result['id'] => $result['values'][$result['id']]], $params);
       }
     }
     elseif ($result['count'] > 1) {
@@ -122,7 +122,7 @@ function civicrm_api3_wemove_contact_set($params) {
       $contactIdBest = $contactObj->chooseBestContact($similarity);
       $contact = $contactObj->prepareParamsContact($params, $contact, $options, $result, $contactIdBest);
       if (!$contactObj->needUpdate($contact)) {
-        return civicrm_api3_create_success($result['values'][$contactIdBest], $params);
+        return civicrm_api3_create_success([$contactIdBest => $result['values'][$contactIdBest]], $params);
       }
     }
   }
@@ -133,7 +133,7 @@ function civicrm_api3_wemove_contact_set($params) {
 
   $result = civicrm_api3('Contact', 'create', $contact);
   $contactId = $result['id'];
-  $contactResult = $result['values'][$result['id']];
+  $contactResult = $result['values'][$contactId];
 
   $language = substr($locale, 0, 2);
   $pagePost = new CRM_Speakcivi_Page_Post();
@@ -143,7 +143,9 @@ function civicrm_api3_wemove_contact_set($params) {
   // if ($speakcivi->addJoinActivity) {
   //  CRM_Speakcivi_Logic_Activity::join($contactId, 'donation', $speakcivi->campaignId);
   //}
+  // todo where move this?
   if ($contactResult['preferred_language'] != $locale && $rlg == 1) {
     CRM_Speakcivi_Logic_Contact::set($contactId, array('preferred_language' => $locale));
   }
+  return civicrm_api3_create_success([$contactId => $contactResult], $params);
 }
