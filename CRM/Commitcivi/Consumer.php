@@ -43,41 +43,25 @@ class CRM_Commitcivi_Consumer {
           $result = $this->processor->process($event);
           if ($result == 1) {
             $msg->delivery_info['channel']->basic_ack($msg->delivery_info['delivery_tag']);
-          } elseif ($result == -1) {
-            $this->handleError($msg, "runParams unsupported action type: " . $json_msg->action_type);
           } else {
-            $session = CRM_Core_Session::singleton();
-            $retry = $this->isConnectionLostError($session->getStatus());
-            $this->handleError($msg, "runParams returned error code $result", $retry);
-          }
-        } catch (CiviCRM_API3_Exception $ex) {
-          $extraInfo = $ex->getExtraParams();
-          $retry = strpos(CRM_Utils_Array::value('debug_information', $extraInfo), "try restarting transaction");
-          $this->handleError($msg, CRM_Core_Error::formatTextException($ex), $retry);
-        } catch (CRM_Speakcivi_Exception $ex) {
-          if ($ex->getErrorCode() == 1) {
-            CRM_Core_Error::debug_log_message('SPEAKCIVI AMQP ' . $ex->getMessage());
-            CRM_Core_Error::debug_var("SPEAKCIVI AMQP", $json_msg, true, true);
-            $msg->delivery_info['channel']->basic_ack($msg->delivery_info['delivery_tag']);
-          } else {
-            $this->handleError($msg, CRM_Core_Error::formatTextException($ex));
+            $this->handleErrorCode($msg, $result, $json_msg);
           }
         } catch (Exception $ex) {
-          $this->handleError($msg, CRM_Core_Error::formatTextException($ex));
+          $this->handleException($msg, $ex);
         }
       } else {
         $this->handleError($msg, "Could not decode " . $msg->body);
       }
     } catch (Exception $ex) {
-      $this->handleError($msg, CRM_Core_Error::formatTextException($ex));
+      $this->handleException($msg, $ex);
     } finally {
       $this->msg_since_check++;
     }
   }
 
   /**
-   * Connects to RabbitMQ and enters an infinite loop waiting for incoming messages.
-   * Regularly checks the server load, and pauses the consumption when the load is too high
+   * Connect to RabbitMQ and enters an infinite loop waiting for incoming messages.
+   * Regularly check the server load, and pauses the consumption when the load is too high
    */
   public function start() {
     $connection = $this->connect();
@@ -86,8 +70,8 @@ class CRM_Commitcivi_Consumer {
     while (true) {
       while (count($channel->callbacks)) {
         if ($this->msg_since_check >= $this->loadCheckPeriod) {
-          $load = sys_getloadavg()[$this->loadAverageIndex];
-          if ($load > $this->maxLoad) {
+          if ($this->isLoadTooHigh()) {
+            //Stop consumption and redeliver all pre-fetched messages
             $channel->basic_cancel($cb_name);
             $channel->basic_recover(true);
             continue;
@@ -98,8 +82,7 @@ class CRM_Commitcivi_Consumer {
         $channel->wait();
       }
 
-      $load = sys_getloadavg()[$this->loadAverageIndex];
-      if ($load > $this->maxLoad) {
+      if ($this->isLoadTooHigh()) {
         $channel->close();
         $connection->close();
         sleep($this->coolingPeriod);
@@ -107,11 +90,57 @@ class CRM_Commitcivi_Consumer {
         if (!$connection->isConnected()) {
           $connection = connect();
           $channel = $connection->channel();
+          //Never pre-fetch more than `loadCheckPeriod` messages from the queue
           $channel->basic_qos(null, $this->loadCheckPeriod, null);
         }
+        //Register callback for incoming messages
         $cb_name = $channel->basic_consume($this->queue, '', false, false, false, false, array($this, 'processMessage'));
       }
     }
+  }
+
+  /**
+   * Tell whether the system load is above the configured threshold
+   */
+  protected function isLoadTooHigh() {
+    $load = sys_getloadavg()[$this->loadAverageIndex];
+    return $load > $this->maxLoad;
+  }
+
+  /**
+   * Determine proper error message based on error code
+   */
+  protected function handleErrorCode($amqp_msg, $code, $json_msg) {
+    if ($code == -1) {
+      handleError($amqp_msg, "runParams unsupported action type: " . $json_msg->action_type);
+    } else {
+      $session = CRM_Core_Session::singleton();
+      $retry = isConnectionLostError($session->getStatus());
+      handleError($amqp_msg, "runParams returned error code $code", $retry);
+    }
+  }
+
+  /**
+   * Handle an exception thrown while processing an incoming message.
+   * Depending on the exception type and message, and depending on the runtime
+   * configuration, the incoming message is published to the error queue, 
+   * retry exchange, or simpled NACKed.
+   * For a specific error code, the message is ACKed???
+   */
+  protected function handleException($amqp_msg, $ex) {
+    $retry = false;
+    if ($ex instanceof CiviCRM_API3_Exception) {
+      $extraInfo = $ex->getExtraParams();
+      $retry = strpos(CRM_Utils_Array::value('debug_information', $extraInfo), "try restarting transaction");
+    }
+    else if ($ex instanceof CRM_Commitcivi_Exception) {
+      if ($ex->getErrorCode() == 1) {
+        CRM_Core_Error::debug_log_message('COMMITCIVI AMQP ' . $ex->getMessage());
+        $amqp_msg->delivery_info['channel']->basic_ack($amqp_msg->delivery_info['delivery_tag']);
+        return;
+      }
+    }
+    $this->handleError($amqp_msg, CRM_Core_Error::formatTextException($ex), $retry);
   }
 
   /**
@@ -119,8 +148,8 @@ class CRM_Commitcivi_Consumer {
    * Otherwise if an error queue is defined, send it to that queue through the direct exchange.
    * Otherwise nack and re-deliver the message to the originating queue.
    */
-  function handleError($msg, $error, $retry=false) {
-    CRM_Core_Error::debug_var("SPEAKCIVI AMQP", $error, true, true);
+  protected function handleError($msg, $error, $retry=false) {
+    CRM_Core_Error::debug_var("COMMITCIVI AMQP", $error, true, true);
     $channel = $msg->delivery_info['channel'];
 
     if ($retry && $this->retry_exchange != NULL) {

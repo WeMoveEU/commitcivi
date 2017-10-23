@@ -48,8 +48,8 @@ set_error_handler(function ($err_severity, $err_msg, $err_file, $err_line, array
 //Only the name of the queue to consume is mandatory
 $arguments = getopt('q:e:r:');
 $queue_name = $arguments['q'];
-$error_queue = CRM_Utils_Array::value($arguments, 'e', NULL);
-$retry_exchange = CRM_Utils_Array::value($arguments, 'r', NULL);
+$error_queue = CRM_Utils_Array::value('e', $arguments, NULL);
+$retry_exchange = CRM_Utils_Array::value('r', $arguments, NULL);
 
 //Start consuming the queue
 $consumer = new CRM_Commitcivi_Consumer($queue_name, $error_queue, $retry_exchange);
