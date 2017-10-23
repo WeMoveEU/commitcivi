@@ -13,7 +13,7 @@ class CRM_Commitcivi_Logic_Contact {
    * @return array
    * @throws \CiviCRM_API3_Exception
    */
-  public function getContactByEmail($email) {
+  public function getByEmail($email) {
     $ids = array();
     $params = array(
       'sequential' => 1,
@@ -100,8 +100,7 @@ class CRM_Commitcivi_Logic_Contact {
         $contact['email_greeting_id'] = $emailGreetingId;
       }
       $contact['preferred_language'] = $locale;
-      // todo move to params as source (eventProcessor)?
-      $contact['source'] = 'speakout ' . $params['action_type'] . ' ' . $params['external_identifier'];
+      $contact['source'] = $this->determineSource($params);
       $contact = $address->prepareParamsAddressDefault($contact, $params);
       if (!$optIn) {
         $contact[self::API_GROUPCONTACT_CREATE] = array(
@@ -254,6 +253,21 @@ class CRM_Commitcivi_Logic_Contact {
     unset($params['email']);
     unset($params['id']);
     return (bool) count($params);
+  }
+
+  /**
+   * Determine source for new contact.
+   *
+   * @param array $params
+   *
+   * @return string
+   */
+  private function determineSource($params) {
+    $prefix = 'speakout ';
+    if (strpos($params['action_technical_type'], 'cc.wemove.eu') !== FALSE) {
+      $prefix = 'commitchange ';
+    }
+    return $prefix . $params['action_type'] . ' ' . $params['external_identifier'];
   }
 
 }

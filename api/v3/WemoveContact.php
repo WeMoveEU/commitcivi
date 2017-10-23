@@ -100,7 +100,7 @@ function civicrm_api3_wemove_contact_set($params) {
   );
 
   $contactObj = new CRM_Commitcivi_Logic_Contact();
-  $contacIds = $contactObj->getContactByEmail($params['email']);
+  $contacIds = $contactObj->getByEmail($params['email']);
   $updateContact = TRUE;
   $contactId = 0;
   $contactResult = [];
@@ -143,7 +143,6 @@ function civicrm_api3_wemove_contact_set($params) {
     $contactResult = $result['values'][$contactId];
   }
   $returnResult = [$contactId => $contactResult];
-
 
   $language = substr($locale, 0, 2);
   $pagePost = new CRM_Speakcivi_Page_Post();
