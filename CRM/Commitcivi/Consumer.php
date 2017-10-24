@@ -123,7 +123,7 @@ class CRM_Commitcivi_Consumer {
   /**
    * Handle an exception thrown while processing an incoming message.
    * Depending on the exception type and message, and depending on the runtime
-   * configuration, the incoming message is published to the error queue, 
+   * configuration, the incoming message is published to the error queue,
    * retry exchange, or simpled NACKed.
    * For a specific error code, the message is ACKed???
    */
@@ -164,7 +164,7 @@ class CRM_Commitcivi_Consumer {
     } else {
       $channel->basic_nack($msg->delivery_info['delivery_tag'], false, true);
     }
-    
+
     //In some cases (e.g. a lost connection), dying and respawning can solve the problem
     die(1);
   }
