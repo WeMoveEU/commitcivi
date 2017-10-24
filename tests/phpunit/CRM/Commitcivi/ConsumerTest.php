@@ -68,7 +68,7 @@ class CRM_Commitcivi_ConsumerTest extends \PHPUnit_Framework_TestCase implements
   protected function assertIsNackedWithoutRequeue($amqp_msg) {
     $amqp_msg->delivery_info['channel']
              ->expects($this->atLeastOnce())
-             ->method('basic_nack')->with($this->delivery_tag, false, false);
+             ->method('basic_nack')->with($this->delivery_tag, FALSE, FALSE);
   }
 
   protected function assertIsPublishedToErrorQueue($amqp_msg) {
