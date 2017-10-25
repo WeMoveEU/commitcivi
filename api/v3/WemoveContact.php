@@ -1,5 +1,5 @@
 <?php
-function _civicrm_api3_wemove_contact_set_spec(&$spec) {
+function _civicrm_api3_wemove_contact_create_spec(&$spec) {
   $spec['firstname'] = [
     'name' => 'firstname',
     'title' => ts('First name'),
@@ -82,7 +82,7 @@ function _civicrm_api3_wemove_contact_set_spec(&$spec) {
   ];
 }
 
-function civicrm_api3_wemove_contact_set($params) {
+function civicrm_api3_wemove_contact_create($params) {
   $groupId = CRM_Commitcivi_Logic_Settings::groupId();
   $campaign = new CRM_Commitcivi_Logic_Campaign();
   $locale = $campaign->determineLanguage($params['action_name']);

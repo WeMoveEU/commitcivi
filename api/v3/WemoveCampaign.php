@@ -1,5 +1,5 @@
 <?php
-function _civicrm_api3_wemove_campaign_set_spec(&$spec) {
+function _civicrm_api3_wemove_campaign_create_spec(&$spec) {
   $spec['action_name'] = [
     'name' => 'action_name',
     'title' => 'Action name',
@@ -26,7 +26,7 @@ function _civicrm_api3_wemove_campaign_set_spec(&$spec) {
   ];
 }
 
-function civicrm_api3_wemove_campaign_set($params) {
+function civicrm_api3_wemove_campaign_create($params) {
   $campaign = CRM_Commitcivi_Logic_CampaignCache::getByExternalId($params);
   return civicrm_api3_create_success([$campaign['id'] => $campaign], $params);
 }
