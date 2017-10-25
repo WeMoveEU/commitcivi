@@ -37,6 +37,8 @@ class CRM_Commitcivi_EventProcessor {
         $result = $donation->create($event, $contactId, $campaignId);
         break;
     }
+
+    return $result['count'];
   }
 
 }
