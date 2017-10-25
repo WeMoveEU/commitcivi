@@ -15,18 +15,18 @@ class CRM_Commitcivi_Model_Donation {
   public $bank = '';
 
   public function __construct($params) {
-    $this->amount = $params->metadata->amount;
-    $this->amountCharged = $params->metadata->amount_charged;
-    $this->currency = $params->metadata->currency;
-    $this->cardType = $params->metadata->card_type;
-    $this->paymentProcessor = $params->metadata->payment_processor;
-    $this->transactionId = $params->metadata->transaction_id;
-    $this->customerId = $params->metadata->customer_id;
-    $this->status = $params->metadata->status;
-    $this->iban = $params->metadata->iban;
-    $this->bic = $params->metadata->bic;
-    $this->accountHolder = $params->metadata->account_holder;
-    $this->bank = $params->metadata->bank;
+    $this->amount = $params->donation->amount;
+    $this->amountCharged = $params->donation->amount_charged;
+    $this->currency = $params->donation->currency;
+    $this->cardType = $params->donation->card_type;
+    $this->paymentProcessor = $params->donation->payment_processor;
+    $this->transactionId = $params->donation->transaction_id;
+    $this->customerId = $params->donation->customer_id;
+    $this->status = $params->donation->status;
+    $this->iban = $params->donation->iban;
+    $this->bic = $params->donation->bic;
+    $this->accountHolder = $params->donation->account_holder;
+    $this->bank = $params->donation->bank;
   }
 
 }

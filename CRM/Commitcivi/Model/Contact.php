@@ -12,11 +12,11 @@ class CRM_Commitcivi_Model_Contact {
   public $country = '';
 
   public function __construct($params) {
-    $this->firstname = $params->cons_hash->firstname;
-    $this->lastname = $params->cons_hash->lastname;
-    $this->email = $params->cons_hash->emails[0]->email;
-    $this->postalCode = $params->cons_hash->addresses[0]->zip;
-    $this->country = strtoupper($params->cons_hash->addresses[0]->country);
+    $this->firstname = $params->contact->firstname;
+    $this->lastname = $params->contact->lastname;
+    $this->email = $params->contact->emails[0]->email;
+    $this->postalCode = $params->contact->addresses[0]->zip;
+    $this->country = strtoupper($params->contact->addresses[0]->country);
   }
 
 }
