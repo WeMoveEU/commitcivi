@@ -27,13 +27,14 @@ class CRM_Commitcivi_EventProcessor {
     $result = civicrm_api3('WemoveContact', 'create', $params);
     $contactId = $result['id'];
 
+    $donation = new CRM_Commitcivi_Logic_Donation();
     switch ($event->donation->paymentProcessor) {
       case 'sepa':
-        // todo create sepa mandate
+        $result = $donation->sepa($event, $contactId, $campaignId);
         break;
 
       default:
-        // todo create contribution (for stripe)
+        $result = $donation->create($event, $contactId, $campaignId);
         break;
     }
   }
