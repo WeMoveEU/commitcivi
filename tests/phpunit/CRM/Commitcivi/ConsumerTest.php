@@ -12,8 +12,7 @@ use PhpAmqpLib\Message\AMQPMessage;
  *
  * N.B.: Because the tests are related to appropriate handling of exceptions,
  * the test may interfere with the tested code when an assertion fails. For this reason,
- * assertions on method calls checks that the call happens at least one,
- * rather than exactly once, as it would otherwise make the test results confusing.
+ * you may want to replace `$this->once()` with `$this->atLeastOnce()` when debugging failing tests.
  *
  * @group headless
  */
@@ -42,6 +41,19 @@ class CRM_Commitcivi_ConsumerTest extends CRM_Commitcivi_BaseTest {
     $this->consumer->processMessage($amqp_msg);
   }
 
+  public function testProcessMessage_smtpLostConnection() {
+    $amqp_msg = $this->mockMessage($this->oneOffStripeJson());
+    $eventProcessor = $this->getMockBuilder('CRM_Commitcivi_EventProcessor')->getMock();
+    $eventProcessor->method('process')->willReturn(0);
+    $this->consumer->processor = $eventProcessor;
+    $session = CRM_Core_Session::singleton();
+    $session->setStatus('Error: Connection lost to authentication server', 'Mailing Error');
+    $this->assertIsNackedWithoutRequeue($amqp_msg);
+    $this->assertIsPublishedToRetryExchange($amqp_msg);
+
+    $this->consumer->processMessage($amqp_msg);
+  }
+
   protected function mockMessage($json) {
     $msg = new AMQPMessage($json);
     $mockChannel = $this->getMockBuilder('\PhpAmqpLib\Channel\AMQPChannel')
@@ -50,6 +62,7 @@ class CRM_Commitcivi_ConsumerTest extends CRM_Commitcivi_BaseTest {
         ->getMock();
     $msg->delivery_info['channel'] = $mockChannel;
     $msg->delivery_info['delivery_tag'] = $this->delivery_tag;
+    $msg->delivery_info['routing_key'] = 'some.routing.key';
     return $msg;
   }
 
@@ -63,8 +76,20 @@ class CRM_Commitcivi_ConsumerTest extends CRM_Commitcivi_BaseTest {
 
   protected function assertIsPublishedToErrorQueue($amqp_msg) {
     $amqp_msg->delivery_info['channel']
-             ->expects($this->atLeastOnce())
+             ->expects($this->once())
              ->method('basic_publish')->with($amqp_msg, '', $this->error_queue);
+  }
+
+  protected function assertIsPublishedToRetryExchange($amqp_msg) {
+    $this->msgToRetry = $amqp_msg;
+    $amqp_msg->delivery_info['channel']
+             ->expects($this->once())
+             ->method('basic_publish')
+             ->with($this->callback(array($this, 'checkRetryMessage')), $this->retry_exchange, $amqp_msg->delivery_info['routing_key']);
+  }
+
+  public function checkRetryMessage($amqp_msg) {
+    return $amqp_msg->body == $this->msgToRetry->body;
   }
 
 }

@@ -120,12 +120,12 @@ class CRM_Commitcivi_Consumer {
    */
   protected function handleErrorCode($amqp_msg, $code, $json_msg) {
     if ($code == -1) {
-      handleError($amqp_msg, "runParams unsupported action type: " . $json_msg->action_type);
+      $this->handleError($amqp_msg, "runParams unsupported action type: " . $json_msg->action_type);
     }
     else {
       $session = CRM_Core_Session::singleton();
-      $retry = isConnectionLostError($session->getStatus());
-      handleError($amqp_msg, "runParams returned error code $code", $retry);
+      $retry = $this->isConnectionLostError($session->getStatus());
+      $this->handleError($amqp_msg, "runParams returned error code $code", $retry);
     }
   }
 
@@ -190,8 +190,8 @@ class CRM_Commitcivi_Consumer {
    * @return bool
    */
   protected function isConnectionLostError($sessionStatus) {
-    if (is_array($sessionStatus) && array_key_exists('title', $sessionStatus[0]) && $sessionStatus['title'] == 'Mailing Error') {
-      return !!strpos($sessionStatus['text'], 'Connection lost to authentication server');
+    if (is_array($sessionStatus) && array_key_exists('title', $sessionStatus[0]) && $sessionStatus[0]['title'] == 'Mailing Error') {
+      return !!strpos($sessionStatus[0]['text'], 'Connection lost to authentication server');
     }
     return FALSE;
   }
