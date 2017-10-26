@@ -14,17 +14,12 @@ use PhpAmqpLib\Message\AMQPMessage;
  *
  * N.B.: Because the tests are related to appropriate handling of exceptions,
  * the test may interfere with the tested code when an assertion fails. For this reason,
- * assertions on method calls checks that the call happens at least one, rather than exactly once, as it would otherwise make the test results confusing.
+ * assertions on method calls checks that the call happens at least one,
+ * rather than exactly once, as it would otherwise make the test results confusing.
  *
  * @group headless
  */
-class CRM_Commitcivi_ConsumerTest extends \PHPUnit_Framework_TestCase implements HeadlessInterface, HookInterface, TransactionalInterface {
-
-  public function setUpHeadless() {
-    return \Civi\Test::headless()
-      ->installMe(__DIR__)
-      ->apply();
-  }
+class CRM_Commitcivi_ConsumerTest extends CRM_Commitcivi_BaseTest {
 
   public function setUp() {
     parent::setUp();
@@ -34,10 +29,6 @@ class CRM_Commitcivi_ConsumerTest extends \PHPUnit_Framework_TestCase implements
     $this->delivery_tag = 'fake_tag';
     $this->consumer = new CRM_Commitcivi_Consumer(
         $this->queue, $this->error_queue, $this->retry_exchange);
-  }
-
-  public function tearDown() {
-    parent::tearDown();
   }
 
   /**

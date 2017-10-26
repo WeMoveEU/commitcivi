@@ -6,19 +6,9 @@ use \Civi\Test\TransactionalInterface;
 
 
 /**
- * This is a lightweight unit-tested based on PHPUnit_Framework_TestCase.
- *
- * PHPUnit_Framework_TestCase is suitable for any of these:
- *  - Running tests which don't require any database.
- *  - Running tests on the main/live database.
- *  - Customizing the setup/teardown processes.
- *
- * @group headless
+ * Common methods for Commitcivi tests
  */
-class CRM_Commitcivi_BaseTest extends \PHPUnit_Framework_TestCase implements HeadlessInterface, HookInterface, TransactionalInterface {
-
-  public $paramsOneOffStripe;
-  public $paramsRecurringSepa;
+abstract class CRM_Commitcivi_BaseTest extends \PHPUnit_Framework_TestCase implements HeadlessInterface, HookInterface, TransactionalInterface {
 
   public function setUpHeadless() {
     return \Civi\Test::headless()
@@ -28,7 +18,14 @@ class CRM_Commitcivi_BaseTest extends \PHPUnit_Framework_TestCase implements Hea
 
   public function setUp() {
     parent::setUp();
-    $this->paramsOneOffStripe = (object) [
+  }
+
+  public function tearDown() {
+    parent::tearDown();
+  }
+
+  protected function oneOffStripeEvent() {
+    return (object) [
       'action_type' => 'donate',
       'action_technical_type' => 'cc.wemove.eu:donate',
       'create_dt' => '2017-10-25T12:34:56.531Z',
@@ -65,7 +62,10 @@ class CRM_Commitcivi_BaseTest extends \PHPUnit_Framework_TestCase implements Hea
         "campaign" => "testing",
       ],
     ];
-    $this->paramsRecurringSepa = (object) [
+  }
+
+  protected function recurringSepaEvent() {
+    return (object) [
       'action_type' => 'donate',
       'action_technical_type' => 'cc.wemove.eu:donate',
       'create_dt' => '2017-10-25T13:45:56.531Z',
