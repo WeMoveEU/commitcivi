@@ -1,8 +1,6 @@
 <?php
 
-use Civi\Test\HeadlessInterface;
-use Civi\Test\HookInterface;
-use Civi\Test\TransactionalInterface;
+require_once 'BaseTest.php';
 
 require_once __DIR__ . '/../../../../amqp/vendor/autoload.php';
 use PhpAmqpLib\Message\AMQPMessage;
@@ -29,6 +27,7 @@ class CRM_Commitcivi_ConsumerTest extends CRM_Commitcivi_BaseTest {
     $this->delivery_tag = 'fake_tag';
     $this->consumer = new CRM_Commitcivi_Consumer(
         $this->queue, $this->error_queue, $this->retry_exchange);
+    $this->consumer->dieOnError = FALSE;
   }
 
   /**

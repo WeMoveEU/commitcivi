@@ -11,6 +11,7 @@ class CRM_Commitcivi_Consumer {
   public $loadCheckPeriod = 100; //Number of messages
   public $coolingPeriod = 20; //Seconds
   public $retryDelay = 60000; //Milliseconds
+  public $dieOnError = TRUE;
 
   /* Queue and exchange names, given at construction */
   private $queue = NULL;
@@ -176,7 +177,9 @@ class CRM_Commitcivi_Consumer {
     }
 
     //In some cases (e.g. a lost connection), dying and respawning can solve the problem
-    die(1);
+    if ($this->dieOnError) {
+      die(1);
+    }
   }
 
   /**
