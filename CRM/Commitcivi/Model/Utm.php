@@ -10,7 +10,7 @@ class CRM_Commitcivi_Model_Utm {
     $this->Source = $params->source->source;
     $this->Medium = $params->source->medium;
     $this->Campaign = $params->source->campaign;
-    $this->Content = $params->source->content;
+    $this->Content = property_exists($params->source, 'content') ? $params->source->content : $this->Content;
   }
 
 }
