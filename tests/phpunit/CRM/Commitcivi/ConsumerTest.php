@@ -14,7 +14,7 @@ use PhpAmqpLib\Message\AMQPMessage;
  * the test may interfere with the tested code when an assertion fails. For this reason,
  * you may want to replace `$this->once()` with `$this->atLeastOnce()` when debugging failing tests.
  *
- * @group headless
+ * @group e2e
  */
 class CRM_Commitcivi_ConsumerTest extends CRM_Commitcivi_BaseTest {
 

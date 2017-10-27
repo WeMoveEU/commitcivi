@@ -3,7 +3,7 @@
 require_once 'BaseTest.php';
 
 /**
- * @group headless
+ * @group e2e
  */
 class CRM_Commitcivi_DonationTest extends CRM_Commitcivi_BaseTest {
 
