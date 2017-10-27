@@ -14,6 +14,7 @@ class CRM_Commitcivi_Logic_Donation {
    */
   public function sepa(CRM_Commitcivi_Model_Event $event, $contactId, $campaignId) {
     $financialTypeId = 1; // Donation
+    $frequencyInterval = 1;
     $mandateType = 'RCUR';
     $params_mandate = [
       'sequential' => 1,
@@ -25,6 +26,7 @@ class CRM_Commitcivi_Logic_Donation {
       'create_date' => date('Y-m-d'),
       'amount' => $event->donation->amount,
       'currency' => $event->donation->currency,
+      'frequency_interval' => $frequencyInterval,
       'financial_type_id' => $financialTypeId,
       'campaign_id' => $campaignId,
     ];
