@@ -93,10 +93,10 @@ JSON;
         "amount_charged" => 0,
         "currency" => "EUR",
         "payment_processor" => "sepa",
-        "iban" => "FULLIBANHERE",
-        "bic" => "CODEXXYY",
+        "iban" => "PL83101010230000261395100000",
+        "bic" => "NBPLPLPWXXX",
         "account_holder" => "Holder name",
-        "bank" => "Bank name (free text)",
+        "bank" => "Narodowy Bank Polski, O/Okr. w Warszawie",
         "status" => "success",
       ],
       'source' => (object) [
