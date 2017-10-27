@@ -60,7 +60,7 @@ class CRM_Commitcivi_Logic_Contact {
    */
   public function prepareParamsContact($params, $contact, $options, $result = array(), $basedOnContactId = 0) {
     $groupId = $options['group_id'];
-    $optIn = $options['opt_id'];
+    $optIn = $options['opt_in'];
     $locale = $options['locale'];
 
     unset($contact['return']);
