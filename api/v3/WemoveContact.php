@@ -153,9 +153,10 @@ function civicrm_api3_wemove_contact_create($params) {
   $returnResult = [$contactId => $contactResult];
 
   $language = substr($locale, 0, 2);
-  $pagePost = new CRM_Speakcivi_Page_Post();
-  $rlg = $pagePost->setLanguageGroup($contactId, $language);
-  $pagePost->setLanguageTag($contactId, $language);
+  $group = new CRM_Commitcivi_Logic_Group();
+  $rlg = $group->setLanguageGroup($contactId, $language);
+  $tag = new CRM_Commitcivi_Logic_Tag();
+  $tag->setLanguageTag($contactId, $language);
   if ($contactObj->needJoinActivity($contact)) {
     CRM_Speakcivi_Logic_Activity::join($contactId, 'donation', $params['campaign_id']);
   }
