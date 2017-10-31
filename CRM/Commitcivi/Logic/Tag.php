@@ -10,8 +10,7 @@ class CRM_Commitcivi_Logic_Tag {
    */
   public function setLanguageTag($contactId, $language) {
     if ($language) {
-      // todo
-      $languageTagNamePrefix = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'language_tag_name_prefix');
+      $languageTagNamePrefix = CRM_Commitcivi_Logic_Settings::languageTagNamePrefix();
       $tagName = $languageTagNamePrefix . $language;
       if (!($tagId = $this->getLanguageTagId($tagName))) {
         $tagId = $this->createLanguageTag($tagName);

@@ -65,4 +65,31 @@ class CRM_Commitcivi_Logic_Settings {
     return Civi::settings()->get('activity_type_join');
   }
 
+  /**
+   * Language group name suffix.
+   *
+   * @return mixed
+   */
+  public static function languageGroupNameSuffix() {
+    return Civi::settings()->get('language_group_name_suffix');
+  }
+
+  /**
+   * Default language group id.
+   *
+   * @return mixed
+   */
+  public static function defaultLanguageGroupId() {
+    return (int) Civi::settings()->get('default_language_group_id');
+  }
+
+  /**
+   * Language tag name prefix.
+   *
+   * @return mixed
+   */
+  public static function languageTagNamePrefix() {
+    return Civi::settings()->get('language_tag_name_prefix');
+  }
+
 }

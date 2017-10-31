@@ -134,9 +134,8 @@ class CRM_Commitcivi_Logic_Group {
    */
   public function setLanguageGroup($contactId, $language) {
     if ($language) {
-      // todo
-      $languageGroupNameSuffix = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'language_group_name_suffix');
-      $defaultLanguageGroupId = (int) CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'default_language_group_id');
+      $languageGroupNameSuffix = CRM_Commitcivi_Logic_Settings::languageGroupNameSuffix();
+      $defaultLanguageGroupId = CRM_Commitcivi_Logic_Settings::defaultLanguageGroupId();
       if (!$this->checkLanguageGroup($contactId, $defaultLanguageGroupId, $languageGroupNameSuffix)) {
         $languageGroupId = $this->findLanguageGroupId($language, $languageGroupNameSuffix);
         if ($languageGroupId) {
