@@ -56,4 +56,13 @@ class CRM_Commitcivi_Logic_Settings {
     return Civi::settings()->get('anonymous_id');
   }
 
+  /**
+   * Get activity type id for Join.
+   *
+   * @return mixed
+   */
+  public static function joinActivityTypeId() {
+    return Civi::settings()->get('activity_type_join');
+  }
+
 }

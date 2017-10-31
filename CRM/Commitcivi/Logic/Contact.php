@@ -282,6 +282,31 @@ class CRM_Commitcivi_Logic_Contact {
   }
 
   /**
+   * Determine optIn param.
+   *
+   * @param int $defaultOptIn
+   * @param string $country ISO code
+   *
+   * @return int
+   */
+  public function determineOptIn($defaultOptIn, $country) {
+    $notSendConfirmationToThoseCountries = array(
+      'BE',
+      'ES',
+      'FR',
+      'GB',
+      'IT',
+      'NL',
+      'PL',
+      'UK',
+    );
+    if (in_array($country, $notSendConfirmationToThoseCountries)) {
+      return 0;
+    }
+    return $defaultOptIn;
+  }
+
+  /**
    * Determine source for new contact.
    *
    * @param array $params

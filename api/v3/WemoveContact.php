@@ -97,10 +97,12 @@ function civicrm_api3_wemove_contact_create($params) {
   $groupId = CRM_Commitcivi_Logic_Settings::groupId();
   $campaign = new CRM_Commitcivi_Logic_Campaign();
   $locale = $campaign->determineLanguage($params['action_name']);
+  $contactObj = new CRM_Commitcivi_Logic_Contact();
+  $optIn = $contactObj->determineOptIn(CRM_Commitcivi_Logic_Settings::optIn(), $params['country']);
   $options = [
     'group_id' => $groupId,
     'locale' => $locale,
-    'opt_in' => CRM_Commitcivi_Logic_Settings::optIn(),
+    'opt_in' => $optIn,
   ];
 
   $contact = array(
@@ -118,7 +120,6 @@ function civicrm_api3_wemove_contact_create($params) {
     'return' => 'id,email,first_name,last_name,preferred_language,is_opt_out',
   );
 
-  $contactObj = new CRM_Commitcivi_Logic_Contact();
   $contacIds = $contactObj->getByEmail($params['email']);
   $updateContact = TRUE;
   $contactId = 0;
@@ -169,7 +170,8 @@ function civicrm_api3_wemove_contact_create($params) {
   $tag = new CRM_Commitcivi_Logic_Tag();
   $tag->setLanguageTag($contactId, $language);
   if ($contactObj->needJoinActivity($contact)) {
-    CRM_Speakcivi_Logic_Activity::join($contactId, 'donation', $params['campaign_id']);
+    $activity = new CRM_Commitcivi_Logic_Activity();
+    $activity->join($contactId, 'donation', $params['campaign_id']);
   }
   if ($contactResult['preferred_language'] != $locale && $rlg == 1) {
     $contactObj->set($contactId, ['preferred_language' => $locale]);
