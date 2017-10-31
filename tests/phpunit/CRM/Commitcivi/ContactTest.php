@@ -10,8 +10,17 @@ class CRM_Commitcivi_ContactTest extends CRM_Commitcivi_BaseTest {
   public function testCreateAnonymous() {
     $event = new CRM_Commitcivi_Model_Event($this->anonymousOneOffEvent());
     $processor = new CRM_Commitcivi_EventProcessor();
-    $result = $processor->process($event);
-    $this->assertEquals(1, $result);
+    $campaignId = $processor->campaign($event);
+    $contactId = $processor->contact($event, $campaignId);
+    $this->assertGreaterThan(0, $contactId);
+  }
+
+  public function testCreateContactWithOldStyle() {
+    $event = new CRM_Commitcivi_Model_Event($this->oneOffStripeOldStyleEvent());
+    $processor = new CRM_Commitcivi_EventProcessor();
+    $campaignId = $processor->campaign($event);
+    $contactId = $processor->contact($event, $campaignId);
+    $this->assertGreaterThan(0, $contactId);
   }
 
 }
