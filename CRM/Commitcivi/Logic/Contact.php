@@ -108,9 +108,8 @@ class CRM_Commitcivi_Logic_Contact {
       $contact['last_name'] = $lastname;
       $contact['gender_id'] = $genderId;
       $contact['prefix_id'] = $this->getPrefix($genderShortcut);
-      $dict = new CRM_Speakcivi_Tools_Dictionary();
-      $dict->parseGroupEmailGreeting();
-      $emailGreetingId = $dict->getEmailGreetingId($locale, $genderShortcut);
+      $emailGreetingIds = $this->parseGroupEmailGreeting();
+      $emailGreetingId = $this->getEmailGreetingId($locale, $genderShortcut, $emailGreetingIds);
       if ($emailGreetingId) {
         $contact['email_greeting_id'] = $emailGreetingId;
       }
@@ -319,6 +318,61 @@ class CRM_Commitcivi_Logic_Contact {
       $prefix = 'commitchange ';
     }
     return $prefix . $params['action_type'] . ' ' . $params['external_identifier'];
+  }
+
+
+  /**
+   * Parse all email greeting types in array of locale and gender shortcut
+   */
+  public function parseGroupEmailGreeting() {
+    $emailGreetingIds = [];
+    CRM_Core_OptionGroup::getAssoc('email_greeting', $group, FALSE, 'name');
+    foreach ($group['description'] as $id => $description) {
+      $tab = $this->parseLocaleGenderShortcut($description);
+      if (is_array($tab) && count($tab) == 2) {
+        $emailGreetingIds[$tab['locale']][$tab['genderShortcut']] = $id;
+      }
+    }
+    return $emailGreetingIds;
+  }
+  /**
+   * Parse description of email greeting type in array of locale and gender shortcut
+   * @param string $description description of email greeting type in format [locale]:[genderShortcut] ex. fr_FR:M
+   *
+   * @return array
+   */
+  public function parseLocaleGenderShortcut($description) {
+    $re = '/^([a-z]{2,3}_[A-Z]{2})\:(.{0,1})/';
+    if (preg_match($re, $description, $matches)) {
+      return [
+        'locale' => $matches[1],
+        'genderShortcut' => $matches[2],
+      ];
+    }
+    return [];
+  }
+
+
+  /**
+   * Get email greeting Id for locale and gender shortcut
+   *
+   * @param string $locale
+   * @param string $genderShortcut
+   * @param array $emailGreetingIds
+   *
+   * @return int
+   */
+  public function getEmailGreetingId($locale, $genderShortcut, $emailGreetingIds) {
+    if (array_key_exists($locale, $emailGreetingIds)) {
+      if (
+        array_key_exists($genderShortcut, $emailGreetingIds[$locale]) &&
+        $emailGreetingIds[$locale][$genderShortcut] > 0
+      ) {
+        return $emailGreetingIds[$locale][$genderShortcut];
+      }
+      return $emailGreetingIds[$locale][''];
+    }
+    return 0;
   }
 
 }
