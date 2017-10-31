@@ -24,8 +24,7 @@ abstract class CRM_Commitcivi_BaseTest extends \PHPUnit_Framework_TestCase imple
   }
 
   protected function oneOffStripeJson() {
-    return
-<<<JSON
+    return <<<JSON
     {
       "action_type":"donate",
       "action_technical_type":"cc.wemove.eu:donate",
@@ -105,6 +104,57 @@ JSON;
         "campaign" => "testing",
       ],
     ];
+  }
+
+  /**
+   * JSON without email.
+   *
+   * @return string
+   */
+  protected function anonymousOneOffJson() {
+    return <<<JSON
+    {
+      "action_type":"donate",
+      "action_technical_type":"cc.wemove.eu:donate",
+      "create_dt":"2017-10-31T12:34:56.531Z",
+      "action_name":"campaign-PL",
+      "external_id":50001,
+      "contact":{
+        "firstname":"Anonymous",
+        "lastname":"Contact",
+        "addresses":[
+          {
+            "zip":"01-234",
+            "country":"pl"
+          }
+        ]
+      },
+      "donation":{
+        "amount":15.67,
+        "amount_charged":0.17,
+        "currency":"EUR",
+        "card_type":"Visa",
+        "payment_processor":"stripe",
+        "transaction_id":"ch_1NHwmdLnnERTfiJAMNHyFjV4",
+        "customer_id":"cus_Bb94Wds2n3xCVB",
+        "status":"success"
+      },
+      "source":{
+        "source":"phpunit",
+        "medium":"phpstorm",
+        "campaign":"testing"
+      }
+    }
+JSON;
+  }
+
+  /**
+   * Event object without email.
+   *
+   * @return mixed
+   */
+  protected function anonymousOneOffEvent() {
+    return json_decode($this->anonymousOneOffJson());
   }
 
 }

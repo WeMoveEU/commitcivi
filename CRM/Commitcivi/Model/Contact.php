@@ -19,4 +19,15 @@ class CRM_Commitcivi_Model_Contact {
     $this->country = strtoupper($params->contact->addresses[0]->country);
   }
 
+  /**
+   * Check if contact is anonymous (without email).
+   *
+   * @param string $email
+   *
+   * @return bool
+   */
+  public static function isAnonymous($email) {
+    return !$email;
+  }
+
 }

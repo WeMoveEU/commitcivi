@@ -83,6 +83,17 @@ function _civicrm_api3_wemove_contact_create_spec(&$spec) {
 }
 
 function civicrm_api3_wemove_contact_create($params) {
+  if (CRM_Commitcivi_Model_Contact::isAnonymous($params['email'])) {
+    $params = [
+      'id' => CRM_Commitcivi_Logic_Settings::anonymousId(),
+    ];
+    $result = civicrm_api3('Contact', 'get', $params);
+    $contactId = $result['id'];
+    $contactResult = $result['values'][$contactId];
+    $returnResult = [$contactId => $contactResult];
+    return civicrm_api3_create_success($returnResult, $params);
+  }
+
   $groupId = CRM_Commitcivi_Logic_Settings::groupId();
   $campaign = new CRM_Commitcivi_Logic_Campaign();
   $locale = $campaign->determineLanguage($params['action_name']);
