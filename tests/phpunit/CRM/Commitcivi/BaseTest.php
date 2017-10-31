@@ -30,7 +30,7 @@ abstract class CRM_Commitcivi_BaseTest extends \PHPUnit_Framework_TestCase imple
       "action_technical_type":"cc.wemove.eu:donate",
       "create_dt":"2017-10-25T12:34:56.531Z",
       "action_name":"campaign-PL",
-      "external_id":50001,
+      "external_id":50002,
       "contact":{
         "firstname":"Test",
         "lastname":"Testowski",
