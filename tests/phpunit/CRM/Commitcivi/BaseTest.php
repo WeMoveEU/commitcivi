@@ -65,6 +65,48 @@ JSON;
     return json_decode($this->oneOffStripeJson());
   }
 
+  protected function oneOffStripeOldStyleJson() {
+    return <<<JSON
+    {
+      "action_type":"donate",
+      "action_technical_type":"cc.wemove.eu:donate",
+      "create_dt":"2017-10-25T12:34:56.531Z",
+      "action_name":"campaign-PL",
+      "external_id":50001,
+      "cons_hash":{
+        "firstname":"Test",
+        "lastname":"Testowski",
+        "emails":[{"email":"test+t1@example.com"}],
+        "addresses":[
+          {
+            "zip":"01-234",
+            "country":"pl"
+          }
+        ]
+      },
+      "metadata":{
+        "amount":15.67,
+        "amount_charged":0.17,
+        "currency":"EUR",
+        "card_type":"Visa",
+        "payment_processor":"stripe",
+        "transaction_id":"ch_1NHwmdLnnERTfiJAMNHyFjV4",
+        "customer_id":"cus_Bb94Wds2n3xCVB",
+        "status":"success"
+      },
+      "source":{
+        "source":"phpunit",
+        "medium":"phpstorm",
+        "campaign":"testing"
+      }
+    }
+JSON;
+  }
+
+  protected function oneOffStripeOldStyleEvent() {
+    return json_decode($this->oneOffStripeJson());
+  }
+
   protected function recurringSepaEvent() {
     return (object) [
       'action_type' => 'donate',
