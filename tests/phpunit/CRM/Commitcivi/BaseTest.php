@@ -104,7 +104,7 @@ JSON;
   }
 
   protected function oneOffStripeOldStyleEvent() {
-    return json_decode($this->oneOffStripeJson());
+    return json_decode($this->oneOffStripeOldStyleJson());
   }
 
   protected function recurringSepaEvent() {
