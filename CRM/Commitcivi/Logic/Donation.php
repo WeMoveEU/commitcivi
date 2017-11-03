@@ -29,6 +29,7 @@ class CRM_Commitcivi_Logic_Donation {
       'frequency_interval' => $frequencyInterval,
       'financial_type_id' => $financialTypeId,
       'campaign_id' => $campaignId,
+      'source' => $event->actionName,
     ];
     return civicrm_api3('SepaMandate', 'createfull', $params_mandate);
   }
@@ -58,6 +59,7 @@ class CRM_Commitcivi_Logic_Donation {
       'contribution_status' => $this->status($event->donation->status),
       'currency' => $event->donation->currency,
       'subject' => $event->actionName,
+      'source' => $event->actionName,
       'location' => $event->actionTechnicalType,
     ];
     $params = $this->setSourceFields($params, $event->utm);
