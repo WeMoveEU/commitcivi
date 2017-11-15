@@ -78,18 +78,19 @@ class CRM_Commitcivi_ContactTest extends CRM_Commitcivi_BaseTest {
   protected function hasGroup($groups, $groupId) {
     foreach ($groups['values'] as $group) {
       if ($group['group_id'] == $groupId) {
-        RETURN TRUE;
+        return TRUE;
       }
     }
-    RETURN FALSE;
+    return FALSE;
   }
 
   protected function hasTag($tags, $tagId) {
     foreach ($tags['values'] as $tag) {
       if ($tag['tag_id'] == $tagId) {
-        RETURN TRUE;
+        return TRUE;
       }
     }
-    RETURN FALSE;
+    return FALSE;
   }
+
 }
