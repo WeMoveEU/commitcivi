@@ -40,6 +40,7 @@ class CRM_Commitcivi_Logic_CampaignCache extends CRM_Commitcivi_Logic_Cache {
     $campaign = $campaignObj->get($params['external_identifier']);
     if (!$campaignObj->isValidCampaign($campaign)) {
       $campaign = $campaignObj->set($params);
+      CRM_Core_PseudoConstant::flush();
     }
     // todo move limit to settings
     $limit = 20;
