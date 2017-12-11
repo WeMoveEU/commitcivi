@@ -15,6 +15,7 @@ class CRM_Commitcivi_Logic_Donation {
   public function sepa(CRM_Commitcivi_Model_Event $event, $contactId, $campaignId) {
     $financialTypeId = 1; // Donation
     $frequencyInterval = 1;
+    $paymentProcessorId = 7; // new dummy processor
     $mandateType = 'RCUR';
     $params_mandate = [
       'sequential' => 1,
@@ -28,6 +29,7 @@ class CRM_Commitcivi_Logic_Donation {
       'currency' => $event->donation->currency,
       'frequency_interval' => $frequencyInterval,
       'financial_type_id' => $financialTypeId,
+      'payment_processor_id' => $paymentProcessorId,
       'campaign_id' => $campaignId,
       'source' => $event->actionName,
     ];
