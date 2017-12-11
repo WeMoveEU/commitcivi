@@ -18,7 +18,7 @@ class CRM_Commitcivi_Model_Donation {
     $donation = $this->get($params);
     $this->amount = $donation->amount;
     $this->amountCharged = $donation->amount_charged;
-    $this->currency = $donation->currency;
+    $this->currency = strtoupper($donation->currency);
     $this->cardType = property_exists($donation, 'card_type') ? $donation->card_type : $this->cardType;
     $this->paymentProcessor = $donation->payment_processor;
     $this->transactionId = property_exists($donation, 'transaction_id') ? $donation->transaction_id : $this->transactionId;
