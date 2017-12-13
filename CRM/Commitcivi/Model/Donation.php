@@ -2,6 +2,8 @@
 
 class CRM_Commitcivi_Model_Donation {
 
+  const PAYMENT_PROCESSOR_SEPA = 'sepa';
+  const PAYMENT_PROCESSOR_STRIPE = 'stripe';
   const TYPE_SINGLE = 'single';
   const TYPE_RECURRING = 'recurring';
 
@@ -10,6 +12,10 @@ class CRM_Commitcivi_Model_Donation {
   public $currency = '';
   public $cardType = '';
   public $paymentProcessor = '';
+
+  /**
+   * @var string Type of donation: single or recurring
+   */
   public $type = '';
   public $transactionId = '';
   public $recurringId = '';

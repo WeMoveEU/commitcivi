@@ -2,6 +2,30 @@
 
 class CRM_Commitcivi_Logic_Donation {
 
+  private $frequencyInterval = 1;
+
+  private $frequencyUnit = 'month';
+
+  private $financialTypeId = 1;
+
+  private $paymentInstrumentId = "Credit Card";
+
+  private static $mapRecurringStatus = [
+    'success' => 5, // in progress
+    'destroy' => 3, // cancelled
+  ];
+
+  /**
+   * Check if donation is recurring.
+   *
+   * @param string $donationType
+   *
+   * @return bool
+   */
+  private function isRecurring($donationType) {
+    return $donationType == CRM_Commitcivi_Model_Donation::TYPE_RECURRING;
+  }
+
   /**
    * Create a mandate for contact.
    *
@@ -45,15 +69,148 @@ class CRM_Commitcivi_Logic_Donation {
    * @throws \CiviCRM_API3_Exception
    */
   public function create(CRM_Commitcivi_Model_Event $event, $contactId, $campaignId) {
-    $financialTypeId = 1;
-    $paymentInstrumentId = "Credit Card";
+    if ($this->isRecurring($event->donation->type)) {
+      $recurId = $this->setRecurring($event, $contactId, $campaignId);
+      return $this->setSingle($event, $contactId, $campaignId, $recurId);
+    }
+    else {
+      return $this->setSingle($event, $contactId, $campaignId);
+    }
+  }
+
+  /**
+   * Set recurring contribution.
+   *
+   * @param \CRM_Commitcivi_Model_Event $event
+   * @param int $contactId
+   * @param int $campaignId
+   *
+   * @return mixed
+   * @throws \CiviCRM_API3_Exception
+   */
+  private function setRecurring(CRM_Commitcivi_Model_Event $event, $contactId, $campaignId) {
+    if (!$recur = self::findRecurring($event->donation->transactionId)) {
+      $recur = self::recurring($event, $contactId, $campaignId);
+    }
+    return $recur['id'];
+  }
+
+  /**
+   * Find recurring contribution by unique transaction id.
+   *
+   * @param string $recurringId
+   *
+   * @return array
+   * @throws \CiviCRM_API3_Exception
+   */
+  private function findRecurring($recurringId) {
+    $params = [
+      'sequential' => 1,
+      'trxn_id' => $recurringId,
+    ];
+    $result = civicrm_api3('ContributionRecur', 'get', $params);
+    if ($result['count'] == 1) {
+      return $result;
+    }
+    return [];
+  }
+
+  /**
+   * Create new recurring contribution.
+   *
+   * @param \CRM_Commitcivi_Model_Event $event
+   * @param int $contactId
+   * @param int $campaignId
+   *
+   * @return mixed
+   * @throws \CiviCRM_API3_Exception
+   */
+  private function recurring(CRM_Commitcivi_Model_Event $event, $contactId, $campaignId) {
+    $params = [
+      'sequential' => 1,
+      'contact_id' => $contactId,
+      'amount' => $event->donation->amount,
+      'currency' => $event->donation->currency,
+      'frequency_unit' => $this->frequencyUnit,
+      'frequency_interval' => $this->frequencyInterval,
+      'start_date' => $event->createDate,
+      'create_date' => $event->createDate,
+      'trxn_id' => $event->donation->transactionId,
+      'contribution_status_id' => $this->determineRecurringStatus($event->donation->status),
+      'financial_type_id' => $this->financialTypeId,
+      'payment_instrument_id' => $this->paymentInstrumentId,
+      'campaign_id' => $campaignId,
+    ];
+    if ($event->donation->status == 'destroy') {
+      $params['cancel_date'] = $event->createDate;
+    }
+    return civicrm_api3('ContributionRecur', 'create', $params);
+  }
+
+  /**
+   * Determine contribution status for recurring based on status from param.
+   *
+   * @param string $status
+   *
+   * @return mixed
+   */
+  private function determineRecurringStatus($status) {
+    return self::$mapRecurringStatus[$status];
+  }
+
+  /**
+   * @param \CRM_Commitcivi_Model_Event $event
+   * @param $contactId
+   * @param $campaignId
+   * @param int $recurId
+   *
+   * @return array
+   * @throws \CiviCRM_API3_Exception
+   */
+  private function setSingle(CRM_Commitcivi_Model_Event $event, $contactId, $campaignId, $recurId = 0) {
+    if (!$contrib = $this->find($event->donation->transactionId)) {
+      return $this->single($event, $contactId, $campaignId, $recurId);
+    }
+    return $contrib;
+  }
+
+  /**
+   * Find contribution by unique transaction id.
+   *
+   * @param string $transactionId
+   *
+   * @return array
+   * @throws \CiviCRM_API3_Exception
+   */
+  private function find($transactionId) {
+    $params = [
+      'sequential' => 1,
+      'trxn_id' => $transactionId,
+    ];
+    $result = civicrm_api3('Contribution', 'get', $params);
+    if ($result['count'] == 1) {
+      return $result;
+    }
+    return [];
+  }
+
+  /**
+   * @param \CRM_Commitcivi_Model_Event $event
+   * @param $contactId
+   * @param $campaignId
+   * @param int $recurId
+   *
+   * @return array
+   * @throws \CiviCRM_API3_Exception
+   */
+  private function single(CRM_Commitcivi_Model_Event $event, $contactId, $campaignId, $recurId = 0) {
     $params = [
       'sequential' => 1,
       'source_contact_id' => $contactId,
       'contact_id' => $contactId,
       'contribution_campaign_id' => $campaignId,
-      'financial_type_id' => $financialTypeId,
-      'payment_instrument_id' => $paymentInstrumentId,
+      'financial_type_id' => $this->financialTypeId,
+      'payment_instrument_id' => $this->paymentInstrumentId,
       'receive_date' => $event->createDate,
       'total_amount' => $event->donation->amount,
       'fee_amount' => $event->donation->amountCharged,
@@ -65,6 +222,9 @@ class CRM_Commitcivi_Logic_Donation {
       'source' => $event->actionName,
       'location' => $event->actionTechnicalType,
     ];
+    if ($recurId) {
+      $params['contribution_recur_id'] = $recurId;
+    }
     $params = $this->setSourceFields($params, $event->utm);
     return civicrm_api3('Contribution', 'create', $params);
   }

@@ -2,12 +2,18 @@
 
 class CRM_Commitcivi_EventProcessor {
 
+  /**
+   * @param \CRM_Commitcivi_Model_Event $event
+   *
+   * @return mixed
+   * @throws \CiviCRM_API3_Exception
+   */
   public function process(CRM_Commitcivi_Model_Event $event) {
     $campaignId = $this->campaign($event);
     $contactId = $this->contact($event, $campaignId);
     $donation = new CRM_Commitcivi_Logic_Donation();
     switch ($event->donation->paymentProcessor) {
-      case 'sepa':
+      case CRM_Commitcivi_Model_Donation::PAYMENT_PROCESSOR_SEPA:
         $result = $donation->sepa($event, $contactId, $campaignId);
         break;
 
