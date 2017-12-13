@@ -34,7 +34,7 @@ class CRM_Commitcivi_Logic_DonationSepa extends CRM_Commitcivi_Logic_Donation {
     if (!$recur = $this->findRecurring($event->donation->recurringId)) {
       $recur = $this->recurring($event, $contactId, $campaignId);
     }
-    return $recur['id'];
+    return $recur;
   }
 
   /**
