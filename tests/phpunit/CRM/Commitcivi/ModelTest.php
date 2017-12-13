@@ -8,7 +8,7 @@ require_once 'BaseTest.php';
 class CRM_Commitcivi_ModelTest extends CRM_Commitcivi_BaseTest {
 
   public function testContactWithAllFields() {
-    $event = new CRM_Commitcivi_Model_Event($this->oneOffStripeEvent());
+    $event = new CRM_Commitcivi_Model_Event($this->singleStripeEvent());
     $this->assertEquals('Test', $event->contact->firstname);
     $this->assertEquals('Testowski', $event->contact->lastname);
     $this->assertEquals('test+t1@example.com', $event->contact->email);
@@ -25,13 +25,14 @@ class CRM_Commitcivi_ModelTest extends CRM_Commitcivi_BaseTest {
     $this->assertEquals('PL', $event->contact->country);
   }
 
-  public function testDonationOneOff() {
-    $event = new CRM_Commitcivi_Model_Event($this->oneOffStripeEvent());
+  public function testSingleStripe() {
+    $event = new CRM_Commitcivi_Model_Event($this->singleStripeEvent());
     $this->assertEquals(15.67, $event->donation->amount, '', 0.001);
     $this->assertEquals(0.17, $event->donation->amountCharged, '', 0.001);
     $this->assertEquals('EUR', $event->donation->currency);
     $this->assertEquals('Visa', $event->donation->cardType);
     $this->assertEquals('stripe', $event->donation->paymentProcessor);
+    $this->assertEquals('single', $event->donation->type);
     $this->assertEquals('ch_1NHwmdLnnERTfiJAMNHyFjV4', $event->donation->transactionId);
     $this->assertEquals('cus_Bb94Wds2n3xCVB', $event->donation->customerId);
     $this->assertEquals('success', $event->donation->status);

@@ -23,7 +23,7 @@ abstract class CRM_Commitcivi_BaseTest extends \PHPUnit_Framework_TestCase imple
     parent::tearDown();
   }
 
-  protected function oneOffStripeJson() {
+  protected function singleStripeJson() {
     return <<<JSON
     {
       "action_type":"donate",
@@ -62,8 +62,8 @@ abstract class CRM_Commitcivi_BaseTest extends \PHPUnit_Framework_TestCase imple
 JSON;
   }
 
-  protected function oneOffStripeEvent() {
-    return json_decode($this->oneOffStripeJson());
+  protected function singleStripeEvent() {
+    return json_decode($this->singleStripeJson());
   }
 
   protected function recurringStripeJson() {

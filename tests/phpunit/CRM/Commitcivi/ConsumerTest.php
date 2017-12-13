@@ -42,7 +42,7 @@ class CRM_Commitcivi_ConsumerTest extends CRM_Commitcivi_BaseTest {
   }
 
   public function testProcessMessage_smtpLostConnection() {
-    $amqp_msg = $this->mockMessage($this->oneOffStripeJson());
+    $amqp_msg = $this->mockMessage($this->singleStripeJson());
     $eventProcessor = $this->getMockBuilder('CRM_Commitcivi_EventProcessor')->getMock();
     $eventProcessor->method('process')->willReturn(0);
     $this->consumer->processor = $eventProcessor;
@@ -65,8 +65,6 @@ class CRM_Commitcivi_ConsumerTest extends CRM_Commitcivi_BaseTest {
     $msg->delivery_info['routing_key'] = 'some.routing.key';
     return $msg;
   }
-
-  /* Custom assertions */
 
   protected function assertIsNackedWithoutRequeue($amqp_msg) {
     $amqp_msg->delivery_info['channel']

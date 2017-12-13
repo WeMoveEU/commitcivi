@@ -7,13 +7,29 @@ require_once 'BaseTest.php';
  */
 class CRM_Commitcivi_DonationTest extends CRM_Commitcivi_BaseTest {
 
-  public function testCreateDefaultDonation() {
-    $event = new CRM_Commitcivi_Model_Event($this->oneOffStripeEvent());
+  /**
+   * @throws \CiviCRM_API3_Exception
+   */
+  public function testSingleStripe() {
+    $event = new CRM_Commitcivi_Model_Event($this->singleStripeEvent());
     $processor = new CRM_Commitcivi_EventProcessor();
     $result = $processor->process($event);
     $this->assertEquals(1, $result);
   }
 
+  /**
+   * @throws \CiviCRM_API3_Exception
+   */
+  public function testRecurringStripe() {
+    $event = new CRM_Commitcivi_Model_Event($this->recurringStripeEvent());
+    $processor = new CRM_Commitcivi_EventProcessor();
+    $result = $processor->process($event);
+    $this->assertEquals(1, $result);
+  }
+
+  /**
+   * @throws \CiviCRM_API3_Exception
+   */
   public function testCreateSepaDonation() {
     $event = new CRM_Commitcivi_Model_Event($this->recurringSepaEvent());
     $processor = new CRM_Commitcivi_EventProcessor();
@@ -21,6 +37,9 @@ class CRM_Commitcivi_DonationTest extends CRM_Commitcivi_BaseTest {
     $this->assertEquals(1, $result);
   }
 
+  /**
+   * @throws \CiviCRM_API3_Exception
+   */
   public function testSepaDetails() {
     $event = new CRM_Commitcivi_Model_Event($this->recurringSepaEvent());
     $contact = civicrm_api3('Contact', 'get', array(
@@ -34,7 +53,7 @@ class CRM_Commitcivi_DonationTest extends CRM_Commitcivi_BaseTest {
     ));
     $campaignId = $campaign['id'];
 
-    $donation = new CRM_Commitcivi_Logic_Donation();
+    $donation = new CRM_Commitcivi_Logic_DonationSepa();
     $mandate = $donation->sepa($event, $contactId, $campaignId);
     $mnd = $mandate['values'][0];
     $contributionRecur = civicrm_api3('ContributionRecur', 'get', array(

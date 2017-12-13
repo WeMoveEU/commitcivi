@@ -15,7 +15,7 @@ class CRM_Commitcivi_CampaignTest extends CRM_Commitcivi_BaseTest {
   }
 
   public function testNewCampaign() {
-    $event = new CRM_Commitcivi_Model_Event($this->oneOffStripeEvent());
+    $event = new CRM_Commitcivi_Model_Event($this->singleStripeEvent());
     $processor = new CRM_Commitcivi_EventProcessor();
     $campaignId = $processor->campaign($event);
     $this->assertGreaterThan(0, $campaignId);
