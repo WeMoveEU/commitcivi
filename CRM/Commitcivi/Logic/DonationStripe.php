@@ -108,7 +108,7 @@ class CRM_Commitcivi_Logic_DonationStripe extends CRM_Commitcivi_Logic_Donation 
       'frequency_interval' => $this->frequencyInterval,
       'start_date' => $event->createDate,
       'create_date' => $event->createDate,
-      'trxn_id' => $event->donation->transactionId,
+      'trxn_id' => $event->donation->recurringId,
       'contribution_status_id' => $this->recurringStatus($event->donation->status),
       'financial_type_id' => $this->financialTypeId,
       'payment_instrument_id' => $this->paymentInstrumentId,

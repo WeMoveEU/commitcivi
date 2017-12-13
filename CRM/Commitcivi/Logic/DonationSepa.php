@@ -13,7 +13,6 @@ class CRM_Commitcivi_Logic_DonationSepa extends CRM_Commitcivi_Logic_Donation {
    * @throws \CiviCRM_API3_Exception
    */
   public function sepa(CRM_Commitcivi_Model_Event $event, $contactId, $campaignId) {
-    $event->donation->recurringId;
     if ($this->isRecurring($event->donation->type)) {
       return $this->setRecurring($event, $contactId, $campaignId);
     }
