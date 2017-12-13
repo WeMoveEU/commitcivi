@@ -218,17 +218,15 @@ JSON;
       "donation":{
         "amount":15,
         "currency":"eur",
-        "recurring_id":49,
-        "external_identifier":"cc_63",
-        "type":"recurring",
+        "type":"single",
         "payment_processor":"sepa",
         "amount_charged":0,
         "transaction_id":"cc_63",
-        "iban":"DE10101010101010101010",
+        "iban":"PL83101010230000261395100000",
         "bic":"NOTPROVIDED",
         "account_holder":"test",
         "status":"success"
-      }
+      },
       "source":{
         "source":"phpunit",
         "medium":"phpstorm",
