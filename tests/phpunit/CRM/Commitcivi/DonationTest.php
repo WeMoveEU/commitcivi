@@ -30,7 +30,17 @@ class CRM_Commitcivi_DonationTest extends CRM_Commitcivi_BaseTest {
   /**
    * @throws \CiviCRM_API3_Exception
    */
-  public function testCreateSepaDonation() {
+  public function testSingleSepa() {
+    $event = new CRM_Commitcivi_Model_Event($this->singleSepaEvent());
+    $processor = new CRM_Commitcivi_EventProcessor();
+    $result = $processor->process($event);
+    $this->assertEquals(1, $result);
+  }
+
+  /**
+   * @throws \CiviCRM_API3_Exception
+   */
+  public function testRecurringSepa() {
     $event = new CRM_Commitcivi_Model_Event($this->recurringSepaEvent());
     $processor = new CRM_Commitcivi_EventProcessor();
     $result = $processor->process($event);

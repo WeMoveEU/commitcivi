@@ -66,7 +66,7 @@ JSON;
     return json_decode($this->singleStripeJson());
   }
 
-  protected function recurringStripeJson() {
+  private function recurringStripeJson() {
     return <<<JSON
     {
       "action_type":"donate",
@@ -110,7 +110,7 @@ JSON;
     return json_decode($this->recurringStripeJson());
   }
 
-  protected function oneOffStripeExistingContactJson() {
+  private function oneOffStripeExistingContactJson() {
     return <<<JSON
     {
       "action_type":"donate",
@@ -153,7 +153,7 @@ JSON;
     return json_decode($this->oneOffStripeExistingContactJson());
   }
 
-  protected function oneOffStripeOldStyleJson() {
+  private function oneOffStripeOldStyleJson() {
     return <<<JSON
     {
       "action_type":"donate",
@@ -195,6 +195,53 @@ JSON;
   protected function oneOffStripeOldStyleEvent() {
     return json_decode($this->oneOffStripeOldStyleJson());
   }
+
+  private function singleSepaJson() {
+    return <<<JSON
+    {
+      "action_type":"donate",
+      "action_technical_type":"cc.wemove.eu:donate",
+      "create_dt":"2017-12-13T14:16:56.531Z",
+      "action_name":"campaign-PL",
+      "external_id":50002,
+      "contact":{
+        "firstname":"Test3",
+        "lastname":"Testowski3",
+        "emails":[{"email":"test+t3@example.com"}],
+        "addresses":[
+          {
+            "zip":"01-234",
+            "country":"pl"
+          }
+        ]
+      },
+      "donation":{
+        "amount":15,
+        "currency":"eur",
+        "recurring_id":49,
+        "external_identifier":"cc_63",
+        "type":"recurring",
+        "payment_processor":"sepa",
+        "amount_charged":0,
+        "transaction_id":"cc_63",
+        "iban":"DE10101010101010101010",
+        "bic":"NOTPROVIDED",
+        "account_holder":"test",
+        "status":"success"
+      }
+      "source":{
+        "source":"phpunit",
+        "medium":"phpstorm",
+        "campaign":"testing"
+      }
+    }
+JSON;
+  }
+
+  protected function singleSepaEvent() {
+    return json_decode($this->singleSepaJson());
+  }
+
 
   protected function recurringSepaEvent() {
     return (object) [
