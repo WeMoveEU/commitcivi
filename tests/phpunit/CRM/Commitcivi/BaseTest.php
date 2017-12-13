@@ -48,6 +48,7 @@ abstract class CRM_Commitcivi_BaseTest extends \PHPUnit_Framework_TestCase imple
         "currency":"EUR",
         "card_type":"Visa",
         "payment_processor":"stripe",
+        "type":"single",
         "transaction_id":"ch_1NHwmdLnnERTfiJAMNHyFjV4",
         "customer_id":"cus_Bb94Wds2n3xCVB",
         "status":"success"
@@ -90,6 +91,7 @@ JSON;
         "currency":"EUR",
         "card_type":"Visa",
         "payment_processor":"stripe",
+        "type":"single",
         "transaction_id":"ch_1NHwmdLnnERTfiJAMNHyFjV4",
         "customer_id":"cus_Bb94Wds2n3xCVB",
         "status":"success"
@@ -132,6 +134,7 @@ JSON;
         "currency":"EUR",
         "card_type":"Visa",
         "payment_processor":"stripe",
+        "type":"single",
         "transaction_id":"ch_1NHwmdLnnERTfiJAMNHyFjV4",
         "customer_id":"cus_Bb94Wds2n3xCVB",
         "status":"success"
@@ -176,6 +179,9 @@ JSON;
         "amount_charged" => 0,
         "currency" => "EUR",
         "payment_processor" => "sepa",
+        "type" => "recurring",
+        "recurring_id" => "ccr_100001",
+        "transaction_id" => "cc_100002",
         "iban" => "PL83101010230000261395100000",
         "bic" => "NBPLPLPWXXX",
         "account_holder" => "Holder name",
@@ -219,6 +225,7 @@ JSON;
         "currency":"EUR",
         "card_type":"Visa",
         "payment_processor":"stripe",
+        "type":"single",
         "transaction_id":"ch_1NHwmdLnnERTfiJAMNHyFjV4",
         "customer_id":"cus_Bb94Wds2n3xCVB",
         "status":"success"
