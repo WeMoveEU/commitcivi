@@ -120,7 +120,6 @@ class CRM_Commitcivi_Logic_DonationStripe extends CRM_Commitcivi_Logic_Donation 
     return civicrm_api3('ContributionRecur', 'create', $params);
   }
 
-
   /**
    * Return contribution status based on status from event.
    *
@@ -135,7 +134,6 @@ class CRM_Commitcivi_Logic_DonationStripe extends CRM_Commitcivi_Logic_Donation 
     ];
     return CRM_Utils_Array::value($donationStatus, $mapping, 'Pending');
   }
-
 
   /**
    * Determine contribution status for recurring based on status from param.

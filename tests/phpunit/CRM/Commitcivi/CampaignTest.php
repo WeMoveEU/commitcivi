@@ -8,7 +8,7 @@ require_once 'BaseTest.php';
 class CRM_Commitcivi_CampaignTest extends CRM_Commitcivi_BaseTest {
 
   public function testExistingCampaign() {
-    $event = new CRM_Commitcivi_Model_Event($this->anonymousOneOffEvent());
+    $event = new CRM_Commitcivi_Model_Event($this->anonymousEvent());
     $processor = new CRM_Commitcivi_EventProcessor();
     $campaignId = $processor->campaign($event);
     $this->assertGreaterThan(0, $campaignId);

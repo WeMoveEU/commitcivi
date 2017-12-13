@@ -8,7 +8,7 @@ require_once 'BaseTest.php';
 class CRM_Commitcivi_ContactTest extends CRM_Commitcivi_BaseTest {
 
   public function testCreateAnonymous() {
-    $event = new CRM_Commitcivi_Model_Event($this->anonymousOneOffEvent());
+    $event = new CRM_Commitcivi_Model_Event($this->anonymousEvent());
     $processor = new CRM_Commitcivi_EventProcessor();
     $campaignId = $processor->campaign($event);
     $contactId = $processor->contact($event, $campaignId);
@@ -16,7 +16,7 @@ class CRM_Commitcivi_ContactTest extends CRM_Commitcivi_BaseTest {
   }
 
   public function testCreateContactWithOldStyle() {
-    $event = new CRM_Commitcivi_Model_Event($this->oneOffStripeOldStyleEvent());
+    $event = new CRM_Commitcivi_Model_Event($this->singleStripeOldStyleEvent());
     $processor = new CRM_Commitcivi_EventProcessor();
     $campaignId = $processor->campaign($event);
     $contactId = $processor->contact($event, $campaignId);
@@ -24,7 +24,7 @@ class CRM_Commitcivi_ContactTest extends CRM_Commitcivi_BaseTest {
   }
 
   public function testCreateNew() {
-    $event = new CRM_Commitcivi_Model_Event($this->oneOffStripeOldStyleEvent());
+    $event = new CRM_Commitcivi_Model_Event($this->singleStripeOldStyleEvent());
     $event->contact->email = time() . '@speakcivi.com';
     $processor = new CRM_Commitcivi_EventProcessor();
     $campaignId = $processor->campaign($event);
@@ -33,7 +33,7 @@ class CRM_Commitcivi_ContactTest extends CRM_Commitcivi_BaseTest {
   }
 
   public function testUpdateExisting() {
-    $event = new CRM_Commitcivi_Model_Event($this->oneOffStripeExistingContactEvent());
+    $event = new CRM_Commitcivi_Model_Event($this->singleStripeExistingContactEvent());
     $processor = new CRM_Commitcivi_EventProcessor();
     $campaignId = $processor->campaign($event);
     $contactId = $processor->contact($event, $campaignId);

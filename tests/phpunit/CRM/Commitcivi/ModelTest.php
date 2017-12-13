@@ -17,7 +17,7 @@ class CRM_Commitcivi_ModelTest extends CRM_Commitcivi_BaseTest {
   }
 
   public function testContactWithAllFieldsInOldStyle() {
-    $event = new CRM_Commitcivi_Model_Event($this->oneOffStripeOldStyleEvent());
+    $event = new CRM_Commitcivi_Model_Event($this->singleStripeOldStyleEvent());
     $this->assertEquals('Test', $event->contact->firstname);
     $this->assertEquals('Testowski', $event->contact->lastname);
     $this->assertEquals('test+t1@example.com', $event->contact->email);
@@ -39,7 +39,7 @@ class CRM_Commitcivi_ModelTest extends CRM_Commitcivi_BaseTest {
   }
 
   public function testDonationOneOffInOldStyle() {
-    $event = new CRM_Commitcivi_Model_Event($this->oneOffStripeOldStyleEvent());
+    $event = new CRM_Commitcivi_Model_Event($this->singleStripeOldStyleEvent());
     $this->assertEquals(15.67, $event->donation->amount, '', 0.001);
     $this->assertEquals(0.17, $event->donation->amountCharged, '', 0.001);
     $this->assertEquals('EUR', $event->donation->currency);

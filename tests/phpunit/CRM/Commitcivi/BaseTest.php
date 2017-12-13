@@ -154,7 +154,7 @@ JSON;
     return json_decode($this->recurringStripeSecondJson());
   }
 
-  private function oneOffStripeExistingContactJson() {
+  private function singleStripeExistingContactJson() {
     return <<<JSON
     {
       "action_type":"donate",
@@ -193,11 +193,11 @@ JSON;
 JSON;
   }
 
-  protected function oneOffStripeExistingContactEvent() {
-    return json_decode($this->oneOffStripeExistingContactJson());
+  protected function singleStripeExistingContactEvent() {
+    return json_decode($this->singleStripeExistingContactJson());
   }
 
-  private function oneOffStripeOldStyleJson() {
+  private function singleStripeOldStyleJson() {
     return <<<JSON
     {
       "action_type":"donate",
@@ -236,8 +236,8 @@ JSON;
 JSON;
   }
 
-  protected function oneOffStripeOldStyleEvent() {
-    return json_decode($this->oneOffStripeOldStyleJson());
+  protected function singleStripeOldStyleEvent() {
+    return json_decode($this->singleStripeOldStyleJson());
   }
 
   private function singleSepaJson() {
@@ -334,7 +334,7 @@ JSON;
    *
    * @return string
    */
-  protected function anonymousOneOffJson() {
+  protected function anonymousJson() {
     return <<<JSON
     {
       "action_type":"donate",
@@ -377,8 +377,8 @@ JSON;
    *
    * @return mixed
    */
-  protected function anonymousOneOffEvent() {
-    return json_decode($this->anonymousOneOffJson());
+  protected function anonymousEvent() {
+    return json_decode($this->anonymousJson());
   }
 
 }
