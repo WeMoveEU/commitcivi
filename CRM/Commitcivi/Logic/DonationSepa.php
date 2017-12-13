@@ -15,10 +15,10 @@ class CRM_Commitcivi_Logic_DonationSepa extends CRM_Commitcivi_Logic_Donation {
   public function sepa(CRM_Commitcivi_Model_Event $event, $contactId, $campaignId) {
     $event->donation->recurringId;
     if ($this->isRecurring($event->donation->type)) {
-      return $this->sepaRecurring($event, $contactId, $campaignId);
+      return $this->setRecurring($event, $contactId, $campaignId);
     }
     else {
-      return $this->sepaSingle($event, $contactId, $campaignId);
+      return $this->setSingle($event, $contactId, $campaignId);
     }
   }
 
@@ -30,9 +30,9 @@ class CRM_Commitcivi_Logic_DonationSepa extends CRM_Commitcivi_Logic_Donation {
    * @return mixed
    * @throws \CiviCRM_API3_Exception
    */
-  private function sepaRecurring(CRM_Commitcivi_Model_Event $event, $contactId, $campaignId) {
+  private function setRecurring(CRM_Commitcivi_Model_Event $event, $contactId, $campaignId) {
     if (!$recur = $this->findRecurring($event->donation->recurringId)) {
-      $recur = $this->sepaCreateRecurring($event, $contactId, $campaignId);
+      $recur = $this->recurring($event, $contactId, $campaignId);
     }
     return $recur['id'];
   }
@@ -45,7 +45,7 @@ class CRM_Commitcivi_Logic_DonationSepa extends CRM_Commitcivi_Logic_Donation {
    * @return array
    * @throws \CiviCRM_API3_Exception
    */
-  private function sepaCreateRecurring(CRM_Commitcivi_Model_Event $event, $contactId, $campaignId) {
+  private function recurring(CRM_Commitcivi_Model_Event $event, $contactId, $campaignId) {
     $paymentProcessorId = CRM_Commitcivi_Settings::paymentProcessorId();
     $mandateType = 'RCUR';
     $params_mandate = [
@@ -76,9 +76,9 @@ class CRM_Commitcivi_Logic_DonationSepa extends CRM_Commitcivi_Logic_Donation {
    * @return array
    * @throws \CiviCRM_API3_Exception
    */
-  private function sepaSingle(CRM_Commitcivi_Model_Event $event, $contactId, $campaignId) {
+  private function setSingle(CRM_Commitcivi_Model_Event $event, $contactId, $campaignId) {
     if (!$contrib = $this->find($event->donation->transactionId)) {
-      return $this->sepaCreateSingle($event, $contactId, $campaignId);
+      return $this->single($event, $contactId, $campaignId);
     }
     return $contrib;
   }
@@ -91,7 +91,7 @@ class CRM_Commitcivi_Logic_DonationSepa extends CRM_Commitcivi_Logic_Donation {
    * @return array
    * @throws \CiviCRM_API3_Exception
    */
-  private function sepaCreateSingle(CRM_Commitcivi_Model_Event $event, $contactId, $campaignId) {
+  private function single(CRM_Commitcivi_Model_Event $event, $contactId, $campaignId) {
     $paymentProcessorId = CRM_Commitcivi_Settings::paymentProcessorId();
     $mandateType = 'OOFF';
     $params_mandate = [

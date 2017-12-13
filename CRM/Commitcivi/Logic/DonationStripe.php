@@ -109,7 +109,7 @@ class CRM_Commitcivi_Logic_DonationStripe extends CRM_Commitcivi_Logic_Donation 
       'start_date' => $event->createDate,
       'create_date' => $event->createDate,
       'trxn_id' => $event->donation->transactionId,
-      'contribution_status_id' => $this->determineRecurringStatus($event->donation->status),
+      'contribution_status_id' => $this->recurringStatus($event->donation->status),
       'financial_type_id' => $this->financialTypeId,
       'payment_instrument_id' => $this->paymentInstrumentId,
       'campaign_id' => $campaignId,
@@ -144,7 +144,7 @@ class CRM_Commitcivi_Logic_DonationStripe extends CRM_Commitcivi_Logic_Donation 
    *
    * @return mixed
    */
-  private function determineRecurringStatus($status) {
+  private function recurringStatus($status) {
     return $this->mapRecurringStatus[$status];
   }
 
