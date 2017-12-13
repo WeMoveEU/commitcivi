@@ -2,6 +2,8 @@
 
 class CRM_Commitcivi_Logic_Settings {
 
+  const CACHE_PREFIX = 'eu.wemove.commitcharge';
+
   /**
    * Get id of Members group.
    *
@@ -90,6 +92,23 @@ class CRM_Commitcivi_Logic_Settings {
    */
   public static function languageTagNamePrefix() {
     return Civi::settings()->get('language_tag_name_prefix');
+  }
+
+  /**
+   * Get payment processor id.
+   *
+   * @return int|mixed
+   * @throws \CiviCRM_API3_Exception
+   */
+  public static function paymentProcessorId() {
+    $key = self::CACHE_PREFIX . __FUNCTION__;
+    $cache = Civi::cache()->get($key);
+    if (!isset($cache)) {
+      $id = CRM_Commitcivi_Utils_PaymentProcessor::set();
+      Civi::cache()->set($key, $id);
+      return $id;
+    }
+    return $cache;
   }
 
 }

@@ -46,7 +46,7 @@ class CRM_Commitcivi_Logic_DonationSepa extends CRM_Commitcivi_Logic_Donation {
    * @throws \CiviCRM_API3_Exception
    */
   private function recurring(CRM_Commitcivi_Model_Event $event, $contactId, $campaignId) {
-    $paymentProcessorId = CRM_Commitcivi_Settings::paymentProcessorId();
+    $paymentProcessorId = CRM_Commitcivi_Logic_Settings::paymentProcessorId();
     $mandateType = 'RCUR';
     $params_mandate = [
       'sequential' => 1,
@@ -92,7 +92,7 @@ class CRM_Commitcivi_Logic_DonationSepa extends CRM_Commitcivi_Logic_Donation {
    * @throws \CiviCRM_API3_Exception
    */
   private function single(CRM_Commitcivi_Model_Event $event, $contactId, $campaignId) {
-    $paymentProcessorId = CRM_Commitcivi_Settings::paymentProcessorId();
+    $paymentProcessorId = CRM_Commitcivi_Logic_Settings::paymentProcessorId();
     $mandateType = 'OOFF';
     $params_mandate = [
       'sequential' => 1,
