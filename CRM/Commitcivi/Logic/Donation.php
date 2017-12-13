@@ -68,7 +68,7 @@ class CRM_Commitcivi_Logic_Donation {
    * @return array
    * @throws \CiviCRM_API3_Exception
    */
-  public function create(CRM_Commitcivi_Model_Event $event, $contactId, $campaignId) {
+  public function stripe(CRM_Commitcivi_Model_Event $event, $contactId, $campaignId) {
     if ($this->isRecurring($event->donation->type)) {
       $recurId = $this->setRecurring($event, $contactId, $campaignId);
       return $this->setSingle($event, $contactId, $campaignId, $recurId);

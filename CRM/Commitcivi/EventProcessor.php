@@ -18,7 +18,7 @@ class CRM_Commitcivi_EventProcessor {
         break;
 
       default:
-        $result = $donation->create($event, $contactId, $campaignId);
+        $result = $donation->stripe($event, $contactId, $campaignId);
         break;
     }
 
