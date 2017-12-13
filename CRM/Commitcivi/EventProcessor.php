@@ -11,13 +11,14 @@ class CRM_Commitcivi_EventProcessor {
   public function process(CRM_Commitcivi_Model_Event $event) {
     $campaignId = $this->campaign($event);
     $contactId = $this->contact($event, $campaignId);
-    $donation = new CRM_Commitcivi_Logic_Donation();
     switch ($event->donation->paymentProcessor) {
       case CRM_Commitcivi_Model_Donation::PAYMENT_PROCESSOR_SEPA:
+        $donation = new CRM_Commitcivi_Logic_DonationSepa();
         $result = $donation->sepa($event, $contactId, $campaignId);
         break;
 
       default:
+        $donation = new CRM_Commitcivi_Logic_DonationStripe();
         $result = $donation->stripe($event, $contactId, $campaignId);
         break;
     }
