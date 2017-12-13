@@ -10,7 +10,7 @@ class CRM_Commitcivi_Logic_Donation {
 
   private $paymentInstrumentId = "Credit Card";
 
-  private static $mapRecurringStatus = [
+  private $mapRecurringStatus = [
     'success' => 5, // in progress
     'destroy' => 3, // cancelled
   ];
@@ -37,8 +37,39 @@ class CRM_Commitcivi_Logic_Donation {
    * @throws \CiviCRM_API3_Exception
    */
   public function sepa(CRM_Commitcivi_Model_Event $event, $contactId, $campaignId) {
-    $financialTypeId = 1; // Donation
-    $frequencyInterval = 1;
+    $event->donation->recurringId;
+    if ($this->isRecurring($event->donation->type)) {
+      return $this->sepaRecurring($event, $contactId, $campaignId);
+    }
+    else {
+      return $this->sepaSingle($event, $contactId, $campaignId);
+    }
+  }
+
+  /**
+   * @param \CRM_Commitcivi_Model_Event $event
+   * @param $contactId
+   * @param $campaignId
+   *
+   * @return mixed
+   * @throws \CiviCRM_API3_Exception
+   */
+  private function sepaRecurring(CRM_Commitcivi_Model_Event $event, $contactId, $campaignId) {
+    if (!$recur = $this->findRecurring($event->donation->recurringId)) {
+      $recur = $this->sepaCreateRecurring($event, $contactId, $campaignId);
+    }
+    return $recur['id'];
+  }
+
+  /**
+   * @param \CRM_Commitcivi_Model_Event $event
+   * @param $contactId
+   * @param $campaignId
+   *
+   * @return array
+   * @throws \CiviCRM_API3_Exception
+   */
+  private function sepaCreateRecurring(CRM_Commitcivi_Model_Event $event, $contactId, $campaignId) {
     $paymentProcessorId = CRM_Commitcivi_Settings::paymentProcessorId();
     $mandateType = 'RCUR';
     $params_mandate = [
@@ -51,10 +82,57 @@ class CRM_Commitcivi_Logic_Donation {
       'create_date' => date('Y-m-d'),
       'amount' => $event->donation->amount,
       'currency' => $event->donation->currency,
-      'frequency_interval' => $frequencyInterval,
-      'financial_type_id' => $financialTypeId,
+      'frequency_interval' => $this->frequencyInterval,
+      'financial_type_id' => $this->financialTypeId,
       'payment_processor_id' => $paymentProcessorId,
       'campaign_id' => $campaignId,
+      'trxn_id' => $event->donation->recurringId,
+      'source' => $event->actionName,
+    ];
+    return civicrm_api3('SepaMandate', 'createfull', $params_mandate);
+  }
+
+  /**
+   * @param \CRM_Commitcivi_Model_Event $event
+   * @param $contactId
+   * @param $campaignId
+   *
+   * @return array
+   * @throws \CiviCRM_API3_Exception
+   */
+  private function sepaSingle(CRM_Commitcivi_Model_Event $event, $contactId, $campaignId) {
+    if (!$contrib = $this->find($event->donation->transactionId)) {
+      return $this->sepaCreateSingle($event, $contactId, $campaignId);
+    }
+    return $contrib;
+  }
+
+  /**
+   * @param \CRM_Commitcivi_Model_Event $event
+   * @param $contactId
+   * @param $campaignId
+   *
+   * @return array
+   * @throws \CiviCRM_API3_Exception
+   */
+  private function sepaCreateSingle(CRM_Commitcivi_Model_Event $event, $contactId, $campaignId) {
+    $paymentProcessorId = CRM_Commitcivi_Settings::paymentProcessorId();
+    $mandateType = 'OOFF';
+    $params_mandate = [
+      'sequential' => 1,
+      'contact_id' => $contactId,
+      'type' => $mandateType,
+      'iban' => $event->donation->iban,
+      'bic' => $event->donation->bic,
+      'start_date' => $event->createDate,
+      'create_date' => date('Y-m-d'),
+      'amount' => $event->donation->amount,
+      'currency' => $event->donation->currency,
+      'frequency_interval' => $this->frequencyInterval,
+      'financial_type_id' => $this->financialTypeId,
+      'payment_processor_id' => $paymentProcessorId,
+      'campaign_id' => $campaignId,
+      'trxn_id' => $event->donation->transactionId,
       'source' => $event->actionName,
     ];
     return civicrm_api3('SepaMandate', 'createfull', $params_mandate);
@@ -89,8 +167,8 @@ class CRM_Commitcivi_Logic_Donation {
    * @throws \CiviCRM_API3_Exception
    */
   private function setRecurring(CRM_Commitcivi_Model_Event $event, $contactId, $campaignId) {
-    if (!$recur = self::findRecurring($event->donation->transactionId)) {
-      $recur = self::recurring($event, $contactId, $campaignId);
+    if (!$recur = $this->findRecurring($event->donation->recurringId)) {
+      $recur = $this->recurring($event, $contactId, $campaignId);
     }
     return $recur['id'];
   }
@@ -155,7 +233,7 @@ class CRM_Commitcivi_Logic_Donation {
    * @return mixed
    */
   private function determineRecurringStatus($status) {
-    return self::$mapRecurringStatus[$status];
+    return $this->mapRecurringStatus[$status];
   }
 
   /**
