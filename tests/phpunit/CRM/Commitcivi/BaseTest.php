@@ -66,6 +66,50 @@ JSON;
     return json_decode($this->oneOffStripeJson());
   }
 
+  protected function recurringStripeJson() {
+    return <<<JSON
+    {
+      "action_type":"donate",
+      "action_technical_type":"cc.wemove.eu:donate",
+      "create_dt":"2017-12-13T11:47:56.531Z",
+      "action_name":"campaign-PL",
+      "external_id":50002,
+      "contact":{
+        "firstname":"Test2",
+        "lastname":"Testowski2",
+        "emails":[{"email":"test+t2@example.com"}],
+        "addresses":[
+          {
+            "zip":"01-234",
+            "country":"pl"
+          }
+        ]
+      },
+      "donation":{
+        "amount":23,
+        "amount_charged":0,
+        "currency":"EUR",
+        "card_type":"Visa",
+        "payment_processor":"stripe",
+        "type":"recurring",
+        "recurring_id":"cc_1",
+        "transaction_id":"ch_1NHwmdLnnERTfiJAMNHyFjAB",
+        "customer_id":"cus_Bb94Wds2n3xCVB",
+        "status":"success"
+      },
+      "source":{
+        "source":"phpunit",
+        "medium":"phpstorm",
+        "campaign":"testing"
+      }
+    }
+JSON;
+  }
+
+  protected function recurringStripeEvent() {
+    return json_decode($this->recurringStripeJson());
+  }
+
   protected function oneOffStripeExistingContactJson() {
     return <<<JSON
     {
