@@ -11,6 +11,7 @@ class CRM_Commitcivi_Logic_Activity {
    * @param int $parentActivityId
    *
    * @return mixed
+   * @throws \CiviCRM_API3_Exception
    */
   public function join($contactId, $subject = '', $campaignId = 0, $parentActivityId = 0) {
     $activityTypeId = CRM_Commitcivi_Logic_Settings::joinActivityTypeId();

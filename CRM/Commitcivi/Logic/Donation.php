@@ -42,6 +42,7 @@ class CRM_Commitcivi_Logic_Donation {
    * @param int $campaignId
    *
    * @return array
+   * @throws \CiviCRM_API3_Exception
    */
   public function create(CRM_Commitcivi_Model_Event $event, $contactId, $campaignId) {
     $financialTypeId = 1;

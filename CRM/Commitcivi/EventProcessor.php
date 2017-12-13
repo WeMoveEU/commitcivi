@@ -25,6 +25,7 @@ class CRM_Commitcivi_EventProcessor {
    * @param \CRM_Commitcivi_Model_Event $event
    *
    * @return mixed
+   * @throws \CiviCRM_API3_Exception
    */
   public function campaign(CRM_Commitcivi_Model_Event $event) {
     $params = [
@@ -43,6 +44,7 @@ class CRM_Commitcivi_EventProcessor {
    * @param $campaignId
    *
    * @return mixed
+   * @throws \CiviCRM_API3_Exception
    */
   public function contact(CRM_Commitcivi_Model_Event $event, $campaignId) {
     $params = [

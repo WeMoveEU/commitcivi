@@ -10,6 +10,7 @@ class CRM_Commitcivi_Logic_Campaign {
    * @param bool $countActivities
    *
    * @return array
+   * @throws \CiviCRM_API3_Exception
    */
   public function get($id, $useLocalId = FALSE, $countActivities = TRUE) {
     if ($id) {

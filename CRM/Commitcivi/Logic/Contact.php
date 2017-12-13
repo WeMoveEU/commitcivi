@@ -35,6 +35,8 @@ class CRM_Commitcivi_Logic_Contact {
    *
    * @param int $contactId
    * @param array $contactParams
+   *
+   * @throws \CiviCRM_API3_Exception
    */
   public function set($contactId, $contactParams) {
     $params = array(

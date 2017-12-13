@@ -13,6 +13,7 @@ class CRM_Commitcivi_Logic_CampaignCache extends CRM_Commitcivi_Logic_Cache {
    * @param int $id civicrm_campaign.id
    *
    * @return array
+   * @throws \CiviCRM_API3_Exception
    */
   public static function getByLocalId($id) {
     if ($cache = self::get(self::TYPE_CAMPAIGN_LOCAL, $id)) {
@@ -31,6 +32,7 @@ class CRM_Commitcivi_Logic_CampaignCache extends CRM_Commitcivi_Logic_Cache {
    * @param array $params
    *
    * @return array
+   * @throws \CiviCRM_API3_Exception
    */
   public static function getByExternalId($params) {
     if ($cache = self::get(self::TYPE_CAMPAIGN_EXTERNAL, $params['external_identifier'])) {

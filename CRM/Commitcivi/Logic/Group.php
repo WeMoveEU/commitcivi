@@ -30,6 +30,7 @@ class CRM_Commitcivi_Logic_Group {
    * @param $groupId
    *
    * @return int
+   * @throws \CiviCRM_API3_Exception
    */
   public function isGroupContactAdded($contactId, $groupId) {
     return $this->isGroupContact($contactId, $groupId, "Added");
@@ -43,6 +44,7 @@ class CRM_Commitcivi_Logic_Group {
    * @param $groupId
    *
    * @return int
+   * @throws \CiviCRM_API3_Exception
    */
   public function isGroupContactRemoved($contactId, $groupId) {
     return $this->isGroupContact($contactId, $groupId, "Removed");
@@ -74,6 +76,8 @@ class CRM_Commitcivi_Logic_Group {
    *
    * @param $contactId
    * @param $groupId
+   *
+   * @throws \CiviCRM_API3_Exception
    */
   public function setGroupContactAdded($contactId, $groupId) {
     $this->setGroupContact($contactId, $groupId, "Added");
@@ -85,6 +89,8 @@ class CRM_Commitcivi_Logic_Group {
    *
    * @param $contactId
    * @param $groupId
+   *
+   * @throws \CiviCRM_API3_Exception
    */
   public function setGroupContactRemoved($contactId, $groupId) {
     $this->setGroupContact($contactId, $groupId, "Removed");
@@ -130,7 +136,10 @@ class CRM_Commitcivi_Logic_Group {
    *
    * @param int $contactId
    * @param string $language Language in format en, fr, de, pl etc.
-   * @return int 1: set given language group, 2: set default language group, 0: no changes
+   *
+   * @return int 1: set given language group, 2: set default language group, 0:
+   *   no changes
+   * @throws \CiviCRM_API3_Exception
    */
   public function setLanguageGroup($contactId, $language) {
     if ($language) {
@@ -160,6 +169,7 @@ class CRM_Commitcivi_Logic_Group {
    * @param string $languageGroupNameSuffix
    *
    * @return int
+   * @throws \CiviCRM_API3_Exception
    */
   public function findLanguageGroupId($language, $languageGroupNameSuffix) {
     $result = civicrm_api3('Group', 'get', array(

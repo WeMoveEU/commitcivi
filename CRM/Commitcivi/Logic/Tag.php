@@ -7,6 +7,8 @@ class CRM_Commitcivi_Logic_Tag {
    *
    * @param int $contactId
    * @param string $language Language in format en, fr, de, pl etc.
+   *
+   * @throws \CiviCRM_API3_Exception
    */
   public function setLanguageTag($contactId, $language) {
     if ($language) {
