@@ -63,6 +63,7 @@ class CRM_Commitcivi_Logic_DonationStripe extends CRM_Commitcivi_Logic_Donation 
    * @throws \CiviCRM_API3_Exception
    */
   private function single(CRM_Commitcivi_Model_Event $event, $contactId, $campaignId, $recurId = 0) {
+    $paymentProcessorId = CRM_Commitcivi_Logic_Settings::paymentProcessorId();
     $params = [
       'sequential' => 1,
       'source_contact_id' => $contactId,
@@ -70,6 +71,7 @@ class CRM_Commitcivi_Logic_DonationStripe extends CRM_Commitcivi_Logic_Donation 
       'contribution_campaign_id' => $campaignId,
       'financial_type_id' => $this->financialTypeId,
       'payment_instrument_id' => $this->paymentInstrumentId,
+      'payment_processor_id' => $paymentProcessorId,
       'receive_date' => $event->createDate,
       'total_amount' => $event->donation->amount,
       'fee_amount' => $event->donation->amountCharged,
@@ -99,6 +101,7 @@ class CRM_Commitcivi_Logic_DonationStripe extends CRM_Commitcivi_Logic_Donation 
    * @throws \CiviCRM_API3_Exception
    */
   private function recurring(CRM_Commitcivi_Model_Event $event, $contactId, $campaignId) {
+    $paymentProcessorId = CRM_Commitcivi_Logic_Settings::paymentProcessorId();
     $params = [
       'sequential' => 1,
       'contact_id' => $contactId,
@@ -112,6 +115,7 @@ class CRM_Commitcivi_Logic_DonationStripe extends CRM_Commitcivi_Logic_Donation 
       'contribution_status_id' => $this->recurringStatus($event->donation->status),
       'financial_type_id' => $this->financialTypeId,
       'payment_instrument_id' => $this->paymentInstrumentId,
+      'payment_processor_id' => $paymentProcessorId,
       'campaign_id' => $campaignId,
     ];
     if ($event->donation->status == 'destroy') {
