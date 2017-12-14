@@ -7,11 +7,23 @@ class CRM_Commitcivi_Upgrader extends CRM_Commitcivi_Upgrader_Base {
 
   /**
    * @return bool
-   * @throws \CiviCRM_API3_Exception
    */
   public function upgrade_011_payment_processor() {
-    CRM_Commitcivi_Utils_PaymentProcessor::set(0);
-    CRM_Commitcivi_Utils_PaymentProcessor::set(1);
+    // comment because of change of method definition
+    // CRM_Commitcivi_Utils_PaymentProcessor::set(0);
+    // CRM_Commitcivi_Utils_PaymentProcessor::set(1);
+    return TRUE;
+  }
+
+  /**
+   * @return bool
+   * @throws \CiviCRM_API3_Exception
+   */
+  public function upgrade_012_payment_processors() {
+    CRM_Commitcivi_Utils_PaymentProcessor::set(CRM_Commitcivi_Logic_Settings::PAYMENT_PROCESSOR_SEPA, 0);
+    CRM_Commitcivi_Utils_PaymentProcessor::set(CRM_Commitcivi_Logic_Settings::PAYMENT_PROCESSOR_SEPA, 1);
+    CRM_Commitcivi_Utils_PaymentProcessor::set(CRM_Commitcivi_Logic_Settings::PAYMENT_PROCESSOR_CARD, 0);
+    CRM_Commitcivi_Utils_PaymentProcessor::set(CRM_Commitcivi_Logic_Settings::PAYMENT_PROCESSOR_CARD, 1);
     return TRUE;
   }
 

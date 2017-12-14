@@ -63,7 +63,7 @@ class CRM_Commitcivi_Logic_DonationStripe extends CRM_Commitcivi_Logic_Donation 
    * @throws \CiviCRM_API3_Exception
    */
   private function single(CRM_Commitcivi_Model_Event $event, $contactId, $campaignId, $recurId = 0) {
-    $paymentProcessorId = CRM_Commitcivi_Logic_Settings::paymentProcessorId();
+    $paymentProcessorId = CRM_Commitcivi_Logic_Settings::paymentProcessorIdCard();
     $params = [
       'sequential' => 1,
       'source_contact_id' => $contactId,
@@ -101,7 +101,7 @@ class CRM_Commitcivi_Logic_DonationStripe extends CRM_Commitcivi_Logic_Donation 
    * @throws \CiviCRM_API3_Exception
    */
   private function recurring(CRM_Commitcivi_Model_Event $event, $contactId, $campaignId) {
-    $paymentProcessorId = CRM_Commitcivi_Logic_Settings::paymentProcessorId();
+    $paymentProcessorId = CRM_Commitcivi_Logic_Settings::paymentProcessorIdCard();
     $params = [
       'sequential' => 1,
       'contact_id' => $contactId,

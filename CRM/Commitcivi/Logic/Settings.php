@@ -3,6 +3,8 @@
 class CRM_Commitcivi_Logic_Settings {
 
   const CACHE_PREFIX = 'eu.wemove.commitcharge';
+  const PAYMENT_PROCESSOR_CARD = 'CommitChange-card';
+  const PAYMENT_PROCESSOR_SEPA = 'CommitChange-sepa';
 
   /**
    * Get id of Members group.
@@ -95,16 +97,33 @@ class CRM_Commitcivi_Logic_Settings {
   }
 
   /**
-   * Get payment processor id.
+   * Get payment processor id for Sepa.
    *
    * @return int|mixed
    * @throws \CiviCRM_API3_Exception
    */
-  public static function paymentProcessorId() {
+  public static function paymentProcessorIdSepa() {
     $key = self::CACHE_PREFIX . __FUNCTION__;
     $cache = Civi::cache()->get($key);
     if (!isset($cache)) {
-      $id = CRM_Commitcivi_Utils_PaymentProcessor::set();
+      $id = CRM_Commitcivi_Utils_PaymentProcessor::set(self::PAYMENT_PROCESSOR_SEPA);
+      Civi::cache()->set($key, $id);
+      return $id;
+    }
+    return $cache;
+  }
+
+  /**
+   * Get payment processor id for Stripe(Card)
+   *
+   * @return int|mixed
+   * @throws \CiviCRM_API3_Exception
+   */
+  public static function paymentProcessorIdCard() {
+    $key = self::CACHE_PREFIX . __FUNCTION__;
+    $cache = Civi::cache()->get($key);
+    if (!isset($cache)) {
+      $id = CRM_Commitcivi_Utils_PaymentProcessor::set(self::PAYMENT_PROCESSOR_CARD);
       Civi::cache()->set($key, $id);
       return $id;
     }
