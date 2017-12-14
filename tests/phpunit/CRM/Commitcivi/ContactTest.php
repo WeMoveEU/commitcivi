@@ -15,6 +15,14 @@ class CRM_Commitcivi_ContactTest extends CRM_Commitcivi_BaseTest {
     $this->assertGreaterThan(0, $contactId);
   }
 
+  public function testDeletedContact() {
+    $event = new CRM_Commitcivi_Model_Event($this->deletedContactEvent());
+    $processor = new CRM_Commitcivi_EventProcessor();
+    $campaignId = $processor->campaign($event);
+    $contactId = $processor->contact($event, $campaignId);
+    $this->assertEquals(208, $contactId);
+  }
+
   public function testCreateAnonymous() {
     $event = new CRM_Commitcivi_Model_Event($this->anonymousEvent());
     $processor = new CRM_Commitcivi_EventProcessor();

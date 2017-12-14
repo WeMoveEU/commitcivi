@@ -11,21 +11,20 @@ class CRM_Commitcivi_Logic_Contact {
    * @param $email
    *
    * @return array
-   * @throws \CiviCRM_API3_Exception
    */
   public function getByEmail($email) {
-    $ids = array();
-    $params = array(
-      'sequential' => 1,
-      'is_primary' => 1,
-      'email' => $email,
-      'return' => "contact_id",
-    );
-    $result = civicrm_api3('Email', 'get', $params);
-    if ($result['count'] > 0) {
-      foreach ($result['values'] as $contact) {
-        $ids[$contact['contact_id']] = $contact['contact_id'];
-      }
+    $query = "SELECT e.contact_id
+              FROM civicrm_email e
+                JOIN civicrm_contact c ON e.contact_id = c.id
+              WHERE email = %1 AND c.is_deleted = 0
+              ORDER BY e.contact_id ";
+    $params = [
+      1 => [$email, 'String'],
+    ];
+    $dao = CRM_Core_DAO::executeQuery($query, $params);
+    $ids = [];
+    while ($dao->fetch()) {
+      $ids[$dao->contact_id] = $dao->contact_id;
     }
     return $ids;
   }

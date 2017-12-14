@@ -424,4 +424,47 @@ JSON;
     return json_decode($this->nullableContactJson());
   }
 
+  private function deletedContactJson() {
+    return <<<JSON
+    {
+      "action_type":"donate",
+      "action_technical_type":"cc.wemove.eu:donate",
+      "create_dt":"2017-12-14T10:04:56.531Z",
+      "action_name":"campaign-PL",
+      "external_id":50002,
+      "contact":{
+        "firstname":"Test",
+        "lastname":"Testowski",
+        "emails":[{"email":"tomasz123@cos.pl"}],
+        "addresses":[
+          {
+            "zip":"01-234",
+            "country":"pl"
+          }
+        ]
+      },
+      "donation":{
+        "amount":25.67,
+        "amount_charged":0.17,
+        "currency":"EUR",
+        "card_type":"Visa",
+        "payment_processor":"stripe",
+        "type":"single",
+        "transaction_id":"ch_1NHwmdLnnERTfiJAMNHyFjVB",
+        "customer_id":"cus_Bb94Wds2n3xCVB",
+        "status":"success"
+      },
+      "source":{
+        "source":"phpunit",
+        "medium":"phpstorm",
+        "campaign":"testing"
+      }
+    }
+JSON;
+  }
+
+  protected function deletedContactEvent() {
+    return json_decode($this->deletedContactJson());
+  }
+
 }
