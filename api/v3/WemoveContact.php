@@ -5,7 +5,7 @@ function _civicrm_api3_wemove_contact_create_spec(&$spec) {
     'title' => ts('First name'),
     'description' => ts('First name'),
     'type' => CRM_Utils_Type::T_STRING,
-    'api.required' => 1,
+    'api.required' => 0,
     'api.default' => '',
   ];
   $spec['lastname'] = [
@@ -13,7 +13,7 @@ function _civicrm_api3_wemove_contact_create_spec(&$spec) {
     'title' => ts('Last name'),
     'description' => ts('Last name'),
     'type' => CRM_Utils_Type::T_STRING,
-    'api.required' => 1,
+    'api.required' => 0,
     'api.default' => '',
   ];
   $spec['email'] = [

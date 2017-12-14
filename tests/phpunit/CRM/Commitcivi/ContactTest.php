@@ -7,6 +7,14 @@ require_once 'BaseTest.php';
  */
 class CRM_Commitcivi_ContactTest extends CRM_Commitcivi_BaseTest {
 
+  public function testNullableContact() {
+    $event = new CRM_Commitcivi_Model_Event($this->nullableContactEvent());
+    $processor = new CRM_Commitcivi_EventProcessor();
+    $campaignId = $processor->campaign($event);
+    $contactId = $processor->contact($event, $campaignId);
+    $this->assertGreaterThan(0, $contactId);
+  }
+
   public function testCreateAnonymous() {
     $event = new CRM_Commitcivi_Model_Event($this->anonymousEvent());
     $processor = new CRM_Commitcivi_EventProcessor();
