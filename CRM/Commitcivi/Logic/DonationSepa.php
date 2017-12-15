@@ -14,7 +14,11 @@ class CRM_Commitcivi_Logic_DonationSepa extends CRM_Commitcivi_Logic_Donation {
    */
   public function sepa(CRM_Commitcivi_Model_Event $event, $contactId, $campaignId) {
     if ($this->isRecurring($event->donation->type)) {
-      return $this->setRecurring($event, $contactId, $campaignId);
+      $sepaMandate = $this->setRecurring($event, $contactId, $campaignId);
+      $recurId = $sepaMandate['values'][0]['entity_id'];
+      $first = $this->setFirst($recurId, $event, $contactId, $campaignId);
+      $this->match($first['id'], $sepaMandate['id']);
+      return $sepaMandate;
     }
     else {
       return $this->setSingle($event, $contactId, $campaignId);
@@ -65,6 +69,54 @@ class CRM_Commitcivi_Logic_DonationSepa extends CRM_Commitcivi_Logic_Donation {
       'source' => $event->actionName,
     ];
     return civicrm_api3('SepaMandate', 'createfull', $params_mandate);
+  }
+
+  /**
+   * @param $recurId
+   * @param \CRM_Commitcivi_Model_Event $event
+   * @param $contactId
+   * @param $campaignId
+   *
+   * @return array
+   * @throws \CiviCRM_API3_Exception
+   */
+  private function setFirst($recurId, CRM_Commitcivi_Model_Event $event, $contactId, $campaignId) {
+    $params = [
+      'sequential' => 1,
+      'source_contact_id' => $contactId,
+      'contact_id' => $contactId,
+      'contribution_recur_id' => $recurId,
+      'contribution_campaign_id' => $campaignId,
+      'financial_type_id' => $this->financialTypeId,
+      'payment_instrument_id' => $this->paymentInstrumentId,
+      'receive_date' => $event->createDate,
+      'total_amount' => $event->donation->amount,
+      'fee_amount' => $event->donation->amountCharged,
+      'net_amount' => ($event->donation->amount - $event->donation->amountCharged),
+      'trxn_id' => $event->donation->transactionId,
+      'contribution_status' => 'Pending',
+      'currency' => $event->donation->currency,
+      'subject' => $event->actionName,
+      'source' => $event->actionName,
+      'location' => $event->actionTechnicalType,
+    ];
+    $params = $this->setSourceFields($params, $event->utm);
+    return civicrm_api3('Contribution', 'create', $params);
+  }
+
+  /**
+   * @param $contributionFirstId
+   * @param $sepaMandateId
+   *
+   * @throws \CiviCRM_API3_Exception
+   */
+  private function match($contributionFirstId, $sepaMandateId) {
+    $params = [
+      'sequential' => 1,
+      'id' => $sepaMandateId,
+      'first_contribution_id' => $contributionFirstId,
+    ];
+    civicrm_api3('SepaMandate', 'create', $params);
   }
 
   /**
