@@ -98,7 +98,7 @@ class CRM_Commitcivi_DonationTest extends CRM_Commitcivi_BaseTest {
     $this->assertEquals('month', $conrec['frequency_unit']);
     $this->assertEquals(1, $conrec['frequency_interval']);
     $this->assertEquals(2, $conrec['contribution_status_id']);
-    $this->assertEquals(1, $conrec['cycle_day']);
+    $this->assertEquals(CRM_Commitcivi_Logic_DonationSepa::CYCLE_DAY_FIRST, $conrec['cycle_day']);
     $this->assertEquals($campaignId, $conrec['campaign_id']);
   }
 
@@ -116,8 +116,10 @@ class CRM_Commitcivi_DonationTest extends CRM_Commitcivi_BaseTest {
       '2017-12-31T19:07:26Z' => '2018-01-06',
     ];
     foreach ($dates as $full => $expectedDate) {
-      $calculated = $sepa->cycleDate($full);
-      $this->assertEquals($expectedDate, $calculated);
+      $calculatedDate = $sepa->cycleDate($full);
+      $this->assertEquals($expectedDate, $calculatedDate);
+      $calculatedDay = $sepa->cycleDay($full);
+      $this->assertEquals((int) substr($expectedDate, 8, 2), $calculatedDay);
     }
   }
 

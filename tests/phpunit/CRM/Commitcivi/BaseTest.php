@@ -289,7 +289,7 @@ JSON;
     return (object) [
       'action_type' => 'donate',
       'action_technical_type' => 'cc.wemove.eu:donate',
-      'create_dt' => '2017-10-25T13:45:56.531Z',
+      'create_dt' => '2017-10-25T13:45:56Z',
       'action_name' => 'campaign-PL',
       'external_id' => 50001,
       'contact' => (object) [

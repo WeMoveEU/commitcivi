@@ -61,7 +61,7 @@ class CRM_Commitcivi_Logic_DonationSepa extends CRM_Commitcivi_Logic_Donation {
       'bic' => $event->donation->bic,
       'start_date' => $event->createDate,
       'create_date' => $event->createDate,
-      'cycle_day' => self::CYCLE_DAY,
+      'cycle_day' => $this->cycleDay($event->createDate),
       'amount' => $event->donation->amount,
       'currency' => $event->donation->currency,
       'frequency_interval' => $this->frequencyInterval,
@@ -120,6 +120,20 @@ class CRM_Commitcivi_Logic_DonationSepa extends CRM_Commitcivi_Logic_Donation {
       'first_contribution_id' => $contributionFirstId,
     ];
     civicrm_api3('SepaMandate', 'create', $params);
+  }
+
+  /**
+   * @param $date
+   *
+   * @return string
+   */
+  public function cycleDay($date) {
+    $dt = DateTime::createFromFormat('Y-m-d\TH:i:s\Z', $date);
+    $day = $dt->format('d');
+    if ($day >= self::CYCLE_DAY_SECOND || $day < self::CYCLE_DAY_FIRST) {
+      return self::CYCLE_DAY_FIRST;
+    }
+    return self::CYCLE_DAY_SECOND;
   }
 
   /**
