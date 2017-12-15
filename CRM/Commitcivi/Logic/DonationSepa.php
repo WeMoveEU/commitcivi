@@ -2,7 +2,8 @@
 
 class CRM_Commitcivi_Logic_DonationSepa extends CRM_Commitcivi_Logic_Donation {
 
-  const CYCLE_DAY = 21;
+  const CYCLE_DAY_FIRST = 6;
+  const CYCLE_DAY_SECOND = 21;
 
   /**
    * Create a mandate for contact.
@@ -92,7 +93,7 @@ class CRM_Commitcivi_Logic_DonationSepa extends CRM_Commitcivi_Logic_Donation {
       'contribution_campaign_id' => $campaignId,
       'financial_type_id' => $this->financialTypeId,
       'payment_instrument_id' => $this->paymentInstrumentId,
-      'receive_date' => substr($event->createDate, 0, 7) . '-' . self::CYCLE_DAY,
+      'receive_date' => $this->cycleDate($event->createDate),
       'total_amount' => $event->donation->amount,
       'fee_amount' => $event->donation->amountCharged,
       'net_amount' => ($event->donation->amount - $event->donation->amountCharged),
@@ -120,6 +121,23 @@ class CRM_Commitcivi_Logic_DonationSepa extends CRM_Commitcivi_Logic_Donation {
       'first_contribution_id' => $contributionFirstId,
     ];
     civicrm_api3('SepaMandate', 'create', $params);
+  }
+
+  /**
+   * @param $date
+   *
+   * @return string
+   */
+  public function cycleDate($date) {
+    $dt = DateTime::createFromFormat('Y-m-d\TH:i:s\Z', $date);
+    $day = $dt->format('d');
+    if ($day >= self::CYCLE_DAY_SECOND) {
+      return $dt->modify('+1 month')->format('Y-m') . '-' . sprintf('%02d', self::CYCLE_DAY_FIRST);
+    }
+    elseif ($day >= self::CYCLE_DAY_FIRST) {
+      return $dt->format('Y-m') . '-' . sprintf('%02d', self::CYCLE_DAY_SECOND);
+    }
+    return $dt->format('Y-m') . '-' . sprintf('%02d', self::CYCLE_DAY_FIRST);
   }
 
   /**

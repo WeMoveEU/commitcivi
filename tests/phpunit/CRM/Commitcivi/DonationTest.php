@@ -102,4 +102,23 @@ class CRM_Commitcivi_DonationTest extends CRM_Commitcivi_BaseTest {
     $this->assertEquals($campaignId, $conrec['campaign_id']);
   }
 
+  public function testCycleDates() {
+    $sepa = new CRM_Commitcivi_Logic_DonationSepa();
+    $dates = [
+      '2017-12-01T19:07:26Z' => '2017-12-06',
+      '2017-12-03T19:07:26Z' => '2017-12-06',
+      '2017-12-05T19:07:26Z' => '2017-12-06',
+      '2017-12-06T19:07:26Z' => '2017-12-21',
+      '2017-12-13T19:07:26Z' => '2017-12-21',
+      '2017-12-20T19:07:26Z' => '2017-12-21',
+      '2017-12-21T19:07:26Z' => '2018-01-06',
+      '2017-12-22T19:07:26Z' => '2018-01-06',
+      '2017-12-31T19:07:26Z' => '2018-01-06',
+    ];
+    foreach ($dates as $full => $expectedDate) {
+      $calculated = $sepa->cycleDate($full);
+      $this->assertEquals($expectedDate, $calculated);
+    }
+  }
+
 }
