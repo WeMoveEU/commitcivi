@@ -2,6 +2,8 @@
 
 class CRM_Commitcivi_Logic_DonationSepa extends CRM_Commitcivi_Logic_Donation {
 
+  const CYCLE_DAY = 21;
+
   /**
    * Create a mandate for contact.
    *
@@ -58,7 +60,8 @@ class CRM_Commitcivi_Logic_DonationSepa extends CRM_Commitcivi_Logic_Donation {
       'iban' => $event->donation->iban,
       'bic' => $event->donation->bic,
       'start_date' => $event->createDate,
-      'create_date' => date('Y-m-d'),
+      'create_date' => $event->createDate,
+      'cycle_day' => self::CYCLE_DAY,
       'amount' => $event->donation->amount,
       'currency' => $event->donation->currency,
       'frequency_interval' => $this->frequencyInterval,
@@ -89,12 +92,12 @@ class CRM_Commitcivi_Logic_DonationSepa extends CRM_Commitcivi_Logic_Donation {
       'contribution_campaign_id' => $campaignId,
       'financial_type_id' => $this->financialTypeId,
       'payment_instrument_id' => $this->paymentInstrumentId,
-      'receive_date' => $event->createDate,
+      'receive_date' => substr($event->createDate, 0, 7) . '-' . self::CYCLE_DAY,
       'total_amount' => $event->donation->amount,
       'fee_amount' => $event->donation->amountCharged,
       'net_amount' => ($event->donation->amount - $event->donation->amountCharged),
       'trxn_id' => $event->donation->transactionId,
-      'contribution_status' => 'Pending',
+      'contribution_status_id' => 'Pending',
       'currency' => $event->donation->currency,
       'subject' => $event->actionName,
       'source' => $event->actionName,
