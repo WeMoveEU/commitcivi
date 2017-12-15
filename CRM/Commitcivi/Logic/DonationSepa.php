@@ -17,11 +17,7 @@ class CRM_Commitcivi_Logic_DonationSepa extends CRM_Commitcivi_Logic_Donation {
    */
   public function sepa(CRM_Commitcivi_Model_Event $event, $contactId, $campaignId) {
     if ($this->isRecurring($event->donation->type)) {
-      $sepaMandate = $this->setRecurring($event, $contactId, $campaignId);
-      $recurId = $sepaMandate['values'][0]['entity_id'];
-      $first = $this->setFirst($recurId, $event, $contactId, $campaignId);
-      $this->match($first['id'], $sepaMandate['id']);
-      return $sepaMandate;
+      return $this->setRecurring($event, $contactId, $campaignId);
     }
     else {
       return $this->setSingle($event, $contactId, $campaignId);
@@ -39,6 +35,9 @@ class CRM_Commitcivi_Logic_DonationSepa extends CRM_Commitcivi_Logic_Donation {
   private function setRecurring(CRM_Commitcivi_Model_Event $event, $contactId, $campaignId) {
     if (!$recur = $this->findRecurring($event->donation->recurringId)) {
       $recur = $this->recurring($event, $contactId, $campaignId);
+      $recurId = $recur['values'][0]['entity_id'];
+      $first = $this->setFirst($recurId, $event, $contactId, $campaignId);
+      $this->match($first['id'], $recur['id']);
     }
     return $recur;
   }
