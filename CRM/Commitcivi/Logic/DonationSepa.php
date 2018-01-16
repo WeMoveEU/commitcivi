@@ -5,6 +5,8 @@ class CRM_Commitcivi_Logic_DonationSepa extends CRM_Commitcivi_Logic_Donation {
   const CYCLE_DAY_FIRST = 6;
   const CYCLE_DAY_SECOND = 21;
 
+  private $firstPaymentInstrumentId = 'FRST';
+
   /**
    * Create a mandate for contact.
    *
@@ -91,7 +93,7 @@ class CRM_Commitcivi_Logic_DonationSepa extends CRM_Commitcivi_Logic_Donation {
       'contribution_recur_id' => $recurId,
       'contribution_campaign_id' => $campaignId,
       'financial_type_id' => $this->financialTypeId,
-      'payment_instrument_id' => $this->paymentInstrumentId,
+      'payment_instrument_id' => $this->firstPaymentInstrumentId,
       'receive_date' => $this->cycleDate($event->createDate),
       'total_amount' => $event->donation->amount,
       'fee_amount' => $event->donation->amountCharged,
