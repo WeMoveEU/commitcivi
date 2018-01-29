@@ -135,7 +135,7 @@ class CRM_Commitcivi_Logic_DonationSepa extends CRM_Commitcivi_Logic_Donation {
       'iban' => $event->donation->iban,
       'bic' => $event->donation->bic,
       'start_date' => $event->createDate,
-      'create_date' => date('Y-m-d'),
+      'create_date' => $event->createDate,
       'amount' => $event->donation->amount,
       'currency' => $event->donation->currency,
       'frequency_interval' => $this->frequencyInterval,
