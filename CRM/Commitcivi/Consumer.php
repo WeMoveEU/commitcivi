@@ -140,6 +140,7 @@ class CRM_Commitcivi_Consumer {
     $retry = FALSE;
     if ($ex instanceof CiviCRM_API3_Exception) {
       $extraInfo = $ex->getExtraParams();
+      CRM_Core_Error::debug_var('COMMITCIVI extraInfo', $extraInfo);
       $retry = strpos(CRM_Utils_Array::value('debug_information', $extraInfo), "try restarting transaction");
     }
     elseif ($ex instanceof CRM_Commitcivi_Exception) {
