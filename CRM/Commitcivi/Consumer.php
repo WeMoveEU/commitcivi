@@ -139,8 +139,7 @@ class CRM_Commitcivi_Consumer {
   protected function handleException($amqp_msg, $ex) {
     $retry = FALSE;
     if ($ex instanceof CiviCRM_API3_Exception) {
-      $extraInfo = $ex->getExtraParams();
-      $retry = strpos(CRM_Utils_Array::value('debug_information', $extraInfo), "try restarting transaction");
+      $retry = $this->retry($ex->getExtraParams());
     }
     elseif ($ex instanceof CRM_Commitcivi_Exception) {
       if ($ex->getErrorCode() == 1) {
@@ -192,6 +191,26 @@ class CRM_Commitcivi_Consumer {
   protected function isConnectionLostError($sessionStatus) {
     if (is_array($sessionStatus) && array_key_exists('title', $sessionStatus[0]) && $sessionStatus[0]['title'] == 'Mailing Error') {
       return !!strpos($sessionStatus[0]['text'], 'Connection lost to authentication server');
+    }
+    return FALSE;
+  }
+
+  /**
+   * Check for known bug.
+   *
+   * @param $extraInfo
+   *
+   * @return bool
+   */
+  protected function retry($extraInfo) {
+    $debugInformation = [
+      'debug_information' => 'try restarting transaction',
+      'error_message' => 'DB Error: no database selected',
+    ];
+    foreach ($debugInformation as $key => $information) {
+      if (strpos(CRM_Utils_Array::value($key, $extraInfo), $information) !== FALSE) {
+        return TRUE;
+      }
     }
     return FALSE;
   }
