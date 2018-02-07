@@ -89,4 +89,20 @@ class CRM_Commitcivi_Logic_Donation {
     return $params;
   }
 
+  /**
+   * Set UTM fields for contribution
+   * @param \CRM_Commitcivi_Model_Event $event
+   * @param $contributionId
+   *
+   * @throws \CiviCRM_API3_Exception
+   */
+  protected function setUtms(CRM_Commitcivi_Model_Event $event, $contributionId) {
+    $params = [
+      'sequential' => 1,
+      'id' => $contributionId,
+    ];
+    $params = $this->setSourceFields($params, $event->utm);
+    civicrm_api3('Contribution', 'create', $params);
+  }
+
 }
