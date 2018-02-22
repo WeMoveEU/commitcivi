@@ -100,6 +100,9 @@ class CRM_Commitcivi_DonationTest extends CRM_Commitcivi_BaseTest {
     $this->assertEquals(2, $conrec['contribution_status_id']);
     $this->assertEquals(CRM_Commitcivi_Logic_DonationSepa::CYCLE_DAY_FIRST, $conrec['cycle_day']);
     $this->assertEquals($campaignId, $conrec['campaign_id']);
+    $this->assertEquals($event->utm->Source, $conrec[CRM_Contributm_Model_UtmRecur::utmSource()]);
+    $this->assertEquals($event->utm->Medium, $conrec[CRM_Contributm_Model_UtmRecur::utmMedium()]);
+    $this->assertEquals($event->utm->Campaign, $conrec[CRM_Contributm_Model_UtmRecur::utmCampaign()]);
   }
 
   public function testCycleDates() {

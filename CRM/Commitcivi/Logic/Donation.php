@@ -90,6 +90,32 @@ class CRM_Commitcivi_Logic_Donation {
   }
 
   /**
+   * Add UTM field values from event to $params as custom recurring contribution fields
+   *
+   * @param $params
+   * @param \CRM_Commitcivi_Model_Utm $utm
+   *
+   * @return mixed
+   * @throws \CiviCRM_API3_Exception
+   */
+  protected function setRecurSourceFields($params, CRM_Commitcivi_Model_Utm $utm) {
+    if ($utm->Source) {
+      $params[CRM_Contributm_Model_UtmRecur::utmSource()] = $utm->Source;
+    }
+    if ($utm->Medium) {
+      $params[CRM_Contributm_Model_UtmRecur::utmMedium()] = $utm->Medium;
+    }
+    if ($utm->Campaign) {
+      $params[CRM_Contributm_Model_UtmRecur::utmCampaign()] = $utm->Campaign;
+    }
+    if ($utm->Content) {
+      $params[CRM_Contributm_Model_UtmRecur::utmContent()] = $utm->Content;
+    }
+
+    return $params;
+  }
+
+  /**
    * Set UTM fields for contribution
    * @param \CRM_Commitcivi_Model_Event $event
    * @param $contributionId
@@ -103,6 +129,22 @@ class CRM_Commitcivi_Logic_Donation {
     ];
     $params = $this->setSourceFields($params, $event->utm);
     civicrm_api3('Contribution', 'create', $params);
+  }
+
+  /**
+   * Set UTM fields for recurring contribution
+   * @param \CRM_Commitcivi_Model_Event $event
+   * @param $recurId
+   *
+   * @throws \CiviCRM_API3_Exception
+   */
+  protected function setRecurUtms(CRM_Commitcivi_Model_Event $event, $recurId) {
+    $params = [
+      'sequential' => 1,
+      'id' => $recurId,
+    ];
+    $params = $this->setRecurSourceFields($params, $event->utm);
+    civicrm_api3('ContributionRecur', 'create', $params);
   }
 
 }

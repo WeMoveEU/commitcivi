@@ -121,6 +121,7 @@ class CRM_Commitcivi_Logic_DonationStripe extends CRM_Commitcivi_Logic_Donation 
     if ($event->donation->status == 'destroy') {
       $params['cancel_date'] = $event->createDate;
     }
+    $params = $this->setRecurSourceFields($params, $event->utm);
     return civicrm_api3('ContributionRecur', 'create', $params);
   }
 
