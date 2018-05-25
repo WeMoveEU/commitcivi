@@ -20,6 +20,16 @@ class CRM_Commitcivi_Logic_Activity {
   }
 
   /**
+   * Create a Data Policy Acceptance activity to the given contact, with the data from the given consent
+   */
+  public function dpa($contactId, CRM_Commitcivi_Model_Consent $consent, $activityStatus = 'Completed') {
+    $activityTypeId = CRM_Commitcivi_Logic_Settings::dpaActivityTypeId();
+    $result = $this->create($contactId, $activityTypeId, $consent->version, $consent->campaignId, 0,
+                            $consent->createDate, $consent->language, $activityStatus);
+    return $result['id'];
+  }
+
+  /**
    * Create activity for contact.
    *
    * @param int $contactId
@@ -33,7 +43,8 @@ class CRM_Commitcivi_Logic_Activity {
    * @return array
    * @throws \CiviCRM_API3_Exception
    */
-  private function create($contactId, $typeId, $subject = '', $campaignId = 0, $parentActivityId = 0, $activity_date_time = '', $location = '') {
+  private function create($contactId, $typeId, $subject = '', $campaignId = 0, $parentActivityId = 0, $activity_date_time = '', $location = '', $status = 'Completed') {
+    $statusId = CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_Activity', 'status_id', $status);
     $params = array(
       'sequential' => 1,
       'activity_type_id' => $typeId,
@@ -41,6 +52,7 @@ class CRM_Commitcivi_Logic_Activity {
       'status_id' => 'Completed',
       'subject' => $subject,
       'source_contact_id' => $contactId,
+      'status_id' => $statusId,
     );
     if ($campaignId) {
       $params['campaign_id'] = $campaignId;

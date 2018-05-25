@@ -51,6 +51,10 @@ class CRM_Commitcivi_Logic_Settings {
     return Civi::settings()->get('field_language');
   }
 
+  public static function fieldConsentIds() {
+    return CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_campaign_consent_ids');
+  }
+
   /**
    * Get anonymous contact id.
    *
@@ -67,6 +71,10 @@ class CRM_Commitcivi_Logic_Settings {
    */
   public static function joinActivityTypeId() {
     return Civi::settings()->get('activity_type_join');
+  }
+
+  public static function dpaActivityTypeId() {
+    return CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_Activity', 'activity_type_id', 'SLA Acceptance');
   }
 
   /**

@@ -376,4 +376,21 @@ class CRM_Commitcivi_Logic_Contact {
     return 0;
   }
 
+  /**
+   * Sets the GDPR temporary fields of the contact based on the given consent object
+   */
+  public function setGDPRFields($contactId, $consent) {
+    $cd = new DateTime(substr($consent->createDate, 0, 10));
+    $contactParams = [
+      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_date') => $cd->format('Y-m-d'),
+      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_version') => $consent->version,
+      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_language') => strtoupper($consent->language),
+      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_utm_source') => $consent->utmSource,
+      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_utm_medium') => $consent->utmMedium,
+      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_utm_campaign') => $consent->utmCampaign,
+      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_campaign_id') => $consent->campaignId,
+    ];
+    $this->set($contactId, $contactParams);
+  }
+
 }
