@@ -21,6 +21,13 @@ class CRM_Commitcivi_Logic_Activity {
 
   /**
    * Create a Data Policy Acceptance activity to the given contact, with the data from the given consent
+   *
+   * @param int $contactId
+   * @param \CRM_Commitcivi_Model_Consent $consent
+   * @param string $activityStatus
+   *
+   * @return mixed
+   * @throws \CiviCRM_API3_Exception
    */
   public function dpa($contactId, CRM_Commitcivi_Model_Consent $consent, $activityStatus = 'Completed') {
     $activityTypeId = CRM_Commitcivi_Logic_Settings::dpaActivityTypeId();
@@ -39,6 +46,7 @@ class CRM_Commitcivi_Logic_Activity {
    * @param int $parentActivityId
    * @param string $activity_date_time
    * @param string $location
+   * @param string $status
    *
    * @return array
    * @throws \CiviCRM_API3_Exception
@@ -49,7 +57,6 @@ class CRM_Commitcivi_Logic_Activity {
       'sequential' => 1,
       'activity_type_id' => $typeId,
       'activity_date_time' => date('Y-m-d H:i:s'),
-      'status_id' => 'Completed',
       'subject' => $subject,
       'source_contact_id' => $contactId,
       'status_id' => $statusId,
