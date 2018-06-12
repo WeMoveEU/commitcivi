@@ -172,6 +172,15 @@ function civicrm_api3_wemove_contact_create($params) {
   if ($contactObj->needJoinActivity($contact)) {
     $activity = new CRM_Commitcivi_Logic_Activity();
     $activity->join($contactId, 'donation', $params['campaign_id']);
+
+    $campaign = CRM_Commitcivi_Logic_CampaignCache::getByLocalId($params['campaign_id']);
+    $consent = new CRM_Commitcivi_Model_Consent();
+    $consent->version = $campaign[CRM_Commitcivi_Logic_Settings::fieldConsentIds()];
+    $consent->language = $language;
+    $consent->createDate = $params['create_dt'];
+    $consent->campaignId = $params['campaign_id'];
+    $activity->dpa($contactId, $consent);
+    $contactObj->setGDPRFields($contactId, $consent);
   }
   if ($contactResult['preferred_language'] != $locale && $rlg == 1) {
     $contactObj->set($contactId, ['preferred_language' => $locale]);
