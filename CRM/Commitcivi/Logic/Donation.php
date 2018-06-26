@@ -8,7 +8,7 @@ class CRM_Commitcivi_Logic_Donation {
 
   protected $financialTypeId = 1;
 
-  protected $paymentInstrumentId = "Credit Card";
+  protected $paymentInstrumentId = 2;// stripe "Credit Card";
 
   protected $mapRecurringStatus = [
     'success' => 5, // in progress
