@@ -39,6 +39,7 @@ class CRM_Commitcivi_Model_Donation {
     $this->customerId = property_exists($donation, 'customer_id') ? $donation->customer_id : $this->customerId;
     $this->status = $donation->status;
     $this->iban = property_exists($donation, 'iban') ? $donation->iban : $this->iban;
+    $this->iban = str_replace([' ', '-'], '', $this->iban);
     $this->bic = property_exists($donation, 'bic') ? $donation->bic : $this->bic;
     $this->accountHolder = property_exists($donation, 'account_holder') ? $donation->account_holder : $this->accountHolder;
     $this->bank = property_exists($donation, 'bank') ? $donation->bank : $this->bank;
