@@ -1,6 +1,6 @@
 <?php
 
-function debug($msg) {
+function debugAmqp($msg) {
   echo time(), ': ', $msg, "\n";
 }
 
@@ -17,7 +17,7 @@ define('CIVICRM_MAILER_TRANSIENT', 1);
 
 $included = @include_once( $settingsFile );
 if (!$included) {
-  debug("Could not load the settings file at: {$settingsFile}");
+  debugAmqp("Could not load the settings file at: {$settingsFile}");
   exit( );
 }
 
@@ -29,7 +29,7 @@ CRM_Core_ClassLoader::singleton()->register();
 require_once 'CRM/Core/Config.php';
 $civicrm_config = CRM_Core_Config::singleton();
 //Load CMS with user id 1
-CRM_Utils_System::loadBootStrap(array('uid' => 1), TRUE, FALSE);
+CRM_Utils_System::loadBootStrap(array('uid' => 1), TRUE, TRUE, $civicrm_root);
 
 //User errors normally don't block the execution, but in this case we do want 
 //the event processing to fail completely so that it goes to the error queue
@@ -38,7 +38,7 @@ set_error_handler(function ($err_severity, $err_msg, $err_file, $err_line, array
   if (0 === error_reporting()) { return false; }
   switch ($err_severity) {
     case E_USER_ERROR:
-      debug("Uncaught E_USER_ERROR: forcing exception");
+      debugAmqp("Uncaught E_USER_ERROR: forcing exception");
       throw new Exception($err_msg);
   }
   return false;
