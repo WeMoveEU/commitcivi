@@ -34,7 +34,7 @@ CRM_Utils_System::loadBootStrap(array('uid' => 1), TRUE, TRUE, $civicrm_root);
 //User errors normally don't block the execution, but in this case we do want 
 //the event processing to fail completely so that it goes to the error queue
 //and we are aware of the problem
-set_error_handler(function ($err_severity, $err_msg, $err_file, $err_line, array $err_context) {
+set_error_handler(function ($err_severity, $err_msg, $err_file, $err_line, $err_context) {
   if (0 === error_reporting()) { return false; }
   switch ($err_severity) {
     case E_USER_ERROR:
