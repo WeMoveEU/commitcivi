@@ -1,5 +1,6 @@
 <?php
 
+use PhpAmqpLib\Connection\AMQPSSLConnection;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use PhpAmqpLib\Message\AMQPMessage;
 use PhpAmqpLib\Wire\AMQPTable;
@@ -216,9 +217,13 @@ class CRM_Commitcivi_Consumer {
   }
 
   protected function connect() {
-    return new AMQPStreamConnection(
+    return new AMQPSSLConnection(
       CIVICRM_AMQP_HOST, CIVICRM_AMQP_PORT,
-      CIVICRM_AMQP_USER, CIVICRM_AMQP_PASSWORD, CIVICRM_AMQP_VHOST);
+      CIVICRM_AMQP_USER, CIVICRM_AMQP_PASSWORD, CIVICRM_AMQP_VHOST,
+      array(
+        'local_cert' => '/etc/nginx/ssl/wemove.eu/2019/wemove2019.crt',
+        'local_pk' => '/etc/nginx/ssl/wemove.eu/2019/wemove2019.key',
+      ));
   }
 
 }
