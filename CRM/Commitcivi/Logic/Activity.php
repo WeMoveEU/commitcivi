@@ -31,8 +31,21 @@ class CRM_Commitcivi_Logic_Activity {
    */
   public function dpa($contactId, CRM_Commitcivi_Model_Consent $consent, $activityStatus = 'Completed') {
     $activityTypeId = CRM_Commitcivi_Logic_Settings::dpaActivityTypeId();
-    $result = $this->create($contactId, $activityTypeId, $consent->version, $consent->campaignId, 0,
-                            $consent->createDate, $consent->language, $activityStatus);
+    $activityStatusId = CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_Activity', 'status_id', $activityStatus);
+    $params = [
+      'sequential' => 1,
+      'source_contact_id' => $contactId,
+      'campaign_id' => $consent->campaignId,
+      'activity_type_id' => $activityTypeId,
+      'activity_date_time' => $consent->createDate,
+      'subject' => $consent->version,
+      'location' => $consent->language,
+      'status_id' => $activityStatusId,
+      CRM_Commitcivi_Logic_Settings::fieldActivitySource() => $consent->utmSource,
+      CRM_Commitcivi_Logic_Settings::fieldActivityMedium() => $consent->utmMedium,
+      CRM_Commitcivi_Logic_Settings::fieldActivityCampaign() => $consent->utmCampaign,
+    ];
+    $result = civicrm_api3('Activity', 'create', $params);
     return $result['id'];
   }
 

@@ -88,6 +88,30 @@ function _civicrm_api3_wemove_contact_create_spec(&$spec) {
     'api.required' => 0,
     'api.default' => '',
   ];
+  $spec['utm_source'] = [
+    'name' => 'utm_source',
+    'title' => ts('utm source'),
+    'description' => 'utm source',
+    'type' => CRM_Utils_Type::T_STRING,
+    'api.required' => 0,
+    'api.default' => '',
+  ];
+  $spec['utm_medium'] = [
+    'name' => 'utm_medium',
+    'title' => ts('utm medium'),
+    'description' => 'utm medium',
+    'type' => CRM_Utils_Type::T_STRING,
+    'api.required' => 0,
+    'api.default' => '',
+  ];
+  $spec['utm_campaign'] = [
+    'name' => 'utm_campaign',
+    'title' => ts('utm campaign'),
+    'description' => 'utm campaign',
+    'type' => CRM_Utils_Type::T_STRING,
+    'api.required' => 0,
+    'api.default' => '',
+  ];
 }
 
 function civicrm_api3_wemove_contact_create($params) {
@@ -188,6 +212,9 @@ function civicrm_api3_wemove_contact_create($params) {
     $consent->language = $language;
     $consent->createDate = $params['create_dt'];
     $consent->campaignId = $params['campaign_id'];
+    $consent->utmSource = $params['utm_source'];
+    $consent->utmMedium = $params['utm_medium'];
+    $consent->utmCampaign = $params['utm_campaign'];
     $activity->dpa($contactId, $consent);
     $contactObj->setGDPRFields($contactId, $consent);
   }

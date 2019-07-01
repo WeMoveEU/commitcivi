@@ -51,6 +51,9 @@ class CRM_Commitcivi_Logic_Settings {
     return Civi::settings()->get('field_language');
   }
 
+  /**
+   * @return mixed
+   */
   public static function fieldConsentIds() {
     return CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_campaign_consent_ids');
   }
@@ -73,6 +76,9 @@ class CRM_Commitcivi_Logic_Settings {
     return Civi::settings()->get('activity_type_join');
   }
 
+  /**
+   * @return bool|int|null|string
+   */
   public static function dpaActivityTypeId() {
     return CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_Activity', 'activity_type_id', 'SLA Acceptance');
   }
@@ -102,6 +108,27 @@ class CRM_Commitcivi_Logic_Settings {
    */
   public static function languageTagNamePrefix() {
     return Civi::settings()->get('language_tag_name_prefix');
+  }
+
+  /**
+   * @return mixed
+   */
+  public static function fieldActivitySource() {
+    return Civi::settings()->get('field_activity_source');
+  }
+
+  /**
+   * @return mixed
+   */
+  public static function fieldActivityMedium() {
+    return Civi::settings()->get('field_activity_medium');
+  }
+
+  /**
+   * @return mixed
+   */
+  public static function fieldActivityCampaign() {
+    return Civi::settings()->get('field_activity_campaign');
   }
 
   /**
