@@ -63,6 +63,7 @@ class CRM_Commitcivi_Logic_Contact {
     $groupId = $options['group_id'];
     $optIn = $options['opt_in'];
     $locale = $options['locale'];
+    $isDonor = $options['is_donor'];
 
     unset($contact['return']);
     unset($contact['api.Address.get']);
@@ -93,7 +94,7 @@ class CRM_Commitcivi_Logic_Contact {
         }
       }
       $contact = $address->prepareParamsAddress($contact, $existingContact, $params);
-      if (!$optIn && $existingContact[self::API_GROUPCONTACT_GET]['count'] == 0) {
+      if ((!$optIn || $isDonor) && $existingContact[self::API_GROUPCONTACT_GET]['count'] == 0) {
         $contact[self::API_GROUPCONTACT_CREATE] = array(
           'group_id' => $groupId,
           'contact_id' => '$value.id',
@@ -117,7 +118,7 @@ class CRM_Commitcivi_Logic_Contact {
       $contact['preferred_language'] = $locale;
       $contact['source'] = $this->determineSource($params);
       $contact = $address->prepareParamsAddressDefault($contact, $params);
-      if (!$optIn) {
+      if (!$optIn || $isDonor) {
         $contact[self::API_GROUPCONTACT_CREATE] = array(
           'group_id' => $groupId,
           'contact_id' => '$value.id',

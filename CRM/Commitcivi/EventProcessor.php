@@ -66,6 +66,7 @@ class CRM_Commitcivi_EventProcessor {
       'create_dt' => $event->createDate,
       'external_identifier' => $event->externalIdentifier,
       'campaign_id' => $campaignId,
+      'is_donor' => 1,
     ];
     $result = civicrm_api3('WemoveContact', 'create', $params);
     return $result['id'];
