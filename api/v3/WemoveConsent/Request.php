@@ -82,6 +82,7 @@ function civicrm_api3_wemove_consent_request(&$params) {
   if ($result['count'] == 1) {
     $contact = $result['values'][0];
     $contact['checksum'] = CRM_Contact_BAO_Contact_Utils::generateChecksum($contactId, NULL, NULL, $contact['hash']);
+    $params['toEmail'] = $contact['email'];
   }
 
   $hash = sha1(CIVICRM_SITE_KEY . $contactId);
