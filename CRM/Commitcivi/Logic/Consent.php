@@ -2,7 +2,7 @@
 
 require_once 'CRM/Core/Page.php';
 
-class CRM_Commitcivi_Logic_Consent {
+class CRM_Commitcivi_Logic_Consent extends CRM_Core_Page {
 
   public $contactId = 0;
 
