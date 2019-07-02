@@ -16,10 +16,8 @@ class CRM_Commitcivi_Page_Reject extends CRM_Commitcivi_Logic_Consent {
   public function run() {
     $this->setValues();
     $campaign = new CRM_Speakcivi_Logic_Campaign($this->campaignId);
-    $contactParams = $this->getContactConsentParams($campaign);
-    // todo clear?
-    CRM_Speakcivi_Logic_Contact::set($this->contactId, $contactParams);
-    // todo set as cancelled!
+    // fixme gdpr custom fields is still used for Speakcivi.leave action
+    CRM_Speakcivi_Logic_Contact::emptyGDPRFields($this->contactId);
     $this->reject($campaign);
     $this->redirect($campaign);
   }

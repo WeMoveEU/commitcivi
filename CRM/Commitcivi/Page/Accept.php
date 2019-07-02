@@ -16,6 +16,7 @@ class CRM_Commitcivi_Page_Accept extends CRM_Commitcivi_Logic_Consent {
   public function run() {
     $this->setValues();
     $campaign = new CRM_Speakcivi_Logic_Campaign($this->campaignId);
+    // fixme gdpr custom fields is still used for Speakcivi.leave action
     $contactParams = $this->getContactConsentParams($campaign);
     CRM_Speakcivi_Logic_Contact::set($this->contactId, $contactParams);
     $this->accept($campaign);
