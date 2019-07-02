@@ -126,3 +126,25 @@ function civicrm_api3_wemove_consent_request(&$params) {
     return civicrm_api3_create_error('Problem with send email in sendconfirm', $data);
   }
 }
+
+
+/**
+ * todo refactor!
+ * Get locale version for locale from params. Default is a english version.
+ *
+ * @param string $locale Locale, so format is xx_YY (language_COUNTRY), ex. en_GB
+ *
+ * @return array
+ */
+function getLocale($locale) {
+  $localeTab = array(
+    'html' => 'en_GB',
+    'text' => 'en_GB',
+  );
+  foreach ($localeTab as $type => $localeType) {
+    if (file_exists(dirname(__FILE__) . '/../../templates/CRM/Commitcivi/Confirmation/ConfirmationBlock.' . $locale . '.' . $type . '.tpl')) {
+      $localeTab[$type] = $locale;
+    }
+  }
+  return $localeTab;
+}
