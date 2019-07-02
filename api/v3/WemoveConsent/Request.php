@@ -100,9 +100,9 @@ function civicrm_api3_wemove_consent_request(&$params) {
 
   $params['subject'] = $template->fetch('string:' . $params['subject']);
   $locales = getLocale($locale);
-  $confirmationBlockHtml = $template->fetch('../templates/CRM/Commitcivi/Page/ConfirmationBlock.' . $locales['html'] . '.html.tpl');
-  $confirmationBlockText = $template->fetch('../templates/CRM/Commitcivi/Page/ConfirmationBlock.' . $locales['text'] . '.text.tpl');
-  $privacyBlock = $template->fetch('../templates/CRM/Commitcivi/Page/PrivacyBlock.' . $locales['html'] . '.tpl');
+  $confirmationBlockHtml = $template->fetch('../templates/CRM/Commitcivi/Confirmation/ConfirmationBlock.' . $locales['html'] . '.html.tpl');
+  $confirmationBlockText = $template->fetch('../templates/CRM/Commitcivi/Confirmation/ConfirmationBlock.' . $locales['text'] . '.text.tpl');
+  $privacyBlock = $template->fetch('../templates/CRM/Commitcivi/Privacy/PrivacyBlock.' . $locales['html'] . '.tpl');
   $message = $template->fetch('string:' . $message);
 
   $messageHtml = str_replace("#CONFIRMATION_BLOCK", $confirmationBlockHtml, $message);
