@@ -51,17 +51,78 @@ function _civicrm_api3_wemove_consent_request_spec(&$spec) {
  * @param $params
  *
  * @return array
+ * @throws \CiviCRM_API3_Exception
  */
 function civicrm_api3_wemove_consent_request(&$params) {
-  $start = microtime(TRUE);
   $contactId = $params['contact_id'];
   $campaignId = $params['campaign_id'];
   $utmSource = $params['utm_source'];
   $utmMedium = $params['utm_medium'];
   $utmCampaign = $params['utm_campaign'];
 
-  $values = [];
+  $campaignObj = new CRM_Speakcivi_Logic_Campaign($campaignId);
+  $locale = $campaignObj->getLanguage();
+  $params['from'] = $campaignObj->getSenderMail();
+  $params['format'] = NULL;
+  // todo change!
+  $params['subject'] = $campaignObj->getSubjectNew();
+  $message = $campaignObj->getMessageNew();
+  if (!$message) {
+    $message = CRM_Speakcivi_Tools_Dictionary::getMessageNew($locale);
+    $campaignObj->setCustomFieldBySQL($campaignId, $campaignObj->fieldMessageNew, $message);
+  }
 
-  $extraReturnValues = ['time' => microtime(TRUE) - $start];
-  return civicrm_api3_create_success($values, $params, 'wemove_consent', 'request', $blank, $extraReturnValues);
+  $contact = [];
+  $paramsContact = [
+    'id' => $contactId,
+    'sequential' => 1,
+    'return' => ["id", "display_name", "first_name", "last_name", "hash", "email", "email_greeting"],
+  ];
+  $result = civicrm_api3('Contact', 'get', $paramsContact);
+  if ($result['count'] == 1) {
+    $contact = $result['values'][0];
+    $contact['checksum'] = CRM_Contact_BAO_Contact_Utils::generateChecksum($contactId, NULL, NULL, $contact['hash']);
+  }
+
+  $hash = sha1(CIVICRM_SITE_KEY . $contactId);
+  $baseConfirmUrl = 'civicrm/consent/accept';
+  $baseOptoutUrl = 'civicrm/consent/reject';
+
+  $url_confirm_and_keep = CRM_Utils_System::url($baseConfirmUrl,
+    "id=$contactId&cid=$campaignId&hash=$hash&utm_source=$utmSource&utm_medium=$utmMedium&utm_campaign=$utmCampaign", TRUE);
+  $url_confirm_and_not_receive = CRM_Utils_System::url($baseOptoutUrl,
+    "id=$contactId&cid=$campaignId&hash=$hash&utm_source=$utmSource&utm_medium=$utmMedium&utm_campaign=$utmCampaign", TRUE);
+
+  $template = CRM_Core_Smarty::singleton();
+  $template->assign('url_confirm_and_keep', $url_confirm_and_keep);
+  $template->assign('url_confirm_and_not_receive', $url_confirm_and_not_receive);
+  $template->assign('contact', $contact);
+
+  $params['subject'] = $template->fetch('string:' . $params['subject']);
+  $locales = getLocale($locale);
+  $confirmationBlockHtml = $template->fetch('../templates/CRM/Commitcivi/Page/ConfirmationBlock.' . $locales['html'] . '.html.tpl');
+  $confirmationBlockText = $template->fetch('../templates/CRM/Commitcivi/Page/ConfirmationBlock.' . $locales['text'] . '.text.tpl');
+  $privacyBlock = $template->fetch('../templates/CRM/Commitcivi/Page/PrivacyBlock.' . $locales['html'] . '.tpl');
+  $message = $template->fetch('string:' . $message);
+
+  $messageHtml = str_replace("#CONFIRMATION_BLOCK", $confirmationBlockHtml, $message);
+  $messageText = str_replace("#CONFIRMATION_BLOCK", $confirmationBlockText, $message);
+  $messageHtml = str_replace("#PRIVACY_BLOCK", $privacyBlock, $messageHtml);
+  $messageText = str_replace("#PRIVACY_BLOCK", $privacyBlock, $messageText);
+
+  $params['html'] = html_entity_decode($messageHtml);
+  $params['text'] = html_entity_decode(convertHtmlToText($messageText));
+  $params['groupName'] = 'WemoveConsent.request';
+  $params['custom-campaign-id'] = $campaignId;
+  try {
+    $sent = CRM_Utils_Mail::send($params);
+    return civicrm_api3_create_success($sent, $params);
+  }
+  catch (CiviCRM_API3_Exception $exception) {
+    $data = array(
+      'params' => $params,
+      'exception' => $exception,
+    );
+    return civicrm_api3_create_error('Problem with send email in sendconfirm', $data);
+  }
 }
