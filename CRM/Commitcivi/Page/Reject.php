@@ -10,7 +10,6 @@ require_once 'CRM/Core/Page.php';
 class CRM_Commitcivi_Page_Reject extends CRM_Commitcivi_Logic_Consent {
 
   /**
-   * @return null|void
    * @throws \CiviCRM_API3_Exception
    * @throws \Exception
    */
@@ -21,7 +20,7 @@ class CRM_Commitcivi_Page_Reject extends CRM_Commitcivi_Logic_Consent {
     // todo clear?
     CRM_Speakcivi_Logic_Contact::set($this->contactId, $contactParams);
     // todo set as cancelled!
-    $this->createConsentActivities($campaign);
+    $this->reject($campaign);
     $this->redirect($campaign);
   }
 

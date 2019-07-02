@@ -4,6 +4,18 @@ require_once 'CRM/Core/Page.php';
 
 class CRM_Commitcivi_Logic_Consent extends CRM_Core_Page {
 
+  const STATUS_NOTPROVIDED = 'not_provided';
+  const STATUS_ACCEPTED = 'explicit_opt_in';
+  const STATUS_REJECTED = 'none_given';
+  public $publicId;
+  public $version;
+  public $language;
+  public $date;
+  public $createDate;
+  public $level;
+  public $method;
+  public $methodOption;
+
   public $contactId = 0;
 
   public $campaignId = 0;
@@ -22,7 +34,7 @@ class CRM_Commitcivi_Logic_Consent extends CRM_Core_Page {
   public function setValues() {
     $this->contactId = CRM_Utils_Request::retrieve('id', 'Positive', $this, TRUE);
     $this->campaignId = CRM_Utils_Request::retrieve('cid', 'Positive', $this, TRUE);
-    $this->utmSource= CRM_Utils_Request::retrieve('utm_source', 'String', $this, FALSE);
+    $this->utmSource = CRM_Utils_Request::retrieve('utm_source', 'String', $this, FALSE);
     $this->utmMedium = CRM_Utils_Request::retrieve('utm_medium', 'String', $this, FALSE);
     $this->utmCampaign = CRM_Utils_Request::retrieve('utm_campaign', 'String', $this, FALSE);
     $hash = CRM_Utils_Request::retrieve('hash', 'String', $this, TRUE);
@@ -84,36 +96,81 @@ class CRM_Commitcivi_Logic_Consent extends CRM_Core_Page {
   }
 
   /**
-   * Based on give campaign and request parameters,
-   * create an activity for all the consents implied by the request
-   *
    * @param \CRM_Speakcivi_Logic_Campaign $campaign
    *
    * @throws \CiviCRM_API3_Exception
    */
-  public function createConsentActivities(CRM_Speakcivi_Logic_Campaign $campaign) {
-    $consent = new CRM_Speakcivi_Logic_Consent();
-    $consent->createDate = date('YmdHis');
-    $consent->utmSource = $this->utmSource;
-    $consent->utmMedium = $this->utmMedium;
-    $consent->utmCampaign = $this->utmCampaign;
+  public function accept(CRM_Speakcivi_Logic_Campaign $campaign) {
+    $this->createConsentActivities($campaign, 'Completed');
+  }
 
+  /**
+   * @param \CRM_Speakcivi_Logic_Campaign $campaign
+   *
+   * @throws \CiviCRM_API3_Exception
+   */
+  public function reject(CRM_Speakcivi_Logic_Campaign $campaign) {
+    $this->createConsentActivities($campaign, 'Cancelled');
+  }
+
+  /**
+   * Based on give campaign and request parameters,
+   * create an activity for all the consents implied by the request
+   *
+   * @param \CRM_Speakcivi_Logic_Campaign $campaign
+   * @param string $activityStatus
+   *
+   * @throws \CiviCRM_API3_Exception
+   */
+  private function createConsentActivities(CRM_Speakcivi_Logic_Campaign $campaign, $activityStatus = 'Completed') {
+    $this->createDate = date('YmdHis');
     $consentIds = explode(',', $campaign->getConsentIds());
     if ($consentIds) {
       foreach ($consentIds as $id) {
         list($consentVersion, $language) = explode('-', $id);
-        $consent->version = $consentVersion;
-        $consent->language = $language;
-        CRM_Speakcivi_Logic_Activity::dpa($consent, $this->contactId, $this->campaignId, 'Completed');
+        $this->version = $consentVersion;
+        $this->language = $language;
+        $this->dpa($this->contactId, $this, $activityStatus);
       }
     }
     else {
-      $consent->version = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'gdpr_privacy_pack_version');
-      $consent->language = substr($campaign->getLanguage(), 0, 2);
-      CRM_Speakcivi_Logic_Activity::dpa($consent, $this->contactId, $this->campaignId, 'Completed');
+      // todo move
+      $this->version = CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'gdpr_privacy_pack_version');
+      $this->language = substr($campaign->getLanguage(), 0, 2);
+      $this->dpa($this->contactId, $this, $activityStatus);
     }
   }
 
+
+  /**
+   * Create a Data Policy Acceptance activity to the given contact, with the data from the given consent
+   *
+   * @param int $contactId
+   * @param \CRM_Commitcivi_Logic_Consent $consent
+   * @param string $activityStatus
+   *
+   * @return mixed
+   * @throws \CiviCRM_API3_Exception
+   */
+  private function dpa($contactId, CRM_Commitcivi_Logic_Consent $consent, $activityStatus = 'Completed') {
+    $activityTypeId = CRM_Commitcivi_Logic_Settings::dpaActivityTypeId();
+    $activityStatusId = CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_Activity', 'status_id', $activityStatus);
+    $params = [
+      'sequential' => 1,
+      'source_contact_id' => $contactId,
+      'campaign_id' => $consent->campaignId,
+      'activity_type_id' => $activityTypeId,
+      'activity_date_time' => $consent->createDate,
+      'subject' => $consent->version,
+      'location' => $consent->language,
+      'status_id' => $activityStatusId,
+      CRM_Commitcivi_Logic_Settings::fieldActivitySource() => $consent->utmSource,
+      CRM_Commitcivi_Logic_Settings::fieldActivityMedium() => $consent->utmMedium,
+      CRM_Commitcivi_Logic_Settings::fieldActivityCampaign() => $consent->utmCampaign,
+    ];
+    $result = civicrm_api3('Activity', 'create', $params);
+    return $result['id'];
+  }
 
   /**
    * Build the post-confirmation URL

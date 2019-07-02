@@ -10,7 +10,6 @@ require_once 'CRM/Core/Page.php';
 class CRM_Commitcivi_Page_Accept extends CRM_Commitcivi_Logic_Consent {
 
   /**
-   * @return null|void
    * @throws \CiviCRM_API3_Exception
    * @throws \Exception
    */
@@ -19,7 +18,7 @@ class CRM_Commitcivi_Page_Accept extends CRM_Commitcivi_Logic_Consent {
     $campaign = new CRM_Speakcivi_Logic_Campaign($this->campaignId);
     $contactParams = $this->getContactConsentParams($campaign);
     CRM_Speakcivi_Logic_Contact::set($this->contactId, $contactParams);
-    $this->createConsentActivities($campaign);
+    $this->accept($campaign);
     $this->redirect($campaign);
   }
 
