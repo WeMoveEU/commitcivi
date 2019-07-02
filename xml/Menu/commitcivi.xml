@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<menu>
+  <item>
+    <path>civicrm/consent/accept</path>
+    <page_callback>CRM_Commitcivi_Page_Accept</page_callback>
+    <title>Thank you</title>
+    <access_callback>1</access_callback>
+    <is_public>true</is_public>
+  </item>
+  <item>
+    <path>civicrm/consent/reject</path>
+    <page_callback>CRM_Commitcivi_Page_Reject</page_callback>
+    <title>Thank you</title>
+    <access_callback>1</access_callback>
+    <is_public>true</is_public>
+  </item>
+</menu>
