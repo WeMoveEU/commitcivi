@@ -64,7 +64,6 @@ function civicrm_api3_wemove_consent_request(&$params) {
   $locale = $campaignObj->getLanguage();
   $params['from'] = $campaignObj->getSenderMail();
   $params['format'] = NULL;
-  // todo change!
   $params['subject'] = $campaignObj->getSubjectNew();
   $message = $campaignObj->getMessageNew();
   if (!$message) {
@@ -86,17 +85,17 @@ function civicrm_api3_wemove_consent_request(&$params) {
   }
 
   $hash = sha1(CIVICRM_SITE_KEY . $contactId);
-  $baseConfirmUrl = 'civicrm/consent/accept';
-  $baseOptoutUrl = 'civicrm/consent/reject';
+  $baseAcceptUrl = 'civicrm/consent/accept';
+  $baseRejectUrl = 'civicrm/consent/reject';
 
-  $url_confirm_and_keep = CRM_Utils_System::url($baseConfirmUrl,
+  $urlAccept = CRM_Utils_System::url($baseAcceptUrl,
     "id=$contactId&cid=$campaignId&hash=$hash&utm_source=$utmSource&utm_medium=$utmMedium&utm_campaign=$utmCampaign", TRUE);
-  $url_confirm_and_not_receive = CRM_Utils_System::url($baseOptoutUrl,
+  $urlReject = CRM_Utils_System::url($baseRejectUrl,
     "id=$contactId&cid=$campaignId&hash=$hash&utm_source=$utmSource&utm_medium=$utmMedium&utm_campaign=$utmCampaign", TRUE);
 
   $template = CRM_Core_Smarty::singleton();
-  $template->assign('url_confirm_and_keep', $url_confirm_and_keep);
-  $template->assign('url_confirm_and_not_receive', $url_confirm_and_not_receive);
+  $template->assign('url_confirm_and_keep', $urlAccept);
+  $template->assign('url_confirm_and_not_receive', $urlReject);
   $template->assign('contact', $contact);
 
   $params['subject'] = $template->fetch('string:' . $params['subject']);
