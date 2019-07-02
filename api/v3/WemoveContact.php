@@ -80,14 +80,6 @@ function _civicrm_api3_wemove_contact_create_spec(&$spec) {
     'api.required' => 0,
     'api.default' => '',
   ];
-  $spec['is_donor'] = [
-    'name' => 'is_donor',
-    'title' => ts('Is it donor?'),
-    'description' => 'Is it donor? Always add to Members group',
-    'type' => CRM_Utils_Type::T_INT,
-    'api.required' => 0,
-    'api.default' => '',
-  ];
   $spec['utm_source'] = [
     'name' => 'utm_source',
     'title' => ts('utm source'),
@@ -135,7 +127,6 @@ function civicrm_api3_wemove_contact_create($params) {
     'group_id' => $groupId,
     'locale' => $locale,
     'opt_in' => $optIn,
-    'is_donor' => $params['is_donor'],
   ];
 
   $contact = array(

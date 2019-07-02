@@ -66,7 +66,6 @@ class CRM_Commitcivi_EventProcessor {
       'create_dt' => $event->createDate,
       'external_identifier' => $event->externalIdentifier,
       'campaign_id' => $campaignId,
-      'is_donor' => 1,
       'utm_source' => $event->utm->Source,
       'utm_medium' => $event->utm->Medium,
       'utm_campaign' => $event->utm->Campaign,
