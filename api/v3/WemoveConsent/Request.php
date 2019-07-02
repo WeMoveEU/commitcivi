@@ -148,3 +148,22 @@ function getLocale($locale) {
   }
   return $localeTab;
 }
+
+
+/**
+ * todo refactor
+ * @param $html
+ *
+ * @return string
+ */
+function convertHtmlToText($html) {
+  $html = str_ireplace(array('<br>', '<br/>', '<br />'), "\n", $html);
+  $html = strip_tags($html, '<a>');
+  $re = '/<a href="(.*)">(.*)<\/a>/';
+  if (preg_match_all($re, $html, $matches)) {
+    foreach ($matches[0] as $id => $tag) {
+      $html = str_replace($tag, $matches[2][$id] . "\n" . str_replace(' ', '+', $matches[1][$id]), $html);
+    }
+  }
+  return $html;
+}
