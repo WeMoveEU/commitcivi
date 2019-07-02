@@ -106,6 +106,12 @@ function _civicrm_api3_wemove_contact_create_spec(&$spec) {
   ];
 }
 
+/**
+ * @param $params
+ *
+ * @return array
+ * @throws \CiviCRM_API3_Exception
+ */
 function civicrm_api3_wemove_contact_create($params) {
   if (CRM_Commitcivi_Model_Contact::isAnonymous($params['email'])) {
     $params = [
@@ -208,6 +214,17 @@ function civicrm_api3_wemove_contact_create($params) {
     $consent->utmCampaign = $params['utm_campaign'];
     $activity->dpa($contactId, $consent);
     $contactObj->setGDPRFields($contactId, $consent);
+  }
+  else {
+    // send a request for consent
+    $requestParams = [
+      'contact_id' => $contactId,
+      'campaign_id' => $params['campaign_id'],
+      'utm_source' => $params['utm_source'],
+      'utm_medium' => $params['utm_medium'],
+      'utm_campaign' => $params['utm_campaign'],
+    ];
+    $result = civicrm_api3('WemoveConsent', 'request', $requestParams);
   }
   if ($contactResult['preferred_language'] != $locale && $rlg == 1) {
     $contactObj->set($contactId, ['preferred_language' => $locale]);

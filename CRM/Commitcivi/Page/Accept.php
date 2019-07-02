@@ -20,6 +20,11 @@ class CRM_Commitcivi_Page_Accept extends CRM_Commitcivi_Logic_Consent {
     $contactParams = $this->getContactConsentParams($campaign);
     CRM_Speakcivi_Logic_Contact::set($this->contactId, $contactParams);
     $this->accept($campaign);
+    $activity = new CRM_Commitcivi_Logic_Activity();
+    $activity->join($this->contactId, 'request-consent-accept', $this->campaignId);
+    $groupId = CRM_Commitcivi_Logic_Settings::groupId();
+    $group = new CRM_Commitcivi_Logic_Group();
+    $group->setGroupContactAdded($this->contactId, $groupId);
     $this->redirect($campaign);
   }
 
