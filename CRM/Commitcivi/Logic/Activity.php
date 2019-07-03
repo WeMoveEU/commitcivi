@@ -8,14 +8,15 @@ class CRM_Commitcivi_Logic_Activity {
    * @param int $contactId
    * @param string $subject
    * @param int $campaignId
+   * @param array $customFields
    * @param int $parentActivityId
    *
    * @return mixed
    * @throws \CiviCRM_API3_Exception
    */
-  public function join($contactId, $subject = '', $campaignId = 0, $parentActivityId = 0) {
+  public function join($contactId, $subject = '', $campaignId = 0, $customFields = [], $parentActivityId = 0) {
     $activityTypeId = CRM_Commitcivi_Logic_Settings::joinActivityTypeId();
-    $result = $this->create($contactId, $activityTypeId, $subject, $campaignId, $parentActivityId);
+    $result = $this->create($contactId, $activityTypeId, $subject, $campaignId, $customFields, $parentActivityId);
     return $result['id'];
   }
 
@@ -56,6 +57,7 @@ class CRM_Commitcivi_Logic_Activity {
    * @param int $typeId
    * @param string $subject
    * @param int $campaignId
+   * @param array $customFields
    * @param int $parentActivityId
    * @param string $activity_date_time
    * @param string $location
@@ -64,7 +66,7 @@ class CRM_Commitcivi_Logic_Activity {
    * @return array
    * @throws \CiviCRM_API3_Exception
    */
-  private function create($contactId, $typeId, $subject = '', $campaignId = 0, $parentActivityId = 0, $activity_date_time = '', $location = '', $status = 'Completed') {
+  private function create($contactId, $typeId, $subject = '', $campaignId = 0, $customFields = [], $parentActivityId = 0, $activity_date_time = '', $location = '', $status = 'Completed') {
     $statusId = CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_Activity', 'status_id', $status);
     $params = array(
       'sequential' => 1,
@@ -86,7 +88,33 @@ class CRM_Commitcivi_Logic_Activity {
     if ($location) {
       $params['location'] = $location;
     }
+    $params = array_merge($params, $customFields);
+
     return civicrm_api3('Activity', 'create', $params);
+  }
+
+
+  /**
+   * Prepare source fields in custom fields and return as a param array to Activity
+   * api action
+   *
+   * @param CRM_Commitcivi_Logic_Consent $consent
+   *
+   * @return array
+   */
+  public function prepareSourceFields(CRM_Commitcivi_Logic_Consent $consent) {
+    $params = [];
+    if ($consent->utmSource) {
+      $params[CRM_Commitcivi_Logic_Settings::fieldActivitySource()] = $consent->utmSource;
+    }
+    if ($consent->utmMedium) {
+      $params[CRM_Commitcivi_Logic_Settings::fieldActivityMedium()] = $consent->utmMedium;
+    }
+    if ($consent->utmCampaign) {
+      $params[CRM_Commitcivi_Logic_Settings::fieldActivityCampaign()] = $consent->utmCampaign;
+    }
+
+    return $params;
   }
 
 }

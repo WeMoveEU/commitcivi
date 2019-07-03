@@ -201,6 +201,7 @@ function civicrm_api3_wemove_contact_create($params) {
   $tag->setLanguageTag($contactId, $language);
   if ($contactObj->needJoinActivity($contact)) {
     $activity = new CRM_Commitcivi_Logic_Activity();
+    // todo add utms to join activity
     $activity->join($contactId, 'donation', $params['campaign_id']);
 
     $campaign = CRM_Commitcivi_Logic_CampaignCache::getByLocalId($params['campaign_id']);
