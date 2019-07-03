@@ -183,7 +183,7 @@ class CRM_Commitcivi_Logic_Consent extends CRM_Core_Page {
    *
    * @return mixed|string
    */
-  public function determineRedirectUrl($page, $country, $redirect, $context = NULL) {
+  private function determineRedirectUrl($page, $country, $redirect, $context = NULL) {
     if ($context != NULL) {
       $lang = $context['drupal_language'];
       $cid = $context['contact_id'];
@@ -211,11 +211,11 @@ class CRM_Commitcivi_Logic_Consent extends CRM_Core_Page {
 
   /**
    * @param \CRM_Speakcivi_Logic_Campaign $campaign
+   * @param string $redirect
    * @param string $defaultPage
    */
-  public function redirect(CRM_Speakcivi_Logic_Campaign $campaign, $defaultPage = 'thank-you-for-your-confirmation') {
+  private function redirect(CRM_Speakcivi_Logic_Campaign $campaign, $redirect, $defaultPage = 'thank-you-for-your-confirmation') {
     $language = substr($campaign->getLanguage(), 0, 2);
-    $redirect = $campaign->getRedirectConfirm();
     $context = array(
       'drupal_language' => $language,
       'contact_id' => $this->contactId,
@@ -225,6 +225,29 @@ class CRM_Commitcivi_Logic_Consent extends CRM_Core_Page {
     CRM_Utils_System::redirect($url);
   }
 
+  /**
+   * @param \CRM_Speakcivi_Logic_Campaign $campaign
+   * @param string $defaultPage
+   */
+  public function redirectAccept(CRM_Speakcivi_Logic_Campaign $campaign, $defaultPage = 'thank-you-for-your-confirmation') {
+    $redirect = $campaign->getRedirectConfirm();
+    $this->redirect($campaign, $redirect, $defaultPage);
+  }
+
+  /**
+   * @param \CRM_Speakcivi_Logic_Campaign $campaign
+   * @param string $defaultPage
+   */
+  public function redirectReject(CRM_Speakcivi_Logic_Campaign $campaign, $defaultPage = 'thank-you-for-your-confirmation') {
+    $redirect = $campaign->getRedirectOptout();
+    $this->redirect($campaign, $redirect, $defaultPage);
+  }
+
+  /**
+   * @param $name
+   *
+   * @return mixed
+   */
   public function fieldName($name) {
     return CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_' . $name);
   }

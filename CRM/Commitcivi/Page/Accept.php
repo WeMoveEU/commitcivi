@@ -26,7 +26,7 @@ class CRM_Commitcivi_Page_Accept extends CRM_Commitcivi_Logic_Consent {
     $groupId = CRM_Commitcivi_Logic_Settings::groupId();
     $group = new CRM_Commitcivi_Logic_Group();
     $group->setGroupContactAdded($this->contactId, $groupId);
-    $this->redirect($campaign);
+    $this->redirectAccept($campaign);
   }
 
 }

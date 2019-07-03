@@ -19,7 +19,7 @@ class CRM_Commitcivi_Page_Reject extends CRM_Commitcivi_Logic_Consent {
     // fixme gdpr custom fields is still used for Speakcivi.leave action
     CRM_Speakcivi_Logic_Contact::emptyGDPRFields($this->contactId);
     $this->reject($campaign);
-    $this->redirect($campaign);
+    $this->redirectReject($campaign);
   }
 
 }
