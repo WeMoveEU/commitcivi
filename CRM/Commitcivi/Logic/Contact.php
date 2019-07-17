@@ -380,11 +380,11 @@ class CRM_Commitcivi_Logic_Contact {
    * Sets the GDPR temporary fields of the contact based on the given consent object
    *
    * @param $contactId
-   * @param \CRM_Commitcivi_Model_Consent $consent
+   * @param \CRM_Commitcivi_Logic_Consent $consent
    *
    * @throws \CiviCRM_API3_Exception
    */
-  public function setGDPRFields($contactId, CRM_Commitcivi_Model_Consent $consent) {
+  public function setGDPRFields($contactId, CRM_Commitcivi_Logic_Consent $consent) {
     $cd = new DateTime(substr($consent->createDate, 0, 10));
     $contactParams = [
       CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_date') => $cd->format('Y-m-d'),

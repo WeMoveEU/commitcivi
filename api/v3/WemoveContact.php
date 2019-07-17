@@ -205,7 +205,7 @@ function civicrm_api3_wemove_contact_create($params) {
     $activity->join($contactId, 'donation', $params['campaign_id']);
 
     $campaign = CRM_Commitcivi_Logic_CampaignCache::getByLocalId($params['campaign_id']);
-    $consent = new CRM_Commitcivi_Model_Consent();
+    $consent = new CRM_Commitcivi_Logic_Consent();
     $consent->version = $campaign[CRM_Commitcivi_Logic_Settings::fieldConsentIds()];
     $consent->language = $language;
     $consent->createDate = $params['create_dt'];

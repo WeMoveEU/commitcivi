@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Class CRM_Commitcivi_Model_Consent
+ * @deprecated
+ */
 class CRM_Commitcivi_Model_Consent {
 
   const STATUS_NOTPROVIDED = 'not_provided';
