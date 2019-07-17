@@ -201,9 +201,6 @@ function civicrm_api3_wemove_contact_create($params) {
   $tag->setLanguageTag($contactId, $language);
   if ($contactObj->needJoinActivity($contact)) {
     $activity = new CRM_Commitcivi_Logic_Activity();
-    // todo add utms to join activity
-    $activity->join($contactId, 'donation', $params['campaign_id']);
-
     $campaign = CRM_Commitcivi_Logic_CampaignCache::getByLocalId($params['campaign_id']);
     $consent = new CRM_Commitcivi_Logic_Consent();
     $consent->version = $campaign[CRM_Commitcivi_Logic_Settings::fieldConsentIds()];
@@ -214,6 +211,8 @@ function civicrm_api3_wemove_contact_create($params) {
     $consent->utmMedium = $params['utm_medium'];
     $consent->utmCampaign = $params['utm_campaign'];
     $activity->dpa($contactId, $consent);
+    $utmCustomFields = $activity->prepareSourceFields($consent);
+    $activity->join($contactId, 'donation', $params['campaign_id'], $utmCustomFields);
     $contactObj->setGDPRFields($contactId, $consent);
   }
   else {
