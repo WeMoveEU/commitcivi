@@ -87,7 +87,13 @@ class CRM_Commitcivi_Consumer {
             $this->msg_since_check = 0;
           }
         }
-        $channel->wait();
+        try {
+          $channel->wait();
+        } catch (Exception $ex) {
+          // If an exception occurs while waiting for a message, the CMS custom error handler will catch it and the process will exit with status 0,
+          // which would prevent the systemd service from automatically restarting. Using handleError prevents this behaviour.
+          $this->handleError(NULL, CRM_Core_Error::formatTextException($ex));
+        }
       }
 
       if ($this->isLoadTooHigh()) {
@@ -156,24 +162,27 @@ class CRM_Commitcivi_Consumer {
    * If $retry is trueish, nack the message without re-queue and send it to the retry exchange.
    * Otherwise if an error queue is defined, send it to that queue through the direct exchange.
    * Otherwise nack and re-deliver the message to the originating queue.
+   * If no message is provided, simply log the error and die.
    */
   protected function handleError($msg, $error, $retry = FALSE) {
     CRM_Core_Error::debug_var("COMMITCIVI AMQP", $error, TRUE, TRUE);
-    $channel = $msg->delivery_info['channel'];
 
-    if ($retry && $this->retry_exchange != NULL) {
-      $channel->basic_nack($msg->delivery_info['delivery_tag']);
-      $new_msg = new AMQPMessage($msg->body);
-      $headers = new AMQPTable(array('x-delay' => $this->retryDelay));
-      $new_msg->set('application_headers', $headers);
-      $channel->basic_publish($new_msg, $this->retry_exchange, $msg->delivery_info['routing_key']);
-    }
-    elseif ($this->error_queue != NULL) {
-      $channel->basic_nack($msg->delivery_info['delivery_tag']);
-      $channel->basic_publish($msg, '', $this->error_queue);
-    }
-    else {
-      $channel->basic_nack($msg->delivery_info['delivery_tag'], FALSE, TRUE);
+    if ($msg) {
+      $channel = $msg->delivery_info['channel'];
+      if ($retry && $this->retry_exchange != NULL) {
+        $channel->basic_nack($msg->delivery_info['delivery_tag']);
+        $new_msg = new AMQPMessage($msg->body);
+        $headers = new AMQPTable(array('x-delay' => $this->retryDelay));
+        $new_msg->set('application_headers', $headers);
+        $channel->basic_publish($new_msg, $this->retry_exchange, $msg->delivery_info['routing_key']);
+      }
+      elseif ($this->error_queue != NULL) {
+        $channel->basic_nack($msg->delivery_info['delivery_tag']);
+        $channel->basic_publish($msg, '', $this->error_queue);
+      }
+      else {
+        $channel->basic_nack($msg->delivery_info['delivery_tag'], FALSE, TRUE);
+      }
     }
 
     //In some cases (e.g. a lost connection), dying and respawning can solve the problem
