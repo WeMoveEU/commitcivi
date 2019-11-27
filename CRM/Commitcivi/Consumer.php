@@ -71,9 +71,16 @@ class CRM_Commitcivi_Consumer {
    * Regularly check the server load, and pauses the consumption when the load is too high
    */
   public function start() {
-    $connection = $this->connect();
-    $channel = $connection->channel();
-    $channel->basic_qos(NULL, $this->loadCheckPeriod, NULL);
+    try {
+      $connection = $this->connect();
+      $channel = $connection->channel();
+      $channel->basic_qos(NULL, $this->loadCheckPeriod, NULL);
+    } catch (Exception $ex) {
+      // If an exception occurs while waiting for a message, the CMS custom error handler will catch it and the process will exit with status 0,
+      // which would prevent the systemd service from automatically restarting. Using handleError prevents this behaviour.
+      $this->handleError(NULL, CRM_Core_Error::formatTextException($ex));
+    }
+
     while (TRUE) {
       while (count($channel->callbacks)) {
         if ($this->msg_since_check >= $this->loadCheckPeriod) {
@@ -103,10 +110,16 @@ class CRM_Commitcivi_Consumer {
       }
       else {
         if (!$connection->isConnected()) {
-          $connection = connect();
-          $channel = $connection->channel();
-          //Never pre-fetch more than `loadCheckPeriod` messages from the queue
-          $channel->basic_qos(NULL, $this->loadCheckPeriod, NULL);
+          try {
+            $connection = $this->connect();
+            $channel = $connection->channel();
+            //Never pre-fetch more than `loadCheckPeriod` messages from the queue
+            $channel->basic_qos(NULL, $this->loadCheckPeriod, NULL);
+          } catch (Exception $ex) {
+            // If an exception occurs while waiting for a message, the CMS custom error handler will catch it and the process will exit with status 0,
+            // which would prevent the systemd service from automatically restarting. Using handleError prevents this behaviour.
+            $this->handleError(NULL, CRM_Core_Error::formatTextException($ex));
+          }
         }
         //Register callback for incoming messages
         $cb_name = $channel->basic_consume($this->queue, '', FALSE, FALSE, FALSE, FALSE, array($this, 'processMessage'));
