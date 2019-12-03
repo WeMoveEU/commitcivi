@@ -86,7 +86,6 @@ class CRM_Commitcivi_Logic_DonationStripe extends CRM_Commitcivi_Logic_Donation 
     if ($recurId) {
       $params['contribution_recur_id'] = $recurId;
     }
-    $params = $this->setSourceFields($params, $event->utm);
     return civicrm_api3('Contribution', 'create', $params);
   }
 
