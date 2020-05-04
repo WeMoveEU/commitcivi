@@ -48,7 +48,9 @@ class CRM_Commitcivi_Logic_DonationStripe extends CRM_Commitcivi_Logic_Donation 
    */
   private function setSingle(CRM_Commitcivi_Model_Event $event, $contactId, $campaignId, $recurId = 0) {
     if (!$contrib = $this->find($event->donation->transactionId)) {
-      return $this->single($event, $contactId, $campaignId, $recurId);
+      $result = $this->single($event, $contactId, $campaignId, $recurId);
+      $this->singleUtm($event, $result['id']);
+      return $result;
     }
     return $contrib;
   }
@@ -86,8 +88,24 @@ class CRM_Commitcivi_Logic_DonationStripe extends CRM_Commitcivi_Logic_Donation 
     if ($recurId) {
       $params['contribution_recur_id'] = $recurId;
     }
-    $params = $this->setSourceFields($params, $event->utm);
     return civicrm_api3('Contribution', 'create', $params);
+  }
+
+  /**
+   * @param \CRM_Commitcivi_Model_Event $event
+   * @param int $id
+   *
+   * @throws \CiviCRM_API3_Exception
+   */
+  private function singleUtm(CRM_Commitcivi_Model_Event $event, $id) {
+    $params = array(
+      'sequential' => 1,
+      'id' => $id,
+    );
+    $params = $this->setSourceFields($params, $event->utm);
+    if (count($params) > 2) {
+      civicrm_api3('Contribution', 'create', $params);
+    }
   }
 
   /**
