@@ -61,7 +61,6 @@ class CRM_Commitcivi_Logic_Contact {
    */
   public function prepareParamsContact($params, $contact, $options, $result = array(), $basedOnContactId = 0) {
     $groupId = $options['group_id'];
-    $optIn = $options['opt_in'];
     $locale = $options['locale'];
 
     unset($contact['return']);
@@ -93,13 +92,6 @@ class CRM_Commitcivi_Logic_Contact {
         }
       }
       $contact = $address->prepareParamsAddress($contact, $existingContact, $params);
-      if (!$optIn && $existingContact[self::API_GROUPCONTACT_GET]['count'] == 0) {
-        $contact[self::API_GROUPCONTACT_CREATE] = array(
-          'group_id' => $groupId,
-          'contact_id' => '$value.id',
-          'status' => 'Added',
-        );
-      }
     }
     else {
       $genderId = $this->getGenderId($params['lastname']);
@@ -117,13 +109,6 @@ class CRM_Commitcivi_Logic_Contact {
       $contact['preferred_language'] = $locale;
       $contact['source'] = $this->determineSource($params);
       $contact = $address->prepareParamsAddressDefault($contact, $params);
-      if (!$optIn) {
-        $contact[self::API_GROUPCONTACT_CREATE] = array(
-          'group_id' => $groupId,
-          'contact_id' => '$value.id',
-          'status' => 'Added',
-        );
-      }
     }
     $contact = $address->removeNullAddress($contact);
     return $contact;
@@ -279,31 +264,6 @@ class CRM_Commitcivi_Logic_Contact {
    */
   public function needJoinActivity($params) {
     return (bool) CRM_Utils_Array::value(self::API_GROUPCONTACT_CREATE, $params);
-  }
-
-  /**
-   * Determine optIn param.
-   *
-   * @param int $defaultOptIn
-   * @param string $country ISO code
-   *
-   * @return int
-   */
-  public function determineOptIn($defaultOptIn, $country) {
-    $notSendConfirmationToThoseCountries = array(
-      'BE',
-      'ES',
-      'FR',
-      'GB',
-      'IT',
-      'NL',
-      'PL',
-      'UK',
-    );
-    if (in_array($country, $notSendConfirmationToThoseCountries)) {
-      return 0;
-    }
-    return $defaultOptIn;
   }
 
   /**
