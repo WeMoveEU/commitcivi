@@ -52,35 +52,12 @@ class CRM_Commitcivi_Logic_Settings {
   }
 
   /**
-   * @return mixed
-   */
-  public static function fieldConsentIds() {
-    return CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_campaign_consent_ids');
-  }
-
-  /**
    * Get anonymous contact id.
    *
    * @return mixed
    */
   public static function anonymousId() {
     return Civi::settings()->get('anonymous_id');
-  }
-
-  /**
-   * Get activity type id for Join.
-   *
-   * @return mixed
-   */
-  public static function joinActivityTypeId() {
-    return Civi::settings()->get('activity_type_join');
-  }
-
-  /**
-   * @return bool|int|null|string
-   */
-  public static function dpaActivityTypeId() {
-    return CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_Activity', 'activity_type_id', 'SLA Acceptance');
   }
 
   /**

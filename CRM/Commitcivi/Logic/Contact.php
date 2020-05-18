@@ -254,17 +254,6 @@ class CRM_Commitcivi_Logic_Contact {
     return (bool) count($params);
   }
 
-  /**
-   * Check if contact should have Join activity.
-   * Assupmtion: $params has only Members group.
-   *
-   * @param array $params
-   *
-   * @return bool
-   */
-  public function needJoinActivity($params) {
-    return (bool) CRM_Utils_Array::value(self::API_GROUPCONTACT_CREATE, $params);
-  }
 
   /**
    * Determine source for new contact.
@@ -334,28 +323,6 @@ class CRM_Commitcivi_Logic_Contact {
       return $emailGreetingIds[$locale][''];
     }
     return 0;
-  }
-
-  /**
-   * Sets the GDPR temporary fields of the contact based on the given consent object
-   *
-   * @param $contactId
-   * @param \CRM_Commitcivi_Logic_Consent $consent
-   *
-   * @throws \CiviCRM_API3_Exception
-   */
-  public function setGDPRFields($contactId, CRM_Commitcivi_Logic_Consent $consent) {
-    $cd = new DateTime(substr($consent->createDate, 0, 10));
-    $contactParams = [
-      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_date') => $cd->format('Y-m-d'),
-      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_version') => $consent->version,
-      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_language') => strtoupper($consent->language),
-      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_utm_source') => $consent->utmSource,
-      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_utm_medium') => $consent->utmMedium,
-      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_utm_campaign') => $consent->utmCampaign,
-      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_campaign_id') => $consent->campaignId,
-    ];
-    $this->set($contactId, $contactParams);
   }
 
 }
