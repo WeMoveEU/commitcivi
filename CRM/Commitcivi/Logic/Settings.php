@@ -16,15 +16,6 @@ class CRM_Commitcivi_Logic_Settings {
   }
 
   /**
-   * Get opt_in setting.
-   *
-   * @return mixed
-   */
-  public static function optIn() {
-    return Civi::settings()->get('opt_in');
-  }
-
-  /**
    * Get mapping array between country and language (locale).
    *
    * @return mixed
@@ -61,51 +52,12 @@ class CRM_Commitcivi_Logic_Settings {
   }
 
   /**
-   * Language group name suffix.
-   *
-   * @return mixed
-   */
-  public static function languageGroupNameSuffix() {
-    return Civi::settings()->get('language_group_name_suffix');
-  }
-
-  /**
-   * Default language group id.
-   *
-   * @return mixed
-   */
-  public static function defaultLanguageGroupId() {
-    return (int) Civi::settings()->get('default_language_group_id');
-  }
-
-  /**
    * Language tag name prefix.
    *
    * @return mixed
    */
   public static function languageTagNamePrefix() {
     return Civi::settings()->get('language_tag_name_prefix');
-  }
-
-  /**
-   * @return mixed
-   */
-  public static function fieldActivitySource() {
-    return Civi::settings()->get('field_activity_source');
-  }
-
-  /**
-   * @return mixed
-   */
-  public static function fieldActivityMedium() {
-    return Civi::settings()->get('field_activity_medium');
-  }
-
-  /**
-   * @return mixed
-   */
-  public static function fieldActivityCampaign() {
-    return Civi::settings()->get('field_activity_campaign');
   }
 
   /**
