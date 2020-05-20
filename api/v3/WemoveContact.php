@@ -129,7 +129,6 @@ function civicrm_api3_wemove_contact_create($params) {
   $locale = $campaign->determineLanguage($params['action_name']);
   $contactObj = new CRM_Commitcivi_Logic_Contact();
   $options = [
-    'group_id' => $groupId,
     'locale' => $locale,
   ];
 
