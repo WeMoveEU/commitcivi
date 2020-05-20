@@ -197,7 +197,7 @@ function civicrm_api3_wemove_contact_create($params) {
   $language = substr($locale, 0, 2);
   $tag = new CRM_Commitcivi_Logic_Tag();
   $tag->setLanguageTag($contactId, $language);
-  if ($contactResult['preferred_language'] != $locale && $rlg == 1) {
+  if ($contactResult['preferred_language'] != $locale) {
     $contactObj->set($contactId, ['preferred_language' => $locale]);
   }
 
