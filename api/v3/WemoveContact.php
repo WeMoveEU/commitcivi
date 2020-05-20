@@ -152,6 +152,8 @@ function civicrm_api3_wemove_contact_create($params) {
   $updateContact = TRUE;
   $contactId = 0;
   $contactResult = [];
+  $getResult = [];
+  $createParams = [];
   if (is_array($contacIds) && count($contacIds) > 0) {
     $getParams = $contact;
     $getParams['id'] = array('IN' => array_keys($contacIds));
@@ -186,7 +188,7 @@ function civicrm_api3_wemove_contact_create($params) {
   }
 
   if ($updateContact) {
-    $createResult = civicrm_api3('Contact', 'create', $contact);
+    $createResult = civicrm_api3('Contact', 'create', $createParams);
     $contactId = $createResult['id'];
     $contactResult = $createResult['values'][$contactId];
   }
