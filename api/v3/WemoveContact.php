@@ -80,8 +80,38 @@ function _civicrm_api3_wemove_contact_create_spec(&$spec) {
     'api.required' => 0,
     'api.default' => '',
   ];
+  $spec['utm_source'] = [
+    'name' => 'utm_source',
+    'title' => ts('utm source'),
+    'description' => 'utm source',
+    'type' => CRM_Utils_Type::T_STRING,
+    'api.required' => 0,
+    'api.default' => '',
+  ];
+  $spec['utm_medium'] = [
+    'name' => 'utm_medium',
+    'title' => ts('utm medium'),
+    'description' => 'utm medium',
+    'type' => CRM_Utils_Type::T_STRING,
+    'api.required' => 0,
+    'api.default' => '',
+  ];
+  $spec['utm_campaign'] = [
+    'name' => 'utm_campaign',
+    'title' => ts('utm campaign'),
+    'description' => 'utm campaign',
+    'type' => CRM_Utils_Type::T_STRING,
+    'api.required' => 0,
+    'api.default' => '',
+  ];
 }
 
+/**
+ * @param $params
+ *
+ * @return array
+ * @throws \CiviCRM_API3_Exception
+ */
 function civicrm_api3_wemove_contact_create($params) {
   if (CRM_Commitcivi_Model_Contact::isAnonymous($params['email'])) {
     $params = [
@@ -98,11 +128,8 @@ function civicrm_api3_wemove_contact_create($params) {
   $campaign = new CRM_Commitcivi_Logic_Campaign();
   $locale = $campaign->determineLanguage($params['action_name']);
   $contactObj = new CRM_Commitcivi_Logic_Contact();
-  $optIn = $contactObj->determineOptIn(CRM_Commitcivi_Logic_Settings::optIn(), $params['country']);
   $options = [
-    'group_id' => $groupId,
     'locale' => $locale,
-    'opt_in' => $optIn,
   ];
 
   $contact = array(
@@ -124,66 +151,66 @@ function civicrm_api3_wemove_contact_create($params) {
   $updateContact = TRUE;
   $contactId = 0;
   $contactResult = [];
+  $getResult = [];
+  $createParams = [];
   if (is_array($contacIds) && count($contacIds) > 0) {
-    $contactParam = $contact;
-    $contactParam['id'] = array('IN' => array_keys($contacIds));
-    unset($contactParam['email']); // getting by email (pseudoconstant) sometimes doesn't work
-    $result = civicrm_api3('Contact', 'get', $contactParam);
-    if ($result['count'] == 1) {
-      $contact = $contactObj->prepareParamsContact($params, $contact, $options, $result, $result['id']);
-      if (!$contactObj->needUpdate($contact)) {
+    $getParams = $contact;
+    $getParams['id'] = array('IN' => array_keys($contacIds));
+    unset($getParams['email']); // getting by email (pseudoconstant) sometimes doesn't work
+    $getResult = civicrm_api3('Contact', 'get', $getParams);
+    if ($getResult['count'] == 1) {
+      $createParams = $contactObj->prepareParamsContact($params, $contact, $options, $getResult, $getResult['id']);
+      if (!$contactObj->needUpdate($createParams)) {
         $updateContact = FALSE;
-        $contactId = $result['id'];
-        $contactResult = $result['values'][$contactId];
+        $contactId = $getResult['id'];
+        $contactResult = $getResult['values'][$contactId];
       }
     }
-    elseif ($result['count'] > 1) {
+    elseif ($getResult['count'] > 1) {
       $lastname = $contactObj->cleanLastname($params['lastname']);
       $newContact = $contact;
       $newContact['first_name'] = $params['firstname'];
       $newContact['last_name'] = $lastname;
-      $similarity = $contactObj->glueSimilarity($newContact, $result['values']);
+      $similarity = $contactObj->glueSimilarity($newContact, $getResult['values']);
       unset($newContact);
       $contactIdBest = $contactObj->chooseBestContact($similarity);
-      $contact = $contactObj->prepareParamsContact($params, $contact, $options, $result, $contactIdBest);
-      if (!$contactObj->needUpdate($contact)) {
+      $createParams = $contactObj->prepareParamsContact($params, $contact, $options, $getResult, $contactIdBest);
+      if (!$contactObj->needUpdate($createParams)) {
         $updateContact = FALSE;
         $contactId = $contactIdBest;
-        $contactResult = $result['values'][$contactIdBest];
+        $contactResult = $getResult['values'][$contactIdBest];
       }
     }
   }
   else {
-    $contact = $contactObj->prepareParamsContact($params, $contact, $options);
+    $createParams = $contactObj->prepareParamsContact($params, $contact, $options);
   }
 
   if ($updateContact) {
-    $result = civicrm_api3('Contact', 'create', $contact);
-    $contactId = $result['id'];
-    $contactResult = $result['values'][$contactId];
+    $createResult = civicrm_api3('Contact', 'create', $createParams);
+    $contactId = $createResult['id'];
+    $contactResult = $createResult['values'][$contactId];
   }
   $returnResult = [$contactId => $contactResult];
 
   $language = substr($locale, 0, 2);
-  $group = new CRM_Commitcivi_Logic_Group();
-  $rlg = $group->setLanguageGroup($contactId, $language);
   $tag = new CRM_Commitcivi_Logic_Tag();
   $tag->setLanguageTag($contactId, $language);
-  if ($contactObj->needJoinActivity($contact)) {
-    $activity = new CRM_Commitcivi_Logic_Activity();
-    $activity->join($contactId, 'donation', $params['campaign_id']);
-
-    $campaign = CRM_Commitcivi_Logic_CampaignCache::getByLocalId($params['campaign_id']);
-    $consent = new CRM_Commitcivi_Model_Consent();
-    $consent->version = $campaign[CRM_Commitcivi_Logic_Settings::fieldConsentIds()];
-    $consent->language = $language;
-    $consent->createDate = $params['create_dt'];
-    $consent->campaignId = $params['campaign_id'];
-    $activity->dpa($contactId, $consent);
-    $contactObj->setGDPRFields($contactId, $consent);
-  }
-  if ($contactResult['preferred_language'] != $locale && $rlg == 1) {
+  if ($contactResult['preferred_language'] != $locale) {
     $contactObj->set($contactId, ['preferred_language' => $locale]);
   }
+
+  // if the contact did not exist or is not a member, send a request for consent
+  if (count($contacIds) == 0 || $getResult['values'][$contactId]['api.GroupContact.get']['count'] == 0) {
+    $requestParams = [
+      'contact_id' => $contactId,
+      'campaign_id' => $params['campaign_id'],
+      'utm_source' => $params['utm_source'],
+      'utm_medium' => $params['utm_medium'],
+      'utm_campaign' => $params['utm_campaign'],
+    ];
+    $confResult = civicrm_api3('Gidipirus', 'send_consent_request', $requestParams);
+  }
+
   return civicrm_api3_create_success($returnResult, $params);
 }

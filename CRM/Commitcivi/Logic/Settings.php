@@ -16,15 +16,6 @@ class CRM_Commitcivi_Logic_Settings {
   }
 
   /**
-   * Get opt_in setting.
-   *
-   * @return mixed
-   */
-  public static function optIn() {
-    return Civi::settings()->get('opt_in');
-  }
-
-  /**
    * Get mapping array between country and language (locale).
    *
    * @return mixed
@@ -51,10 +42,6 @@ class CRM_Commitcivi_Logic_Settings {
     return Civi::settings()->get('field_language');
   }
 
-  public static function fieldConsentIds() {
-    return CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_campaign_consent_ids');
-  }
-
   /**
    * Get anonymous contact id.
    *
@@ -62,37 +49,6 @@ class CRM_Commitcivi_Logic_Settings {
    */
   public static function anonymousId() {
     return Civi::settings()->get('anonymous_id');
-  }
-
-  /**
-   * Get activity type id for Join.
-   *
-   * @return mixed
-   */
-  public static function joinActivityTypeId() {
-    return Civi::settings()->get('activity_type_join');
-  }
-
-  public static function dpaActivityTypeId() {
-    return CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_Activity', 'activity_type_id', 'SLA Acceptance');
-  }
-
-  /**
-   * Language group name suffix.
-   *
-   * @return mixed
-   */
-  public static function languageGroupNameSuffix() {
-    return Civi::settings()->get('language_group_name_suffix');
-  }
-
-  /**
-   * Default language group id.
-   *
-   * @return mixed
-   */
-  public static function defaultLanguageGroupId() {
-    return (int) Civi::settings()->get('default_language_group_id');
   }
 
   /**

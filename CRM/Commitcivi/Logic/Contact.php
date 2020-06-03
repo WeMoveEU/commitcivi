@@ -60,8 +60,6 @@ class CRM_Commitcivi_Logic_Contact {
    * @return mixed
    */
   public function prepareParamsContact($params, $contact, $options, $result = array(), $basedOnContactId = 0) {
-    $groupId = $options['group_id'];
-    $optIn = $options['opt_in'];
     $locale = $options['locale'];
 
     unset($contact['return']);
@@ -93,13 +91,6 @@ class CRM_Commitcivi_Logic_Contact {
         }
       }
       $contact = $address->prepareParamsAddress($contact, $existingContact, $params);
-      if (!$optIn && $existingContact[self::API_GROUPCONTACT_GET]['count'] == 0) {
-        $contact[self::API_GROUPCONTACT_CREATE] = array(
-          'group_id' => $groupId,
-          'contact_id' => '$value.id',
-          'status' => 'Added',
-        );
-      }
     }
     else {
       $genderId = $this->getGenderId($params['lastname']);
@@ -117,13 +108,6 @@ class CRM_Commitcivi_Logic_Contact {
       $contact['preferred_language'] = $locale;
       $contact['source'] = $this->determineSource($params);
       $contact = $address->prepareParamsAddressDefault($contact, $params);
-      if (!$optIn) {
-        $contact[self::API_GROUPCONTACT_CREATE] = array(
-          'group_id' => $groupId,
-          'contact_id' => '$value.id',
-          'status' => 'Added',
-        );
-      }
     }
     $contact = $address->removeNullAddress($contact);
     return $contact;
@@ -269,42 +253,6 @@ class CRM_Commitcivi_Logic_Contact {
     return (bool) count($params);
   }
 
-  /**
-   * Check if contact should have Join activity.
-   * Assupmtion: $params has only Members group.
-   *
-   * @param array $params
-   *
-   * @return bool
-   */
-  public function needJoinActivity($params) {
-    return (bool) CRM_Utils_Array::value(self::API_GROUPCONTACT_CREATE, $params);
-  }
-
-  /**
-   * Determine optIn param.
-   *
-   * @param int $defaultOptIn
-   * @param string $country ISO code
-   *
-   * @return int
-   */
-  public function determineOptIn($defaultOptIn, $country) {
-    $notSendConfirmationToThoseCountries = array(
-      'BE',
-      'ES',
-      'FR',
-      'GB',
-      'IT',
-      'NL',
-      'PL',
-      'UK',
-    );
-    if (in_array($country, $notSendConfirmationToThoseCountries)) {
-      return 0;
-    }
-    return $defaultOptIn;
-  }
 
   /**
    * Determine source for new contact.
@@ -374,28 +322,6 @@ class CRM_Commitcivi_Logic_Contact {
       return $emailGreetingIds[$locale][''];
     }
     return 0;
-  }
-
-  /**
-   * Sets the GDPR temporary fields of the contact based on the given consent object
-   *
-   * @param $contactId
-   * @param \CRM_Commitcivi_Model_Consent $consent
-   *
-   * @throws \CiviCRM_API3_Exception
-   */
-  public function setGDPRFields($contactId, CRM_Commitcivi_Model_Consent $consent) {
-    $cd = new DateTime(substr($consent->createDate, 0, 10));
-    $contactParams = [
-      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_date') => $cd->format('Y-m-d'),
-      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_version') => $consent->version,
-      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_language') => strtoupper($consent->language),
-      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_utm_source') => $consent->utmSource,
-      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_utm_medium') => $consent->utmMedium,
-      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_utm_campaign') => $consent->utmCampaign,
-      CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_consent_campaign_id') => $consent->campaignId,
-    ];
-    $this->set($contactId, $contactParams);
   }
 
 }
