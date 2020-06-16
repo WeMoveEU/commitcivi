@@ -70,7 +70,7 @@ class CRM_Commitcivi_Consumer {
    * Connect to RabbitMQ and enters an infinite loop waiting for incoming messages.
    * Regularly check the server load, and pauses the consumption when the load is too high
    */
-  public function start() {
+  public function start($callbackFunction = 'processMessage') {
     try {
       $connection = $this->connect();
       $channel = $connection->channel();
@@ -122,7 +122,7 @@ class CRM_Commitcivi_Consumer {
           }
         }
         //Register callback for incoming messages
-        $cb_name = $channel->basic_consume($this->queue, '', FALSE, FALSE, FALSE, FALSE, array($this, 'processMessage'));
+        $cb_name = $channel->basic_consume($this->queue, '', FALSE, FALSE, FALSE, FALSE, array($this, $callbackFunction));
       }
     }
   }

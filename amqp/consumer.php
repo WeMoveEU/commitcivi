@@ -53,4 +53,4 @@ $retry_exchange = CRM_Utils_Array::value('r', $arguments, NULL);
 
 //Start consuming the queue
 $consumer = new CRM_Commitcivi_Consumer($queue_name, $error_queue, $retry_exchange);
-$consumer->start();
+$consumer->start('processMessage');
