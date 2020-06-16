@@ -97,7 +97,7 @@ class CRM_Commitcivi_Logic_DonationStripe extends CRM_Commitcivi_Logic_Donation 
    *
    * @throws \CiviCRM_API3_Exception
    */
-  private function singleUtm(CRM_Commitcivi_Model_Event $event, $id) {
+  public function singleUtm(CRM_Commitcivi_Model_Event $event, $id) {
     $params = array(
       'sequential' => 1,
       'id' => $id,

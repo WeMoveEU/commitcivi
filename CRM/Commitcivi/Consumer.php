@@ -67,6 +67,56 @@ class CRM_Commitcivi_Consumer {
   }
 
   /**
+   * Callback that processes each RabbitMQ message.
+   * It extracts the JSON event and gives it to the event processor.
+   * Depending on the result, acknowledge the processed message or handle
+   * appropriately the error.
+   * @param $msg - AMQPMessage instance
+   */
+  public function processUtm($msg) {
+    try {
+      $json_msg = json_decode($msg->body);
+      if ($json_msg) {
+        try {
+          $result = 0;
+          $event = new CRM_Commitcivi_Model_Event($json_msg);
+          /** @link https://trello.com/c/RMTClCh9/171-french-fundraiser-issues */
+          if (
+            $event->donation->paymentProcessor == CRM_Commitcivi_Model_Donation::PAYMENT_PROCESSOR_STRIPE &&
+            $event->donation->type == CRM_Commitcivi_Model_Donation::TYPE_SINGLE
+          ) {
+            $dt = date_create_from_format('Y-m-d', substr($event->createDate, 0, 10));
+            if ($dt->format('Y-m-d') >= '2019-12-03' && $dt->format('Y-m-d') <= '2020-05-04') {
+              $donation = new CRM_Commitcivi_Logic_DonationStripe();
+              $contribution = $donation->find($event->donation->transactionId);
+              $donation->singleUtm($event, $contribution['id']);
+              $result = $contribution['count'];
+            }
+          }
+          if ($result == 1) {
+            $msg->delivery_info['channel']->basic_ack($msg->delivery_info['delivery_tag']);
+          }
+          else {
+            $this->handleErrorCode($msg, $result, $json_msg);
+          }
+        }
+        catch (Exception $ex) {
+          $this->handleException($msg, $ex);
+        }
+      }
+      else {
+        $this->handleError($msg, "Could not decode " . $msg->body);
+      }
+    }
+    catch (Exception $ex) {
+      $this->handleException($msg, $ex);
+    }
+    finally {
+      $this->msg_since_check++;
+    }
+  }
+
+  /**
    * Connect to RabbitMQ and enters an infinite loop waiting for incoming messages.
    * Regularly check the server load, and pauses the consumption when the load is too high
    */

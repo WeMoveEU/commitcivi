@@ -34,7 +34,7 @@ class CRM_Commitcivi_Logic_Donation {
    * @return array
    * @throws \CiviCRM_API3_Exception
    */
-  protected function find($transactionId) {
+  public function find($transactionId) {
     $params = [
       'sequential' => 1,
       'trxn_id' => $transactionId,
