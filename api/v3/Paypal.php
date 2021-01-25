@@ -90,11 +90,11 @@ function _paypal_recover_transactions($search_result, $paypal, $pp_id, $limit) {
     $dao = new CRM_Contribute_DAO_Contribution();
     $dao->trxn_id = $trxn_id;
     if ($dao->find(TRUE)) {
-      $found[] = $trxn_type . ' ' . $trxn_id;
+      $result['found'][] = $trxn_type . ' ' . $trxn_id;
     } else if (in_array($trxn_type, ['Fee Reversal', 'Transfer', 'Refund'])
                || strpos($trxn_id, 'I-') === 0) { //This is a subscription being cancelled, there is no actual transaction
       //TODO Cancel recurring donation if can be found?
-      $not_processed[] = $trxn_type . ' ' . $trxn_id;
+      $result['not_processed'][] = $trxn_type . ' ' . $trxn_id;
     } else {
       $trxn_args = [];
       $paypal->initialize($trxn_args, 'GetTransactionDetails');
@@ -107,7 +107,7 @@ function _paypal_recover_transactions($search_result, $paypal, $pp_id, $limit) {
           $processed_count++;
         }
       } catch(Exception $e) {
-        $not_processed[] = "Errored (" . $e->getMessage() . ") $trxn_type $trxn_id";
+        $result['not_processed'][] = "Errored (" . $e->getMessage() . ") $trxn_type $trxn_id";
       }
     }
     $row++;
