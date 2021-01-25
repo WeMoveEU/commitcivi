@@ -30,6 +30,14 @@ function _civicrm_api3_paypal_recover_spec(&$spec) {
     'api.required' => 0,
     'api.default' => 'live',
   ];
+  $spec['limit'] = [
+    'name' => 'limit',
+    'title' => ts('Transactions limit'),
+    'description' => 'Maximum number of transactions to recover',
+    'type' => CRM_Utils_Type::T_INT,
+    'api.required' => 0,
+    'api.default' => NULL,
+  ];
 }
 
 function civicrm_api3_paypal_recover(&$params) {
@@ -37,17 +45,21 @@ function civicrm_api3_paypal_recover(&$params) {
   $paypal = new CRM_Core_Payment_PayPalImpl($params['mode'], $paymentProcessor);
 
   $recovery_result = ['found' => [], 'not_processed' => [], 'processed' => [], 'count' => 0];
+  $limit = $params['limit'];
   do {
     try {
       $search_result = _paypal_search_transactions($params['start'], $params['end'], $paypal);
     } catch(Exception $e) {
       return civicrm_api3_create_error("Error while retrieving list of transactions: [" . $e->getCode() . "] " . $e->getMessage(), $params);
     }
-    $iteration_result = _paypal_recover_transactions($search_result, $paypal, $params['pp_id']);
+    $iteration_result = _paypal_recover_transactions($search_result, $paypal, $params['pp_id'], $limit);
 
     foreach ($iteration_result as $key => $result) {
       $recovery_result['count'] += count($result);
       $recovery_result[$key] = array_merge($recovery_result[$key], $result);
+      if ($limit !== NULL && $key === 'processed') {
+        $limit -= count($result);
+      }
     }
 
     // Paypal returns max 100 rows, and warns with an error code if more rows are available
@@ -68,10 +80,11 @@ function _paypal_search_transactions($start, $end, $paypal) {
   return $paypal->invokeAPI($search_args);
 }
 
-function _paypal_recover_transactions($search_result, $paypal, $pp_id) {
+function _paypal_recover_transactions($search_result, $paypal, $pp_id, $limit) {
   $row = 0;
   $result = [];
-  while (array_key_exists("l_transactionid$row", $search_result)) {
+  $processed_count = 0;
+  while (array_key_exists("l_transactionid$row", $search_result) && ($limit === NULL || $processed_count < $limit)) {
     $trxn_id = $search_result["l_transactionid$row"];
     $trxn_type = $search_result["l_type$row"];
     $dao = new CRM_Contribute_DAO_Contribution();
@@ -90,8 +103,8 @@ function _paypal_recover_transactions($search_result, $paypal, $pp_id) {
         $trxn = $paypal->invokeAPI($trxn_args);
         $recovery = _paypal_recover_transaction($trxn, $search_result, $row, $pp_id);
         $result[$recovery['status']][] = $recovery['details'];
-        if ($recovery['status'] == 'processed') {
-          return $result;
+        if ($recovery['status'] === 'processed') {
+          $processed_count++;
         }
       } catch(Exception $e) {
         $not_processed[] = "Errored (" . $e->getMessage() . ") $trxn_type $trxn_id";
