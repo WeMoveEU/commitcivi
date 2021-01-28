@@ -65,7 +65,7 @@ function civicrm_api3_paypal_recover(&$params) {
     // Paypal returns max 100 rows, and warns with an error code if more rows are available
     // If so, we search again from latest timestamp (this assumes they are ordered by timestamp!)
     if ($search_result['l_errorcode0'] == '11002') {
-      $params['start'] = $search_result['l_timestamp99'];
+      $params['end'] = $search_result['l_timestamp99'];
     }
   } while ($search_result['l_errorcode0'] == '11002');
   
@@ -90,11 +90,11 @@ function _paypal_recover_transactions($search_result, $paypal, $pp_id, $limit) {
     $dao = new CRM_Contribute_DAO_Contribution();
     $dao->trxn_id = $trxn_id;
     if ($dao->find(TRUE)) {
-      $result['found'][] = $trxn_type . ' ' . $trxn_id;
+      $result['found'][] = "$trxn_type $trxn_id ({$search_result['l_timestamp'.$row]})";
     } else if (in_array($trxn_type, ['Fee Reversal', 'Transfer', 'Refund'])
                || strpos($trxn_id, 'I-') === 0) { //This is a subscription being cancelled, there is no actual transaction
       //TODO Cancel recurring donation if can be found?
-      $result['not_processed'][] = $trxn_type . ' ' . $trxn_id;
+      $result['not_processed'][] = "$trxn_type $trxn_id ({$search_result['l_timestamp'.$row]})";
     } else {
       $trxn_args = [];
       $paypal->initialize($trxn_args, 'GetTransactionDetails');
