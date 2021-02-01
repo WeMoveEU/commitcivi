@@ -1,5 +1,7 @@
 <?php
 
+const ERR_EMAIL = 1;
+
 function _civicrm_api3_paypal_recover_spec(&$spec) {
   $spec['start'] = [
     'name' => 'start',
@@ -129,41 +131,79 @@ function _paypal_recover_transaction($trxn, &$search_result, $row, $pp_id) {
   } else if ($trxn['paymentstatus'] != 'Completed') {
     return [ 'status' => 'not_processed', 'details' => "Recurring payment {$trxn['transactionid']} has status {$trxn['paymentstatus']}" ];
   } else {
-    $email = civicrm_api3('Email', 'get', [ 'email' => $trxn['email'], 'is_primary' => 1, 'sequential' => 1]);
-    if ($email['count'] != 1) {
-      return [ 'status' => 'not_processed', 'details' => "Missing or duped email {$trxn['email']} for {$trxn['transactionid']}" ];
-    } else {
-      $email = $email['values'][0];
-      $recurring_contrib = civicrm_api3('ContributionRecur', 'get', [
-        'contact_id' => $email['contact_id'],
-        'amount' => $trxn['amt'],
-      	'payment_processor_id' => $pp_id,
-        'sequential' => 1,
-      ]);
-      if ($recurring_contrib['count'] != 1) {
-        return [ 'status' => 'not_processed', 'details' => "Missing or duped contrib for contact id {$email['contact_id']} and transaction {$trxn['transactionid']}" ];
-      } else {
-        $recurring_contrib = $recurring_contrib['values'][0];
-        $repeat_params = [
-          'contribution_recur_id' => $recurring_contrib['id'],
-          'contribution_status_id' => 'Completed',
-          'trxn_id' => $trxn['transactionid'],
-          'receive_date' => $trxn['ordertime'],
-          'is_email_receipt' => FALSE,
-        ];
-        $repeat_result = civicrm_api3('Contribution', 'repeattransaction', $repeat_params);
-        if ($repeat_result['is_error']) {
-          return [ 'status' => 'not_processed', 'details' => $repeat_result ];
-        } else {
-          return [ 'status' => 'processed', 'details' => [ 
-              'contact_id' => $recurring_contrib['contact_id'],
-              'rc_id' => $recurring_contrib['id'],
-              'id' => $repeat_result['id'],
-              'trxn_id' => $trxn['transactionid'],
-            ]
-          ];
+    try {
+      $recurring_contrib = _paypal_repeat_params_from_email($trxn, $pp_id);
+    } catch (Exception $e) {
+      if ($e->getCode() === ERR_EMAIL) {
+        try {
+          $recurring_contrib = _paypal_repeat_params_from_name($trxn, $pp_id);
+        } catch (Exception $e) {
+          return [ 'status' => 'not_processed', 'details' => "{$e->getMessage()} and missing email {$trxn['email']} for transaction {$trxn['transactionid']}" ];
         }
+      } else {
+        return [ 'status' => 'not_processed', 'details' => $e->getMessage() ];
       }
+      //Let's record the not found email as billing email
+			civicrm_api3('Email', 'create', [
+				'contact_id' => $recurring_contrib['contact_id'],
+				'email' => $trxn['email'],
+				'is_billing' => 1, 'is_primary' => 0, 'location_type_id' => "Billing",
+			]);
+    }
+
+    $repeat_params = [
+      'contribution_recur_id' => $recurring_contrib['id'],
+      'contribution_status_id' => 'Completed',
+      'trxn_id' => $trxn['transactionid'],
+      'receive_date' => $trxn['ordertime'],
+      'is_email_receipt' => FALSE,
+    ];
+    $repeat_result = civicrm_api3('Contribution', 'repeattransaction', $repeat_params);
+    if ($repeat_result['is_error']) {
+      return [ 'status' => 'not_processed', 'details' => $repeat_result ];
+    } else {
+      return [ 'status' => 'processed', 'details' => [ 
+          'contact_id' => $recurring_contrib['contact_id'],
+          'rc_id' => $recurring_contrib['id'],
+          'id' => $repeat_result['id'],
+          'trxn_id' => $trxn['transactionid'],
+        ]
+      ];
     }
   }
+}
+
+function _paypal_repeat_params_from_email($trxn, $pp_id) {
+	$email = civicrm_api3('Email', 'get', [ 'email' => $trxn['email'], 'is_primary' => 1, 'sequential' => 1]);
+	if ($email['count'] != 1) {
+		throw new Exception("Missing or duped email {$trxn['email']} for {$trxn['transactionid']}", ERR_EMAIL);
+	}
+
+	$email = $email['values'][0];
+	$recurring_contrib = civicrm_api3('ContributionRecur', 'get', [
+		'contact_id' => $email['contact_id'],
+		'amount' => $trxn['amt'],
+		'payment_processor_id' => $pp_id,
+		'sequential' => 1,
+	]);
+	if ($recurring_contrib['count'] != 1) {
+		throw new Exception("Missing or duped contrib for contact id {$email['contact_id']} and transaction {$trxn['transactionid']}");
+	}
+
+  return $recurring_contrib['values'][0];
+}
+
+function _paypal_repeat_params_from_name($trxn, $pp_id) {
+	$recurring_contrib = civicrm_api3('ContributionRecur', 'get', [
+		'sequential' => 1,
+		'amount' => $trxn['amt'],
+		'payment_processor_id' => $pp_id,
+		'contact_id.first_name' => $trxn["firstname"],
+		'contact_id.last_name' => $trxn["lastname"],
+	]);
+	if ($recurring_contrib['count'] != 1) {
+		throw new Exception("Missing or duped name");
+	}
+
+  return $recurring_contrib['values'][0];
 }
