@@ -207,3 +207,49 @@ function _paypal_repeat_params_from_name($trxn, $pp_id) {
 
   return $recurring_contrib['values'][0];
 }
+
+function _civicrm_api3_paypal_query_spec(&$spec) {
+  $spec['verb'] = [
+    'name' => 'verb',
+    'title' => ts('API verb'),
+    'description' => 'Name of the Paypal NVP API function to call',
+    'type' => CRM_Utils_Type::T_STRING,
+    'api.required' => 1,
+  ];
+  $spec['pp_id'] = [
+    'name' => 'pp_id',
+    'title' => ts('Payment processor id'),
+    'description' => 'Payment processor id',
+    'type' => CRM_Utils_Type::T_INT,
+    'api.required' => 1,
+  ];
+  $spec['mode'] = [
+    'name' => 'mode',
+    'title' => ts('Payment mode'),
+    'description' => 'Payment mode: live or test',
+    'type' => CRM_Utils_Type::T_STRING,
+    'api.required' => 0,
+    'api.default' => 'live',
+  ];
+}
+
+function civicrm_api3_paypal_query($params) {
+  $paymentProcessor = CRM_Financial_BAO_PaymentProcessor::getPayment($params['pp_id'], $params['mode']);
+  $paypal = new CRM_Core_Payment_PayPalImpl($params['mode'], $paymentProcessor);
+
+  $paypal_args = [];
+  $paypal->initialize($paypal_args, $params['verb']);
+  foreach ($params as $param => $value) {
+    if (!in_array($param, ['pp_id', 'mode', 'verb'])) {
+      $paypal_args[$param] = $value;
+    }
+  }
+
+  try {
+    $response = $paypal->invokeAPI($paypal_args);
+    return civicrm_api3_create_success($response, $paypal_args);
+  } catch(Exception $e) {
+    $str_args = print_r($paypal_args, TRUE);
+    return civicrm_api3_create_error("$str_args: " . $e->getMessage());
+  }
+}
