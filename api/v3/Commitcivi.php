@@ -1,5 +1,38 @@
 <?php
 
+function _civicrm_api3_commitcivi_process_donation_spec(&$spec) {
+  $spec['message'] = [
+    'name' => 'message',
+    'title' => "Houdini message",
+    'description' => "JSON message received from Houdini about the donation to process",
+    'type' => CRM_Utils_Type::T_STRING,
+    'api.required' => 1,
+  ];
+}
+
+function civicrm_api3_commitcivi_process_donation($params) {
+  $json_msg = json_decode($params['message']);
+  if ($json_msg) {
+    $event = new CRM_Commitcivi_Model_Event($json_msg);
+    $processor = new CRM_Commitcivi_EventProcessor();
+    $result_code = $processor->process($event);
+    if ($result_code == -1) {
+      return civicrm_api3_create_error("unsupported action type: $json_msg->action_type", ['retry_later' => FALSE]);
+    }
+    else if ($result_code != 1) {
+      $session = CRM_Core_Session::singleton();
+      $retry = _commitcivi_isConnectionLostError($session->getStatus());
+      return civicrm_api3_create_error("Commitcivi event processor returned error code $result_code", ['retry_later' => $retry]);
+    }
+    else {
+      return civicrm_api3_create_success();
+    }
+  }
+  else {
+    return civicrm_api3_create_error("Could not decode {$params['message']}", ['retry_later' => FALSE]);
+  }
+}
+
 function _civicrm_api3_commitcivi_update_major_donors_spec(&$spec) {
   $spec['group_id'] = [
     'name' => 'group_id',
@@ -45,4 +78,11 @@ function civicrm_api3_commitcivi_update_major_donors($params) {
 
   $returnResult = ['added' => $added, 'added_count' => count($added)];
   return civicrm_api3_create_success($returnResult, $params);
+}
+
+function _commitcivi_isConnectionLostError($sessionStatus) {
+  if (is_array($sessionStatus) && array_key_exists('title', $sessionStatus[0]) && $sessionStatus[0]['title'] == 'Mailing Error') {
+    return !!strpos($sessionStatus[0]['text'], 'Connection lost to authentication server');
+  }
+  return FALSE;
 }
