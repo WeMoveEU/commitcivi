@@ -40,7 +40,8 @@ function _civicrm_api3_commitcivi_handle_stripe_migration(&$migrated) {
   
   # find the current houdini recurring donation using email, processor, amount and start_date
   $query = ""
-    . "SELECT recur.id recurring_id FROM civicrm_contribution_recur recur "
+    . "SELECT recur.id recurring_id, recur.contact_id contact_id "
+    . " FROM civicrm_contribution_recur recur "
     . " JOIN civicrm_contact contact ON (contact.id=recur.contact_id) "
     . " JOIN civicrm_email email ON (contact.id=email.contact_id AND email.is_primary)"
     . "WHERE email.email = %1 "
@@ -63,6 +64,11 @@ function _civicrm_api3_commitcivi_handle_stripe_migration(&$migrated) {
       'id' => $result->recurring_id, 
       'cancel_reason' => "Migrated to Stripe {$migrated->stripe_subscription_id}"]
     );
+    civicrm_api3('StripeSubscription', 'import', [
+      'subscription_id' => $migrated->stripe_subscription_id,
+      'contact_id' => $result->contact_id,
+      'payment_processor_id' => 11
+    ]);
   }
 
   return civicrm_api3_create_success();
