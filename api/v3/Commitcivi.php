@@ -46,3 +46,24 @@ function civicrm_api3_commitcivi_update_major_donors($params) {
   $returnResult = ['added' => $added, 'added_count' => count($added)];
   return civicrm_api3_create_success($returnResult, $params);
 }
+
+function civicrm_api3_commitcivi_new_recurring_donors() {
+  # create a new group for this week
+  $date = new DateTime();
+  $date->modify('-1 week');
+  $group = civicrm_api3('Group', 'create', ['name' => "New recurring donors, week of {$date->format('Y-m-d')}"]);
+
+  # add new recurring donors for the week to the group
+  $outfile = "new-recurring-donors-{$date->format('Ymd')}.csv";
+  CRM_Core_DAO::executeQuery(
+    "SELECT contact_id, {$group->id}, 'Added'" .
+    " INTO OUTFILE '{$outfile}' " .
+    " FROM civicrm_contribution_recur " .
+    " WHERE create_date >= {$date->format('Y-m-d 00:00:00')}"
+  );
+
+  CRM_Core_DAO::executeQuery(
+    "LOAD DATA INFILE '{$filename} IGNORE INTO TABLE civicrm_contact_group (contact_id, group_id, status)"
+
+  );
+}
