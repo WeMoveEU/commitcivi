@@ -89,7 +89,7 @@ function civicrm_api3_commitcivi_new_recurring_donors($params) {
   $outfile = "/var/lib/mysql-files/new-recurring-donors-{$date->format('U')}.csv";
 
   CRM_Core_DAO::executeQuery(
-    "SELECT contact_id, {$group}, 'Added'" .
+    "SELECT DISTINCT contact_id, {$group}, 'Added'" .
     " INTO OUTFILE '{$outfile}' " .
     " FROM civicrm_contribution_recur " .
     " WHERE create_date >= '{$date->format('Y-m-d 00:00:00')}'"
