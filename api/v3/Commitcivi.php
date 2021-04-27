@@ -71,11 +71,11 @@ function civicrm_api3_commitcivi_new_recurring_donors($params) {
   $group_name = "new-recurring-donors-from-{$date->format('Y-m-d')}-to-{$now->format('Y-m-d')}";
 
   CRM_Core_DAO::executeQuery(
-    "INSERT IGNORE INTO civicrm_group (name, title, refresh_date, is_active) " . 
+    "INSERT IGNORE INTO civicrm_group (name, title, refresh_date, is_active, group_type) " . 
     " VALUES ( " .
     "  '{$group_name}', " .
     "  'New recurring donors from {$date->format('Y-m-d')} to {$now->format('Y-m-d')}', " .
-    "  NOW(), 1 " .
+    "  NOW(), 1, 2 " .
     " )"
   );
 
