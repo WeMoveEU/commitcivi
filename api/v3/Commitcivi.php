@@ -59,18 +59,23 @@ function _civicrm_api3_commitcivi_new_recurring_donors_spec(&$spec) {
 }
 
 function civicrm_api3_commitcivi_new_recurring_donors($params) {
-  # create a new group for this week
+  #
+  # create a new group of new recurring donors since N days ago
+  #
+
+  $now = new DateTime();
+
   $date = new DateTime();
   $date->modify("-{$params['days']} day");
 
-  $group_name = "new-recurring-donors-{$date->format('Y-m-d')}";
+  $group_name = "new-recurring-donors-from-{$date->format('Y-m-d')}-to-{$now->format('Y-m-d')}";
 
   CRM_Core_DAO::executeQuery(
-    "INSERT IGNORE INTO civicrm_group (name, title, refresh_date) " . 
+    "INSERT IGNORE INTO civicrm_group (name, title, refresh_date, is_active) " . 
     " VALUES ( " .
     "  '{$group_name}', " .
-    "  'New recurring donors, week of {$date->format('Y-m-d')}', " .
-    "  NOW() " .
+    "  'New recurring donors from {$date->format('Y-m-d')} to {$now->format('Y-m-d')}', " .
+    "  NOW(), 1 " .
     " )"
   );
 
