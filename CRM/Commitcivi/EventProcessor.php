@@ -9,6 +9,12 @@ class CRM_Commitcivi_EventProcessor {
    * @throws \CiviCRM_API3_Exception
    */
   public function process(CRM_Commitcivi_Model_Event $event) {
+
+    if ($event->actionType == 'migrated_to_stripe') {
+      $migration = new CRM_Commitcivi_Logic_StripeMigration();
+      return $migration->migrate($event);
+    }
+
     $campaignId = $this->campaign($event);
     $contactId = $this->contact($event, $campaignId);
     switch ($event->donation->paymentProcessor) {
