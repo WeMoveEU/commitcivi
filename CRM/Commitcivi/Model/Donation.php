@@ -6,6 +6,7 @@ class CRM_Commitcivi_Model_Donation {
   const PAYMENT_PROCESSOR_STRIPE = 'stripe';
   const TYPE_SINGLE = 'single';
   const TYPE_RECURRING = 'recurring';
+  const TYPE_STRIPE_MIGRATION = 'migrated_to_stripe';
 
   public $amount = 0;
   public $amountCharged = 0;
@@ -25,6 +26,9 @@ class CRM_Commitcivi_Model_Donation {
   public $bic = '';
   public $accountHolder = '';
   public $bank = '';
+  public $stripeSubscriptionId = '';
+  public $stripeCustomerId = '';
+  public $stripeRecurringStart = '';
 
   public function __construct($params) {
     $donation = $this->get($params);
@@ -43,6 +47,9 @@ class CRM_Commitcivi_Model_Donation {
     $this->bic = property_exists($donation, 'bic') ? $donation->bic : $this->bic;
     $this->accountHolder = property_exists($donation, 'account_holder') ? $donation->account_holder : $this->accountHolder;
     $this->bank = property_exists($donation, 'bank') ? $donation->bank : $this->bank;
+    $this->stripeSubscriptionId = property_exists($donation, 'stripe_subscription_id') ? $donation->stripe_subscription_id : $this->stripeSubscriptionId;
+    $this->stripeCustomerId = property_exists($donation, 'stripe_customer_id') ? $donation->stripe_customer_id : $this->stripeCustomerId;
+    $this->stripeRecurringStart = property_exists($donation, 'stripe_recurring_start') ? $donation->stripe_recurring_start : $this->stripeRecurringStart;
   }
 
   /**
