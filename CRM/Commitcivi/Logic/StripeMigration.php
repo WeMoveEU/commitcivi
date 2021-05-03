@@ -1,7 +1,8 @@
 <?php
 
-class CRM_Commitcivi_Logic_StripeMigration {
-    
+class CRM_Commitcivi_Logic_StripeMigration
+{
+
 
     /**
      * @param \CRM_Commitcivi_Model_Event $event
@@ -13,7 +14,7 @@ class CRM_Commitcivi_Logic_StripeMigration {
     {
         $contact = $event->contact;
         $donation = $event->donation;
-        
+
         # find the current houdini recurring donation using email, processor, amount and start_date
         $query = ""
             . "SELECT recur.id recurring_id, contact.id contact_id "
@@ -38,7 +39,7 @@ class CRM_Commitcivi_Logic_StripeMigration {
             civicrm_api3('StripeSubscription', 'import', [
                 'subscription_id' => $donation->stripeSubscriptionId,
                 'contact_id' => $result->contact_id,
-                'payment_processor_id' => 1  # NOTE: Verify!
+                'payment_processor_id' => CRM_Commitcivi_Logic_Settings::paymentProcessorIdCard(),
             ]);
             civicrm_api3(
                 'ContributionRecur',
