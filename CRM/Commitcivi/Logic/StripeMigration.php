@@ -19,7 +19,7 @@ class CRM_Commitcivi_Logic_StripeMigration
             'get',
             [
                 'sequential' => 1,
-                'trxn_id' => $recurringId,
+                'trxn_id' => "cc_{$recurringId}",
             ]
         );
 
@@ -33,15 +33,16 @@ class CRM_Commitcivi_Logic_StripeMigration
             'import',
             [
                 'subscription_id' => $donation->stripeSubscriptionId,
-                'contact_id' => $civicrm_recurring->contactId,
-                'payment_processor_id' => CRM_Commitcivi_Logic_Settings::paymentProcessorIdCard(),
+                'contact_id' => $civicrm_recurring['values'][0]['contact_id'],
+                'payment_processor_id' => 1, # Live Stripe Account
             ]
         );
+
         civicrm_api3(
             'ContributionRecur',
             'cancel',
             [
-                'id' => $civicrm_recurring->id,
+                'id' => $civicrm_recurring['id'],
                 'cancel_reason' => "Migrated to Stripe {$donation->stripeSubscriptionId}"
             ]
         );
