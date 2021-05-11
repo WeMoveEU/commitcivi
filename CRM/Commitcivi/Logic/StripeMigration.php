@@ -34,7 +34,7 @@ class CRM_Commitcivi_Logic_StripeMigration {
         );
 
         # Handling the customer here is a workaround for a bug in the StripeSubscription.import
-        # API - the customer isn't created if it doesn't exist. The sbuscription is still
+        # API - the customer isn't created if it doesn't exist. The subscription is still
         # created but later payments aren't attached.
         $customerParams = [
             'customer_id' => $donation->stripeCustomerId,
@@ -46,7 +46,7 @@ class CRM_Commitcivi_Logic_StripeMigration {
             $customer = civicrm_api3('StripeCustomer', 'create', $customerParams);
         }
 
-        civicrm_api3(
+        $results = civicrm_api3(
             'StripeSubscription',
             'import',
             [
@@ -57,6 +57,9 @@ class CRM_Commitcivi_Logic_StripeMigration {
 
             ]
         );
+
+        $debug_results = json_encode($results);
+        CRM_Core_Error::debug_log_message("Migrated recurring donation to {$debug_results}");
 
         civicrm_api3(
             'ContributionRecur',
