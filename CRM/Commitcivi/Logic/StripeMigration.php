@@ -1,15 +1,13 @@
 <?php
 
-class CRM_Commitcivi_Logic_StripeMigration
-{
+class CRM_Commitcivi_Logic_StripeMigration {
     /**
      * @param \CRM_Commitcivi_Model_Event $event
      *
      * @return integer
      * @throws \CiviCRM_API3_Exception
      */
-    public function migrate(CRM_Commitcivi_Model_Event $event)
-    {
+    public function migrate(CRM_Commitcivi_Model_Event $event) {
         // $contact = $event->contact;
         $donation = $event->donation;
         $recurringId = $event->donation->recurringId;
@@ -28,13 +26,22 @@ class CRM_Commitcivi_Logic_StripeMigration
             CRM_Core_Error::fatal("Couldn't find a recurring donation for recurringId {$recurringId} {$event_as_json}");
         }
 
+        $contactId = $civicrm_recurring['values'][0]['contact_id'];
+        $date = date('Y-m-d');
+
+        CRM_Core_Error::debug_log_message(
+            "Importing Stripe subscription {$donation->stripeSubscriptionId} for civcrm_contact {$contactId}"
+        );
+
         civicrm_api3(
             'StripeSubscription',
             'import',
             [
                 'subscription_id' => $donation->stripeSubscriptionId,
-                'contact_id' => $civicrm_recurring['values'][0]['contact_id'],
-                'payment_processor_id' => 1, # Live Stripe Account
+                'contact_id' => $contactId,
+                'payment_processor_id' => 1, # Live Stripe Account,
+                'contribution_source' => "Migrated from CommitChange {$date}",
+
             ]
         );
 
