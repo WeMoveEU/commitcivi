@@ -66,7 +66,7 @@ class CRM_Commitcivi_Logic_StripeMigration {
                     'subscription_id' => $donation->stripeSubscriptionId,
                     'contact_id' => $contactId,
                     'payment_processor_id' => 1, # Live Stripe Account
-                    'payment_instrument_id' => 'Stripe',
+                    'payment_instrument' => 'Debit Card',  # Name of payment instrument with label Stripe...
                     'contribution_source' => "Migrated from CommitChange {$date}",
                 ]
             );
