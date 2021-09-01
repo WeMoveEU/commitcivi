@@ -80,59 +80,81 @@ function civicrm_api3_commitcivi_update_major_donors($params) {
   return civicrm_api3_create_success($returnResult, $params);
 }
 
-function _civicrm_api3_commitcivi_new_recurring_donors_spec(&$spec) {
-  $spec['days'] = [
-    'name' => 'days',
-    'title' => ts('Days Ago'),
-    'description' => 'New recurring donor in the last N days',
-    'type' => CRM_Utils_Type::T_INT,
-    'api.required' => 0,
-    'api.default' => 7,
-  ];
-}
-
 function civicrm_api3_commitcivi_new_recurring_donors($params) {
-  #
-  # create a new group of new recurring donors since N days ago
-  #
+
+  # Create a new group of new recurring donors over the last N months
 
   $now = new DateTime();
+  $previous = new DateTime(); 
+  $previous->modify("-{$params['months']} month");
 
-  $date = new DateTime();
-  $date->modify("-{$params['days']} day");
+  # preload the mapping of languages to groups
 
-  $group_name = "new-recurring-donors-from-{$date->format('Y-m-d')}-to-{$now->format('Y-m-d')}";
+  $base_group_name = "new-recurring-donors-monthly-{$previous->format('Y-m')}-";
+  $base_group_title = ucwords(str_replace('-', ' ', $base_group_name));
 
-  CRM_Core_DAO::executeQuery(
-    "INSERT IGNORE INTO civicrm_group (name, title, refresh_date, is_active, group_type) " . 
-    " VALUES ( " .
-    "  '{$group_name}', " .
-    "  'New recurring donors from {$date->format('Y-m-d')} to {$now->format('Y-m-d')}', " .
-    "  NOW(), 1, 2 " .
-    " )"
+  $results = CRM_Core_DAO::executeQuery(
+    'SELECT UPPER(SUBSTRING(name FROM 1 FOR instr(name, "-language") -1)) iso, ' .
+    'id ' .
+    'FROM civicrm_group ' .
+    'WHERE name LIKE "%language-activists" '
   );
+  $groups = $results->fetchMap("iso", "id");
+
+  #
+  # find new recurring donors
+  # for each donor
+  #     find their language group
+  #     add to the language recurring[language].push(donor.id)
+  #  for each language 
+  #     create a new group "New recurring donors month - {previous-year-month} {language}"
+  #     insert contacts into the new group
+  #
 
   $result = CRM_Core_DAO::executeQuery(
-    "SELECT * from civicrm_group WHERE name = '{$group_name}'"
-  );
-  $result->fetch();
-  $group = $result->id;
-
-  # add new recurring donors for the week to the group
-  $outfile = "/var/lib/mysql-files/new-recurring-donors-{$date->format('U')}.csv";
-
-  CRM_Core_DAO::executeQuery(
-    "SELECT DISTINCT contact_id, {$group}, 'Added'" .
-    " INTO OUTFILE '{$outfile}' " .
+    "SELECT DISTINCT contact_id " .
     " FROM civicrm_contribution_recur " .
-    " WHERE create_date >= '{$date->format('Y-m-d 00:00:00')}'"
+    " WHERE LEFT(create_date, 7) =  LEFT(NOW() - INTERVAL {$months} MONTH, 7)"
   );
+  $donors = [];
+  while ($result->fetch()) {
+     array_push($donors, $result->contact_id);
+  }
 
-  CRM_Core_DAO::executeQuery(
-    "LOAD DATA INFILE '{$outfile}' " .
-    "INTO TABLE " . 
-    "civicrm_group_contact (contact_id, group_id, status)"
-  );
+  $to_add = [];
+  foreach ($donors as $donor_id) {
+    $result = CRM_Core_DAO::executeQuery(
+      "SELECT civicrm_group.id, " .
+      " UPPER(SUBSTRING(name FROM 1 FOR instr(name, '-language') - 1)) iso " .
+      "FROM civicrm_group_contact " .
+      " JOIN civicrm_group ON (group_id=civicrm_group.id) " .
+      "WHERE name LIKE '%-language-activists' AND contact_id = {$donor_id} "
+    );
+    $iso = $result->fetchValue();
+    if (array_key_exists($iso, $to_add)) {
+      array_push($to_add[$iso], $donor_id);
+    } else {
+     $to_add[$iso] = [$donor_id];
+    }
+  }
+
+  foreach (array_keys($to_add) as $iso) {
+    $group_name = $base_group_name . "-{$iso}";
+    $group_title = $base_group_title  . " $iso";
+    CRM_Core_DAO::executeQuery(
+      "INSERT IGNORE INTO civicrm_group (name, title, refresh_date, is_active, group_type) " . 
+      " VALUES ( " .
+      "  '{$group_name}', '{$group_title}', NOW(), 1, 2 " .
+      " )"
+    );
+
+    $donors = "(" . join(", ", $to_add[$iso]) . ")";
+    CRM_Core_DAO::executeQuery(
+      "INSERT INTO civicrm_group_contact (contact_id, group_id, status) " .
+      "VALUES $donors "
+    );
+  }
+
 }
 
 
