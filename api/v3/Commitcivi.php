@@ -105,16 +105,16 @@ function civicrm_api3_commitcivi_new_recurring_donors($params) {
   # find new recurring donors
   # for each donor
   #     find their language group
-  #     add to the language recurring[language].push(donor.id)
+  #     add to the language to_add[language code].push(donor.id)
   #  for each language 
-  #     create a new group "New recurring donors month - {previous-year-month} {language}"
+  #     create a new group "New recurring donors month - {previous-year-month} {language code}"
   #     insert contacts into the new group
   #
 
   $result = CRM_Core_DAO::executeQuery(
     "SELECT DISTINCT contact_id " .
     " FROM civicrm_contribution_recur " .
-    " WHERE LEFT(create_date, 7) =  LEFT(NOW() - INTERVAL {$months} MONTH, 7)"
+    " WHERE LEFT(create_date, 7) =  LEFT(NOW() - INTERVAL 1 MONTH, 7)"
   );
   $donors = [];
   while ($result->fetch()) {
@@ -124,7 +124,7 @@ function civicrm_api3_commitcivi_new_recurring_donors($params) {
   $to_add = [];
   foreach ($donors as $donor_id) {
     $result = CRM_Core_DAO::executeQuery(
-      "SELECT civicrm_group.id, " .
+      "SELECT " .
       " UPPER(SUBSTRING(name FROM 1 FOR instr(name, '-language') - 1)) iso " .
       "FROM civicrm_group_contact " .
       " JOIN civicrm_group ON (group_id=civicrm_group.id) " .
@@ -138,20 +138,44 @@ function civicrm_api3_commitcivi_new_recurring_donors($params) {
     }
   }
 
+  var_dump($to_add);
+
   foreach (array_keys($to_add) as $iso) {
-    $group_name = $base_group_name . "-{$iso}";
+    $group_name = $base_group_name . "{$iso}";
     $group_title = $base_group_title  . " $iso";
+    CRM_Core_Error::debug_log_message(
+      "INSERT IGNORE INTO civicrm_group (name, title, refresh_date, is_active, group_type) " . 
+      " VALUES ( " .
+      "  '{$group_name}', '{$group_title}', NOW(), 1, 2 " .
+      " )"
+    );
     CRM_Core_DAO::executeQuery(
       "INSERT IGNORE INTO civicrm_group (name, title, refresh_date, is_active, group_type) " . 
       " VALUES ( " .
       "  '{$group_name}', '{$group_title}', NOW(), 1, 2 " .
       " )"
     );
+    // CRM_Core_DAO::executeQuery("COMMIT");
 
-    $donors = "(" . join(", ", $to_add[$iso]) . ")";
+    CRM_Core_Error::debug_log_message(
+        "SELECT id FROM civicrm_group WHERE name = '{$group_name}'"
+    );
+
+    $result = CRM_Core_DAO::executeQuery(
+        "SELECT id FROM civicrm_group WHERE name = '{$group_name}'"
+    );
+    $group_id = $result->fetchValue();
+    CRM_Core_Error::debug_log_message("Found {$group_id} for {$group_name} in {$iso}");
+
+    $values = [];
+    foreach ($to_add[$iso] as $contact_id) {
+        CRM_Core_Error::debug_log_message("({$contact_id}, {$group_id}, 'Added')");
+        array_push($values, "({$contact_id}, {$group_id}, 'Added')");
+    }
+
     CRM_Core_DAO::executeQuery(
       "INSERT INTO civicrm_group_contact (contact_id, group_id, status) " .
-      "VALUES $donors "
+      "VALUES " . join(", ", $values) 
     );
   }
 
