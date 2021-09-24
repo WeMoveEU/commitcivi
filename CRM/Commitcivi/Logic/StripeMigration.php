@@ -44,29 +44,15 @@ class CRM_Commitcivi_Logic_StripeMigration {
             "Importing Stripe subscription {$donation->stripeSubscriptionId} for civicrm_contact {$contactId}"
         );
 
-        # Handling the customer here is a workaround for a bug in the StripeSubscription.import
-        # API - the customer isn't created if it doesn't exist. The subscription is still
-        # created but later payments aren't attached.
-        $customerParams = [
-            'customer_id' => $donation->stripeCustomerId,
-            'contact_id' => $contactId,
-            'processor_id' => 1, # Live Stripe Account
-        ];
-        $customer = civicrm_api3('StripeCustomer', 'get', $customerParams);
-        if ($customer['count'] == 0) {
-            $customer = civicrm_api3('StripeCustomer', 'create', $customerParams);
-        }
-
         try {
             $date = date('Y-m-d');
             $results = civicrm_api3(
-                'StripeSubscription',
+                "Stripe.importsubscription",
                 'import',
                 [
-                    'subscription_id' => $donation->stripeSubscriptionId,
+                    'subscription' => $donation->stripeSubscriptionId,
                     'contact_id' => $contactId,
-                    'payment_processor_id' => 1, # Live Stripe Account
-                    'payment_instrument' => 'Debit Card',  # Name of payment instrument with label Stripe...
+                    'ppid' => 1, # Live Stripe Account
                     'contribution_source' => "Migrated from CommitChange {$date}",
                 ]
             );
