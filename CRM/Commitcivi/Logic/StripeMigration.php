@@ -104,7 +104,12 @@ class CRM_Commitcivi_Logic_StripeMigration {
             $contact = civicrm_api3(
                 'Contact',
                 'create',
-                [ "first_name" => $first, "last_name" => $last,  "contact_type" => "Individual", ]
+                [
+                  "first_name" => $first, 
+                  "last_name" => $last, 
+                  "contact_type" => "Individual", 
+                  "email" => $email,
+                ]
             );
             civicrm_api3(
                 'Email',
