@@ -373,9 +373,5 @@ class CRM_Commitcivi_Upgrader_Base {
     }
   }
 
-  public function upgrade_012() {
-    // create custom field for marking a recurring donation weekly
-    $this->executeCustomDataFile("xml/weekly_custom_fields.xml");
-  }
 
 }

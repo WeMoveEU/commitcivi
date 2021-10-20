@@ -26,5 +26,15 @@ class CRM_Commitcivi_Upgrader extends CRM_Commitcivi_Upgrader_Base {
     CRM_Commitcivi_Utils_PaymentProcessor::set(CRM_Commitcivi_Logic_Settings::PAYMENT_PROCESSOR_CARD, 1);
     return TRUE;
   }
+  
+  /**
+   * @return bool
+   * @throws \CiviCRM_API3_Exception
+   */
+  public function upgrade_013_weekly_custom_fields() {
+    // create custom field for marking a recurring donation weekly
+    $this->executeCustomDataFile("xml/weekly_custom_fields.xml");
+    return TRUE;
+  }
 
 }
