@@ -168,10 +168,13 @@ class CRM_Commitcivi_Logic_Donation {
       'sequential' => 1,
       'id' => $recurId,
     ];
-    $isWeekly = $event->recurring->isWeekly;
+
+    $donation = $event->donation;
+    $isWeekly = $donation->isWeekly;
+
     if ($isWeekly) {
-       $params[$this->getCustomFieldID('is_weekly')] = $isWeekly;
-       $params[$this->getCustomFieldID('weekly_amount')] = $event->recurring->weeklyAmount;
+      $params[$this->getCustomFieldID('is_weekly')] = $isWeekly;
+      $params[$this->getCustomFieldID('weekly_amount')] = $donation->weeklyAmount;
     }
 
     civicrm_api3('ContributionRecur', 'create', $params);

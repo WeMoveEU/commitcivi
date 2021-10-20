@@ -29,6 +29,8 @@ class CRM_Commitcivi_Model_Donation {
   public $stripeSubscriptionId = '';
   public $stripeCustomerId = '';
   public $stripeRecurringStart = '';
+  public $isWeekly = false;
+  public $weeklyAmount = 0;
 
   public function __construct($params) {
     $donation = $this->get($params);
@@ -50,6 +52,8 @@ class CRM_Commitcivi_Model_Donation {
     $this->stripeSubscriptionId = property_exists($donation, 'stripe_subscription_id') ? $donation->stripe_subscription_id : $this->stripeSubscriptionId;
     $this->stripeCustomerId = property_exists($donation, 'stripe_customer_id') ? $donation->stripe_customer_id : $this->stripeCustomerId;
     $this->stripeRecurringStart = property_exists($donation, 'stripe_recurring_start') ? $donation->stripe_recurring_start : $this->stripeRecurringStart;
+    $this->isWeekly = property_exists($params, 'recurring') ? $params->recurring->is_weekly : $this->isWeekly;
+    $this->weeklyAmount = property_exists($params, 'recurring') ? $params->recurring->weekly_amount : $this->weeklyAmount;
   }
 
   /**
