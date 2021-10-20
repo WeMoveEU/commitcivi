@@ -147,4 +147,34 @@ class CRM_Commitcivi_Logic_Donation {
     civicrm_api3('ContributionRecur', 'create', $params);
   }
 
+  protected static function getCustomFieldID($name) {
+    $result = civicrm_api3('CustomField', 'get', [
+      'sequential' => 1,
+      'custom_group_id' => 'recur_weekly',
+      'name' => $name,
+    ]);
+    return 'custom_' . $result['id'];
+  }
+
+   /**
+   * Set weekly fields for recurring contribution
+   * @param \CRM_Commitcivi_Model_Event $event
+   * @param $recurId
+   *
+   * @throws \CiviCRM_API3_Exception
+   */
+  protected function setWeekly(CRM_Commitcivi_Model_Event $event, $recurId) {
+    $params = [
+      'sequential' => 1,
+      'id' => $recurId,
+    ];
+    $isWeekly = $event->recurring->isWeekly;
+    if ($isWeekly) {
+       $params[$this->getCustomFieldID('is_weekly')] = $isWeekly;
+       $params[$this->getCustomFieldID('weekly_amount')] = $event->recurring->weeklyAmount;
+    }
+
+    civicrm_api3('ContributionRecur', 'create', $params);
+  }
+
 }

@@ -69,7 +69,12 @@ class CRM_Commitcivi_Logic_DonationSepa extends CRM_Commitcivi_Logic_Donation {
       'source' => $event->actionName,
     ];
     $result = civicrm_api3('SepaMandate', 'createfull', $params_mandate);
-    $this->setRecurUtms($event, $result['values'][0]['entity_id']);
+
+    $recurring_id = $result['values'][0]['entity_id'];
+
+    $this->setRecurUtms($event, $recurring_id);
+    $this->setWeekly($event, $recurring_id);
+
     return $result;
   }
 

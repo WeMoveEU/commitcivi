@@ -140,6 +140,12 @@ class CRM_Commitcivi_Logic_DonationStripe extends CRM_Commitcivi_Logic_Donation 
       $params['cancel_date'] = $event->createDate;
     }
     $params = $this->setRecurSourceFields($params, $event->utm);
+
+    if ($this->isWeekly) {
+      $params[$this->getCustomFieldID('is_weekly')] = $this->isWeekly;
+      $params[$this->getCustomFieldID('weekly_amount')] = $this->weeklyAmount;
+    }
+
     return civicrm_api3('ContributionRecur', 'create', $params);
   }
 
