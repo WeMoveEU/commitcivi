@@ -38,7 +38,7 @@
     <CustomField>
       <name>weekly_amount</name>
       <label>weekly_amount</label>
-      <data_type>Integer</data_type>
+      <data_type>Int</data_type>
       <html_type>Text</html_type>
       <is_required>0</is_required>
       <is_searchable>0</is_searchable>
