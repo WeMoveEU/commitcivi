@@ -19,13 +19,19 @@ class CRM_Commitcivi_Upgrader extends CRM_Commitcivi_Upgrader_Base {
    * @return bool
    * @throws \CiviCRM_API3_Exception
    */
-  public function upgrade_012_payment_processors() {
+  /*
+   * It looks like we've already run this - at least, the names 
+   * in the db already match CommitChange-sepa and -card - so
+   * skip the automated run.
+   * 
+   public function upgrade_012_payment_processors() {
     CRM_Commitcivi_Utils_PaymentProcessor::set(CRM_Commitcivi_Logic_Settings::PAYMENT_PROCESSOR_SEPA, 0);
     CRM_Commitcivi_Utils_PaymentProcessor::set(CRM_Commitcivi_Logic_Settings::PAYMENT_PROCESSOR_SEPA, 1);
     CRM_Commitcivi_Utils_PaymentProcessor::set(CRM_Commitcivi_Logic_Settings::PAYMENT_PROCESSOR_CARD, 0);
     CRM_Commitcivi_Utils_PaymentProcessor::set(CRM_Commitcivi_Logic_Settings::PAYMENT_PROCESSOR_CARD, 1);
     return TRUE;
   }
+  */
   
   /**
    * @return bool
