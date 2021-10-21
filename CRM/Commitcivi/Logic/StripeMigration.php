@@ -70,6 +70,8 @@ class CRM_Commitcivi_Logic_StripeMigration {
         $debug_results = json_encode($results);
         CRM_Core_Error::debug_log_message("Migrated recurring donation to {$debug_results}");
 
+        $donation->setWeekly($event, $recurId);
+
         if ($recurring_donation['id']) {
             CRM_Core_Error::debug_log_message("Cancelling {$recurring_donation['id']}");
 
