@@ -169,9 +169,6 @@ class CRM_Commitcivi_Logic_Donation {
       'id' => $recurId,
     ];
 
-    Civi::log()->debug("Event in set weekly " . json_encode($event));
-    Civi::log()->debug("Recurring ID " . $recurId);
-
     $donation = $event->donation;
     $isWeekly = $donation->isWeekly;
 
@@ -181,8 +178,6 @@ class CRM_Commitcivi_Logic_Donation {
 
     $params[$this->getCustomFieldID('is_weekly')] = $isWeekly;
     $params[$this->getCustomFieldID('weekly_amount')] = $donation->weeklyAmount;
-
-    Civi::log()->debug("Updating with {$params});
 
     civicrm_api3('ContributionRecur', 'create', $params);
   }
