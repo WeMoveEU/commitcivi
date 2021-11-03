@@ -1,6 +1,6 @@
 <?php
 
-class CRM_Commitcivi_Logic_StripeMigration {
+class CRM_Commitcivi_Logic_StripeMigration extends CRM_Commitcivi_Logic_Donation {
     /**
      * @param \CRM_Commitcivi_Model_Event $event
      *
@@ -84,11 +84,12 @@ class CRM_Commitcivi_Logic_StripeMigration {
         }
 
         if ($result) {
+            $migrated_id = $result[0]['recur_id'];
             $debug_results = json_encode($result);
-            CRM_Core_Error::debug_log_message("Migrated recurring donation to {$debug_results}");
-        }
+            CRM_Core_Error::debug_log_message("Migrated recurring donation to {$migrated_id} {$debug_results}");
 
-        $donation->setWeekly($event, $recurId);
+            $this->setWeekly($event, $migrated_id);
+        }
 
         if ($recurring_donation['id']) {
             CRM_Core_Error::debug_log_message("Cancelling {$recurring_donation['id']}");
