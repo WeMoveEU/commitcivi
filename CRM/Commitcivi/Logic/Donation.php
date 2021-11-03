@@ -179,6 +179,9 @@ class CRM_Commitcivi_Logic_Donation {
     $params[$this->getCustomFieldID('is_weekly')] = $isWeekly;
     $params[$this->getCustomFieldID('weekly_amount')] = $donation->weeklyAmount;
 
+    CRM_Core_Error::debug_log_message(
+      "calling ContributionRecur::create with ${params}"
+    );
     civicrm_api3('ContributionRecur', 'create', $params);
   }
 

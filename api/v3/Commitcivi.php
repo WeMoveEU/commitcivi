@@ -11,6 +11,7 @@ function _civicrm_api3_commitcivi_process_donation_spec(&$spec) {
 }
 
 function civicrm_api3_commitcivi_process_donation($params) {
+  CRM_Core_Error::debug_log_message("Event ! {$params['message']}");
   $json_msg = json_decode($params['message']);
   if ($json_msg) {
     $event = new CRM_Commitcivi_Model_Event($json_msg);

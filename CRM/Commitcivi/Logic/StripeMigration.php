@@ -1,6 +1,6 @@
 <?php
 
-class CRM_Commitcivi_Logic_StripeMigration extends CRM_Commitcivi_Logic_Donation {
+class CRM_Commitcivi_Logic_StripeMigration {
     /**
      * @param \CRM_Commitcivi_Model_Event $event
      *
@@ -84,11 +84,13 @@ class CRM_Commitcivi_Logic_StripeMigration extends CRM_Commitcivi_Logic_Donation
         }
 
         if ($result) {
-            $migrated_id = $result[0]['recur_id'];
+            $migrated_id = $result['recur_id'];
             $debug_results = json_encode($result);
             CRM_Core_Error::debug_log_message("Migrated recurring donation to {$migrated_id} {$debug_results}");
 
-            $this->setWeekly($event, $migrated_id);
+            if ($donation->recurring && $donation->recurring->isWeekly) {
+                $this->setWeekly($event, $migrated_id);
+            }
         }
 
         if ($recurring_donation['id']) {
@@ -142,4 +144,28 @@ class CRM_Commitcivi_Logic_StripeMigration extends CRM_Commitcivi_Logic_Donation
 
         return $contact['values'][0]['contact_id'];
     }
+
+    private static function getCustomFieldID($name) {
+        $result = civicrm_api3('CustomField', 'get', [
+          'sequential' => 1,
+          'custom_group_id' => 'recur_weekly',
+          'name' => $name,
+        ]);
+        return 'custom_' . $result['id'];
+      }
+
+    private function setWeekly(CRM_Commitcivi_Model_Event $event, $recurring_id, $weekly_amount) {
+        $params = [
+          'sequential' => 1,
+          'id' => $recurring_id,
+        ];
+
+        $params[$this->getCustomFieldID('is_weekly')] = true;
+        $params[$this->getCustomFieldID('weekly_amount')] = $weekly_amount;
+
+        CRM_Core_Error::debug_log_message(
+          "calling ContributionRecur::create with ${params}"
+        );
+        civicrm_api3('ContributionRecur', 'create', $params);
+      }
 }
