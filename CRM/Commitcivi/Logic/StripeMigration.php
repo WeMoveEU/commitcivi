@@ -57,8 +57,6 @@ class CRM_Commitcivi_Logic_StripeMigration {
             $customer = civicrm_api3('StripeCustomer', 'create', $customerParams);
         }
 
-        $result = null;
-
         try {
             $date = date('Y-m-d');
             $result = civicrm_api3(
@@ -72,6 +70,15 @@ class CRM_Commitcivi_Logic_StripeMigration {
                     'contribution_source' => "Migrated from CommitChange {$date}",
                 ]
             );
+
+            $migrated_id = $result['values']['recur_id'];
+
+            $debug_results = json_encode($result);
+            CRM_Core_Error::debug_log_message("Migrated recurring donation to {$migrated_id} {$debug_results}");
+
+            if ($donation->isWeekly) {
+                $this->setWeekly($event, $migrated_id, $donation->weeklyAmount);
+            }
         }
         catch (CiviCRM_API3_Exception $e) {
             if (preg_match('/Found matching recurring contribution/', $e->getMessage())) {
