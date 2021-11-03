@@ -172,7 +172,7 @@ class CRM_Commitcivi_Logic_Donation {
     $donation = $event->donation;
     $isWeekly = $donation->isWeekly;
 
-    if (!$isWeekly) {
+    if (! ($isWeekly && $donation->weeklyAmount)) {
       return;
     }
 
