@@ -47,8 +47,8 @@ class CRM_Commitcivi_Logic_StripeMigration {
         try {
             $date = date('Y-m-d');
             $results = civicrm_api3(
-                "Stripe",
-                "importsubscription",
+                "Stripe.importsubscription",
+                'import',
                 [
                     'subscription' => $donation->stripeSubscriptionId,
                     'contact_id' => $contactId,
