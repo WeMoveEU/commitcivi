@@ -57,9 +57,11 @@ class CRM_Commitcivi_Logic_StripeMigration {
             $customer = civicrm_api3('StripeCustomer', 'create', $customerParams);
         }
 
+        $result = null;
+
         try {
             $date = date('Y-m-d');
-            $results = civicrm_api3(
+            $result = civicrm_api3(
                 'StripeSubscription',
                 'import',
                 [
@@ -71,7 +73,7 @@ class CRM_Commitcivi_Logic_StripeMigration {
                 ]
             );
         }
-        catch (CiviCRM_API3_Exception $e) {            
+        catch (CiviCRM_API3_Exception $e) {
             if (preg_match('/Found matching recurring contribution/', $e->getMessage())) {
                 CRM_Core_Error::debug_log_message("[This is OK, just letting you know] {$e->getMessage()}");
                 # keep going to make sure the previous recurring donation is cancelled
@@ -81,8 +83,10 @@ class CRM_Commitcivi_Logic_StripeMigration {
             }
         }
 
-        $debug_results = json_encode($results);
-        CRM_Core_Error::debug_log_message("Migrated recurring donation to {$debug_results}");
+        if ($result) {
+            $debug_results = json_encode($result);
+            CRM_Core_Error::debug_log_message("Migrated recurring donation to {$debug_results}");
+        }
 
         $donation->setWeekly($event, $recurId);
 
@@ -121,9 +125,9 @@ class CRM_Commitcivi_Logic_StripeMigration {
                 'Contact',
                 'create',
                 [
-                  "first_name" => $first, 
-                  "last_name" => $last, 
-                  "contact_type" => "Individual", 
+                  "first_name" => $first,
+                  "last_name" => $last,
+                  "contact_type" => "Individual",
                   "email" => $email,
                 ]
             );
