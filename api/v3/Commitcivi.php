@@ -87,7 +87,7 @@ function civicrm_api3_commitcivi_update_major_donors($params) {
 function civicrm_api3_commitcivi_new_recurring_donors($params) {
 
   $now = new DateTime();
-  $previous = new DateTime(); 
+  $previous = new DateTime();
   $previous->modify("-{$params['months']} month");
 
   # preload the mapping of languages to groups
@@ -108,7 +108,7 @@ function civicrm_api3_commitcivi_new_recurring_donors($params) {
   # for each donor
   #     find their language group
   #     add to the language to_add[language code].push(donor.id)
-  #  for each language 
+  #  for each language
   #     create a new group "New recurring donors month - {previous-year-month} {language code}"
   #     insert contacts into the new group
   #
@@ -144,7 +144,7 @@ function civicrm_api3_commitcivi_new_recurring_donors($params) {
     $group_name = $base_group_name . "{$iso}";
     $group_title = $base_group_title  . " $iso";
     CRM_Core_DAO::executeQuery(
-      "INSERT IGNORE INTO civicrm_group (name, title, refresh_date, is_active, group_type) " . 
+      "INSERT IGNORE INTO civicrm_group (name, title, refresh_date, is_active, group_type) " .
       " VALUES ( " .
       "  '{$group_name}', '{$group_title}', NOW(), 1, 2 " .
       " )"
@@ -161,7 +161,7 @@ function civicrm_api3_commitcivi_new_recurring_donors($params) {
 
     CRM_Core_DAO::executeQuery(
       "INSERT INTO civicrm_group_contact (contact_id, group_id, status) " .
-      "VALUES " . join(", ", $values) 
+      "VALUES " . join(", ", $values)
     );
   }
 }
@@ -173,7 +173,7 @@ function civicrm_api3_commitcivi_clean_new_recurring_donor_groups() {
   $date->modify('-4 weeks');
 
   $result = CRM_Core_DAO::executeQuery(
-    "SELECT id FROM civicrm_group " . 
+    "SELECT id FROM civicrm_group " .
     "WHERE name like 'new-recurring-donors-%' " .
     "AND refresh_date < '{$date->format('Y-m-d')}' "
   );
@@ -188,6 +188,49 @@ function civicrm_api3_commitcivi_clean_new_recurring_donor_groups() {
       "WHERE id = {$result->id}"
     );
   }
+}
+
+function civicrm_api3_commitcivi_ever_donated($params) {
+
+  $result = CRM_Core_DAO::executeQuery(
+    "SELECT id FROM civicrm_group " .
+    "WHERE name like 'has-ever-donated'"
+  );
+
+  $group_id = $result[0]->id;
+
+  if (! $group_id ) {
+    CRM_Core_DAO::executeQuery(
+      "INSERT IGNORE INTO civicrm_group (name, title, description)" .
+      " VALUES ('has-ever-donated', 'Has Ever Donated', 'Every member who has ever donated')"
+    );
+    $result = CRM_Core_DAO::executeQuery(
+      "SELECT id FROM civicrm_group " .
+      "WHERE name like 'has-ever-donated'"
+    );
+    $group_id = $result[0]->id();
+  }
+
+  $last_n_hours = $params['hours'] || 365;
+
+  # group of members who have *ever* donated anything. obvious optimization:
+
+  $query_params = ['1' => [$last_n_hours, 'Integer'], '2' => [$group_id, 'Integer']];
+  $result = CRM_Core_DAO::executeQuery(
+    "SELECT cc.contact_id FROM civicrm_contribution cc " .
+    "LEFT JOIN civicrm_group_contact cgp on (cgp.contact_id = cc.contact_id and cgp.group_id = %2) " .
+    "WHERE cgp.id IS NULL AND receive_date > NOW() - INTERVAL %1 HOUR" ,
+    $query_params
+  );
+
+  foreach ($result as $contact_id) {
+    $query_params = ['1' => [$group_id, 'Integer'], '2'=> [$contact_id, 'Integer']];
+    CRM_Core_DAO::executeQuery(
+      "INSERT INTO civicrm_group_contact (group_id, contact_id, status) " .
+      "VALUES (%1, %2, 'Added')"
+    );
+  }
+
 }
 
 function _commitcivi_isConnectionLostError($sessionStatus) {
