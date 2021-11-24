@@ -190,7 +190,7 @@ function civicrm_api3_commitcivi_clean_new_recurring_donor_groups() {
   }
 }
 
-function civicrm_api3_commitcivi_ever_donated($params) {
+function civicrm_api3_commitcivi_has_ever_donated($params) {
 
   $result = CRM_Core_DAO::executeQuery(
     "SELECT id FROM civicrm_group " .
@@ -211,7 +211,7 @@ function civicrm_api3_commitcivi_ever_donated($params) {
     $group_id = $result[0]->id();
   }
 
-  $last_n_hours = $params['hours'] || 365;
+  $last_n_hours = $params['hours'] || 1;
 
   # group of members who have *ever* donated anything. obvious optimization:
 
