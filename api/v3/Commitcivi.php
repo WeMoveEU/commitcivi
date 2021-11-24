@@ -242,31 +242,36 @@ function civicrm_api3_commitcivi_build_2021_endofyear_exclusions() {
   // Or increase recurring amount - not totally sure yet...
 
 
-  $group_id = CRM_Core_DAO::singleValueQuery(
-    "SELECT id FROM civicrm_group " .
-    "WHERE name like 'donors-on-2021-12-01'"
+  $group_id = CRM_Core_DAO::singleValueQuery(<<<SQL
+    SELECT id FROM civicrm_group
+    WHERE name like 'donors-on-2021-12-01'
+SQL
   );
 
   if (! $group_id ) {
-    CRM_Core_DAO::executeQuery(
-      "INSERT IGNORE INTO civicrm_group (name, title, description)" .
-      " VALUES ('donors-on-2021-12-01', 'Donors as of 2021-12-01', 'Members who had donated as of 2021-12-01')"
+    CRM_Core_DAO::executeQuery(<<<SQL
+      INSERT IGNORE INTO civicrm_group (name, title, description)
+      VALUES ('donors-on-2021-12-01', 'Donors as of 2021-12-01', 'Members who had donated as of 2021-12-01')
+SQL
     );
-    $group_id = CRM_Core_DAO::singleValueQuery(
-      "SELECT id FROM civicrm_group " .
-      "WHERE name like 'donors-on-2021-12-01'"
+    $group_id = CRM_Core_DAO::singleValueQuery(<<<SQL
+      SELECT id FROM civicrm_group
+      WHERE name like 'donors-on-2021-12-01'
+SQL
     );
   }
-
 
   // **** Any one who donated for the first time *after* 2021-12-01 ****
 
   $dao = CRM_Core_DAO::executeQuery(<<<SQL
     SELECT converted.contact_id FROM civicrm_contribution converted
     LEFT JOIN civicrm_group_contact existing ON (
-      existing.contact_id=converted.contact_id AND existing.group_id = 6744 AND existing.status = "Added")
+      existing.contact_id=converted.contact_id
+      AND existing.group_id = $group_id
+      AND existing.status = "Added"
+    )
     WHERE converted.receive_date > '2021-12-01 00:00:00'
-    AND existing IS NULL
+    AND existing.contact_id IS NULL
 SQL
     );
   $new_donors = [];
@@ -281,7 +286,7 @@ SQL
 
   $dao = CRM_Core_DAO::executeQuery(<<<SQL
     SELECT contact_id FROM civicrm_contribution_recur
-    WHERE start_date > '2021-12-01'
+    WHERE create_date > '2021-12-01'
 SQL
   );
   $new_recurring_donors = [];
@@ -296,8 +301,9 @@ SQL
   $dao = CRM_Core_DAO::executeQuery(<<<SQL
     SELECT contact_id
     FROM civicrm_activity
+    JOIN civicrm_activity_contact ON civicrm_activity.id = civicrm_activity_contact.activity_id
     WHERE activity_type_id = 65
-    AND subject ILIKE '%increase donation amount%'
+    AND subject LIKE '%increase donation amount%'
     AND created_date > '2021-12-01 00:00:00'
 SQL
 );
