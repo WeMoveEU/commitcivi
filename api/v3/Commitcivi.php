@@ -264,7 +264,8 @@ SQL
   // **** Any one who donated for the first time *after* 2021-12-01 ****
 
   $dao = CRM_Core_DAO::executeQuery(<<<SQL
-    SELECT converted.contact_id FROM civicrm_contribution converted
+    SELECT converted.contact_id
+    FROM civicrm_contribution converted
     LEFT JOIN civicrm_group_contact existing ON (
       existing.contact_id=converted.contact_id
       AND existing.group_id = $group_id
@@ -318,6 +319,9 @@ SQL
 }
 
 function _insert_group_contacts($group_id, $contacts) {
+  if (count($contacts) == 0) {
+    return;
+  }
 
   $flds = function($cid) use ($group_id) {
     return "($group_id, $cid, 'Added')";
@@ -329,8 +333,8 @@ function _insert_group_contacts($group_id, $contacts) {
   CRM_Core_DAO::executeQuery(<<<SQL
     INSERT IGNORE INTO civicrm_group_contact (group_id, contact_id, status)
     VALUES ( $values )
-  SQL
-);
+SQL
+  );
 }
 
 function _commitcivi_isConnectionLostError($sessionStatus) {
