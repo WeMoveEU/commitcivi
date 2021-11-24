@@ -226,6 +226,107 @@ function civicrm_api3_commitcivi_has_ever_donated($params) {
 
 }
 
+function civicrm_api3_commitcivi_build_2021_endofyear_exclusions() {
+
+  // **** Any one who donated for the first time *after* 2021-12-01 ****
+  //
+  // Never donated to donated
+
+  // **** Anyone who created a recurring donation *after* 2021-12-01 ****
+  //
+  // One off to recurring
+  // No longer recurring to current recurring  - ditto
+
+  // **** Anyone who created recurring (previous exclusion) + Self-Care something or other...
+  //
+  // Or increase recurring amount - not totally sure yet...
+
+
+  $group_id = CRM_Core_DAO::singleValueQuery(
+    "SELECT id FROM civicrm_group " .
+    "WHERE name like 'donors-on-2021-12-01'"
+  );
+
+  if (! $group_id ) {
+    CRM_Core_DAO::executeQuery(
+      "INSERT IGNORE INTO civicrm_group (name, title, description)" .
+      " VALUES ('donors-on-2021-12-01', 'Donors as of 2021-12-01', 'Members who had donated as of 2021-12-01')"
+    );
+    $group_id = CRM_Core_DAO::singleValueQuery(
+      "SELECT id FROM civicrm_group " .
+      "WHERE name like 'donors-on-2021-12-01'"
+    );
+  }
+
+
+  // **** Any one who donated for the first time *after* 2021-12-01 ****
+
+  $dao = CRM_Core_DAO::executeQuery(<<<SQL
+    SELECT converted.contact_id FROM civicrm_contribution converted
+    LEFT JOIN civicrm_group_contact existing ON (
+      existing.contact_id=converted.contact_id AND existing.group_id = 6744 AND existing.status = "Added")
+    WHERE converted.receive_date > '2021-12-01 00:00:00'
+    AND existing IS NULL
+SQL
+    );
+  $new_donors = [];
+  while ($dao->fetch()) {
+    array_push($new_donors, $dao->contact_id);
+  }
+  _insert_group_contacts($group_id, $new_donors);
+  $results['new-donors'] = count($new_donors);
+
+
+  // **** Anyone who created a recurring donation *after* 2021-12-01 ****
+
+  $dao = CRM_Core_DAO::executeQuery(<<<SQL
+    SELECT contact_id FROM civicrm_contribution_recur
+    WHERE start_date > '2021-12-01'
+SQL
+  );
+  $new_recurring_donors = [];
+  while ($dao->fetch()) {
+    array_push($new_recurring_donors, $dao->contact_id);
+  }
+  _insert_group_contacts($group_id, $new_recurring_donors);
+  $results['new-recurring-donors'] = count($new_recurring_donors);
+
+  // **** Anyone who used Self-Care to ask to increase their recurring donation ****
+
+  $dao = CRM_Core_DAO::executeQuery(<<<SQL
+    SELECT contact_id
+    FROM civicrm_activity
+    WHERE activity_type_id = 65
+    AND subject ILIKE '%increase donation amount%'
+    AND created_date > '2021-12-01 00:00:00'
+SQL
+);
+  $upscaled_recurring_donors = [];
+  while ($dao->fetch()) {
+    array_push($upscaled_recurring_donors, $dao->contact_id);
+  }
+  _insert_group_contacts($group_id, $upscaled_recurring_donors);
+  $result['upscaled-self-care'] = count($upscaled_recurring_donors);
+
+  return $results;
+}
+
+function _insert_group_contacts($group_id, $contacts) {
+
+  $flds = function($cid) use ($group_id) {
+    return "($group_id, $cid, 'Added')";
+  };
+
+  $to_insert = array_map($flds, $contacts);
+  $values = implode(",", $to_insert);
+
+  CRM_Core_DAO::executeQuery(<<<SQL
+    INSERT IGNORE INTO civicrm_group_contact (group_id, contact_id, status)
+    VALUES ( $values )
+  SQL
+);
+}
+
 function _commitcivi_isConnectionLostError($sessionStatus) {
   if (is_array($sessionStatus) && array_key_exists('title', $sessionStatus[0]) && $sessionStatus[0]['title'] == 'Mailing Error') {
     return !!strpos($sessionStatus[0]['text'], 'Connection lost to authentication server');
