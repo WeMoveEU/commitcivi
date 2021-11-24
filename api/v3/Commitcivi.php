@@ -192,42 +192,35 @@ function civicrm_api3_commitcivi_clean_new_recurring_donor_groups() {
 
 function civicrm_api3_commitcivi_has_ever_donated($params) {
 
-  $result = CRM_Core_DAO::executeQuery(
+  $group_id = CRM_Core_DAO::singleValueQuery(
     "SELECT id FROM civicrm_group " .
     "WHERE name like 'has-ever-donated'"
   );
-
-  $group_id = $result[0]->id;
 
   if (! $group_id ) {
     CRM_Core_DAO::executeQuery(
       "INSERT IGNORE INTO civicrm_group (name, title, description)" .
       " VALUES ('has-ever-donated', 'Has Ever Donated', 'Every member who has ever donated')"
     );
-    $result = CRM_Core_DAO::executeQuery(
+    $group_id = CRM_Core_DAO::singleValueQuery(
       "SELECT id FROM civicrm_group " .
       "WHERE name like 'has-ever-donated'"
     );
-    $group_id = $result[0]->id();
   }
 
-  $last_n_hours = $params['hours'] || 1;
-
-  # group of members who have *ever* donated anything. obvious optimization:
-
-  $query_params = ['1' => [$last_n_hours, 'Integer'], '2' => [$group_id, 'Integer']];
+  $query_params = ['1' => [$params['hours'], 'Integer']];
   $result = CRM_Core_DAO::executeQuery(
     "SELECT cc.contact_id FROM civicrm_contribution cc " .
-    "LEFT JOIN civicrm_group_contact cgp on (cgp.contact_id = cc.contact_id and cgp.group_id = %2) " .
-    "WHERE cgp.id IS NULL AND receive_date > NOW() - INTERVAL %1 HOUR" ,
+    "LEFT JOIN civicrm_group_contact cgp on (cgp.contact_id = cc.contact_id and cgp.group_id = $group_id) " .
+    "WHERE cgp.id IS NULL AND receive_date > NOW() - INTERVAL %1 HOUR",
     $query_params
   );
 
-  foreach ($result as $contact_id) {
-    $query_params = ['1' => [$group_id, 'Integer'], '2'=> [$contact_id, 'Integer']];
+  while ($result->fetch()) {
+    $contact_id = $result->contact_id;
     CRM_Core_DAO::executeQuery(
       "INSERT INTO civicrm_group_contact (group_id, contact_id, status) " .
-      "VALUES (%1, %2, 'Added')"
+      "VALUES ($group_id, $contact_id, 'Added')"
     );
   }
 
