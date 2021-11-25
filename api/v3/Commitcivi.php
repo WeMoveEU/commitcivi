@@ -194,17 +194,17 @@ function civicrm_api3_commitcivi_has_ever_donated($params) {
 
   $group_id = CRM_Core_DAO::singleValueQuery(
     "SELECT id FROM civicrm_group " .
-    "WHERE name like 'has-ever-donated'"
+    "WHERE name like '2021-eoy-has-ever-donated'"
   );
 
   if (! $group_id ) {
     CRM_Core_DAO::executeQuery(
       "INSERT IGNORE INTO civicrm_group (name, title, description)" .
-      " VALUES ('has-ever-donated', 'Has Ever Donated', 'Every member who has ever donated')"
+      " VALUES ('2021-eoy-has-ever-donated', '2021 EOY Has Ever Donated', 'Every member who has ever donated')"
     );
     $group_id = CRM_Core_DAO::singleValueQuery(
       "SELECT id FROM civicrm_group " .
-      "WHERE name like 'has-ever-donated'"
+      "WHERE name like '2021-eoy-has-ever-donated'"
     );
   }
 
@@ -244,19 +244,19 @@ function civicrm_api3_commitcivi_build_2021_endofyear_exclusions() {
 
   $group_id = CRM_Core_DAO::singleValueQuery(<<<SQL
     SELECT id FROM civicrm_group
-    WHERE name like 'donors-on-2021-12-01'
+    WHERE name like '2021-eoy-donors-on-2021-12-01'
 SQL
   );
 
   if (! $group_id ) {
     CRM_Core_DAO::executeQuery(<<<SQL
       INSERT IGNORE INTO civicrm_group (name, title, description)
-      VALUES ('donors-on-2021-12-01', 'Donors as of 2021-12-01', 'Members who had donated as of 2021-12-01')
+      VALUES ('2021-eoy-donors-on-2021-12-01', '2021 EOY Donors as of 2021-12-01', 'Members who had donated as of 2021-12-01')
 SQL
     );
     $group_id = CRM_Core_DAO::singleValueQuery(<<<SQL
       SELECT id FROM civicrm_group
-      WHERE name like 'donors-on-2021-12-01'
+      WHERE name like '2021-eoy-donors-on-2021-12-01'
 SQL
     );
   }
