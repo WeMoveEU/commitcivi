@@ -241,14 +241,37 @@ function civicrm_api3_commitcivi_build_2021_endofyear_exclusions($params) {
   //
   // Or increase recurring amount - not totally sure yet...
 
+  $exclude_group_id = CRM_Core_DAO::singleValueQuery(<<<SQL
+    SELECT id FROM civicrm_group
+    WHERE name like '2021-eoy-exclusion-group'
+SQL
+  );
 
-  $group_id = CRM_Core_DAO::singleValueQuery(<<<SQL
+  if (! $exclude_group_id ) {
+    CRM_Core_DAO::executeQuery(<<<SQL
+      INSERT IGNORE INTO civicrm_group (name, title, description)
+      VALUES (
+        '2021-eoy-exclusion-group',
+        '2021 EOY Exclusion Group',
+        'Members to remove from the mailstream during EOY fundraising in 2021'
+      )
+SQL
+    );
+    $exclude_group_id = CRM_Core_DAO::singleValueQuery(<<<SQL
+      SELECT id FROM civicrm_group
+      WHERE name like ' '2021-eoy-exclusion-group','
+SQL
+    );
+  }
+
+
+  $existing_donor_group_id = CRM_Core_DAO::singleValueQuery(<<<SQL
     SELECT id FROM civicrm_group
     WHERE name like '2021-eoy-donors-on-2021-12-01'
 SQL
   );
 
-  if (! $group_id ) {
+  if (! $existing_donor_group_id ) {
     CRM_Core_DAO::executeQuery(<<<SQL
       INSERT IGNORE INTO civicrm_group (name, title, description)
       VALUES (
@@ -258,7 +281,7 @@ SQL
       )
 SQL
     );
-    $group_id = CRM_Core_DAO::singleValueQuery(<<<SQL
+    $existing_donor_group_id = CRM_Core_DAO::singleValueQuery(<<<SQL
       SELECT id FROM civicrm_group
       WHERE name like '2021-eoy-donors-on-2021-12-01'
 SQL
@@ -274,7 +297,7 @@ SQL
     FROM civicrm_contribution converted
     LEFT JOIN civicrm_group_contact existing ON (
       existing.contact_id=converted.contact_id
-      AND existing.group_id = $group_id
+      AND existing.group_id = $existing_donor_group_id
       AND existing.status = "Added"
     )
     WHERE converted.receive_date > %1
@@ -286,7 +309,7 @@ SQL
   while ($dao->fetch()) {
     array_push($new_donors, $dao->contact_id);
   }
-  _insert_group_contacts($group_id, $new_donors);
+  _insert_group_contacts($exclude_group_id, $new_donors);
   $results['new-donors'] = count($new_donors);
 
 
@@ -302,7 +325,7 @@ SQL
   while ($dao->fetch()) {
     array_push($new_recurring_donors, $dao->contact_id);
   }
-  _insert_group_contacts($group_id, $new_recurring_donors);
+  _insert_group_contacts($exclude_group_id, $new_recurring_donors);
   $results['new-recurring-donors'] = count($new_recurring_donors);
 
   // **** Anyone who used Self-Care to ask to increase their recurring donation ****
@@ -321,7 +344,7 @@ SQL
   while ($dao->fetch()) {
     array_push($upscaled_recurring_donors, $dao->contact_id);
   }
-  _insert_group_contacts($group_id, $upscaled_recurring_donors);
+  _insert_group_contacts($exclude_group_id, $upscaled_recurring_donors);
   $result['upscaled-self-care'] = count($upscaled_recurring_donors);
 
   return $results;
