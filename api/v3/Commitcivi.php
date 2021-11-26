@@ -259,7 +259,7 @@ SQL
     );
     $exclude_group_id = CRM_Core_DAO::singleValueQuery(<<<SQL
       SELECT id FROM civicrm_group
-      WHERE name like ' '2021-eoy-exclusion-group','
+      WHERE name like '2021-eoy-exclusion-group'
 SQL
     );
   }
