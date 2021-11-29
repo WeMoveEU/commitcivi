@@ -243,7 +243,7 @@ function civicrm_api3_commitcivi_build_2021_endofyear_exclusions($params) {
 
   $exclude_group_id = CRM_Core_DAO::singleValueQuery(<<<SQL
     SELECT id FROM civicrm_group
-    WHERE name like '2021-eoy-exclusion-group'
+    WHERE name = '2021-eoy-exclusion-group'
 SQL
   );
 
@@ -259,7 +259,7 @@ SQL
     );
     $exclude_group_id = CRM_Core_DAO::singleValueQuery(<<<SQL
       SELECT id FROM civicrm_group
-      WHERE name like '2021-eoy-exclusion-group'
+      WHERE name = '2021-eoy-exclusion-group'
 SQL
     );
   }
@@ -267,9 +267,11 @@ SQL
 
   $existing_donor_group_id = CRM_Core_DAO::singleValueQuery(<<<SQL
     SELECT id FROM civicrm_group
-    WHERE name like '2021-eoy-donors-on-2021-12-01'
+    WHERE name = '2021-eoy-donors-on-2021-12-01'
 SQL
   );
+
+
 
   if (! $existing_donor_group_id ) {
     CRM_Core_DAO::executeQuery(<<<SQL
@@ -283,7 +285,7 @@ SQL
     );
     $existing_donor_group_id = CRM_Core_DAO::singleValueQuery(<<<SQL
       SELECT id FROM civicrm_group
-      WHERE name like '2021-eoy-donors-on-2021-12-01'
+      WHERE name = '2021-eoy-donors-on-2021-12-01'
 SQL
     );
   }
@@ -297,7 +299,7 @@ SQL
     FROM civicrm_contribution converted
     LEFT JOIN civicrm_group_contact existing ON (
       existing.contact_id=converted.contact_id
-      AND existing.group_id = $existing_donor_group_id
+      AND existing.group_id = {$existing_donor_group_id}
       AND existing.status = "Added"
     )
     WHERE converted.receive_date > %1
@@ -364,7 +366,7 @@ function _insert_group_contacts($group_id, $contacts) {
 
   CRM_Core_DAO::executeQuery(<<<SQL
     INSERT IGNORE INTO civicrm_group_contact (group_id, contact_id, status)
-    VALUES ( $values )
+    VALUES $values
 SQL
   );
 }
