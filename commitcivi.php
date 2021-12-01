@@ -115,3 +115,19 @@ function commitcivi_civicrm_angularModules(&$angularModules) {
 function commitcivi_civicrm_alterSettingsFolders(&$metaDataFolders = NULL) {
   _commitcivi_civix_civicrm_alterSettingsFolders($metaDataFolders);
 }
+
+/**
+ * Implements hooks civicrm_buildForm().
+ *
+ */
+function commitcivi_civicrm_buildForm($formName, &$form) {
+  // CRM_Core_Error::debug_log_message("checking formName $formName");
+  if (
+      $formName=='CRM_Contribute_Form_AdditionalPayment'
+      || $formName=='CRM_Contribute_Form_Search'
+      || $formName=='CRM_Contribute_Form_ContributionView'
+    ) {
+      // CRM_Core_Error::debug_log_message("bweep!");
+      CRM_Core_Resources::singleton()->addScriptFile('eu.wemove.commitcivi', 'add_payment_links.js');
+  }
+}
