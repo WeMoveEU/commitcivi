@@ -377,9 +377,3 @@ function _commitcivi_isConnectionLostError($sessionStatus) {
   }
   return FALSE;
 }
-
-function commitcivi_civicrm_buildForm($formName, &$form) {
-  if($formName=='CRM_Contribute_Form_PaymentInfoBlock'){
-      CRM_Core_Resources::singleton()->addScriptFile('commitcivi', 'add_payment_links.js');
-  }
-}
