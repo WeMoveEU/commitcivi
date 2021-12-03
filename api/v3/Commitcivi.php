@@ -228,18 +228,7 @@ function civicrm_api3_commitcivi_has_ever_donated($params) {
 
 function civicrm_api3_commitcivi_build_2021_endofyear_exclusions($params) {
 
-  // **** Any one who donated for the first time *after* 2021-12-01 ****
-  //
-  // Never donated to donated
-
-  // **** Anyone who created a recurring donation *after* 2021-12-01 ****
-  //
-  // One off to recurring
-  // No longer recurring to current recurring  - ditto
-
-  // **** Anyone who created recurring (previous exclusion) + Self-Care something or other...
-  //
-  // Or increase recurring amount - not totally sure yet...
+  // *** Build a group to always exclude from eoy fundraisers 2021 ***
 
   $exclude_group_id = CRM_Core_DAO::singleValueQuery(<<<SQL
     SELECT id FROM civicrm_group
@@ -264,33 +253,7 @@ SQL
     );
   }
 
-
-  $existing_donor_group_id = CRM_Core_DAO::singleValueQuery(<<<SQL
-    SELECT id FROM civicrm_group
-    WHERE name = '2021-eoy-donors-on-2021-12-01'
-SQL
-  );
-
-
-
-  if (! $existing_donor_group_id ) {
-    CRM_Core_DAO::executeQuery(<<<SQL
-      INSERT IGNORE INTO civicrm_group (name, title, description)
-      VALUES (
-        '2021-eoy-donors-on-2021-12-01',
-        '2021 EOY Donors as of 2021-12-01',
-        'Members who had donated as of 2021-12-01'
-      )
-SQL
-    );
-    $existing_donor_group_id = CRM_Core_DAO::singleValueQuery(<<<SQL
-      SELECT id FROM civicrm_group
-      WHERE name = '2021-eoy-donors-on-2021-12-01'
-SQL
-    );
-  }
-
-  // **** Any one who donated for the first time *after* 2021-12-01 ****
+  // **** Any one who donated for the first time *after* 2021-11-29 ****
 
   $query_params = [ '1' => [ $params['since'], 'String' ] ];
 
@@ -299,7 +262,7 @@ SQL
     FROM civicrm_contribution converted
     LEFT JOIN civicrm_group_contact existing ON (
       existing.contact_id=converted.contact_id
-      AND existing.group_id = {$existing_donor_group_id}
+      AND existing.group_id IN (6816, 6756, 6755)
       AND existing.status = "Added"
     )
     WHERE converted.receive_date > %1
@@ -315,7 +278,7 @@ SQL
   $results['new-donors'] = count($new_donors);
 
 
-  // **** Anyone who created a recurring donation *after* 2021-12-01 ****
+  // **** Anyone who created a recurring donation *after* 2021-11-29 ****
 
   $dao = CRM_Core_DAO::executeQuery(<<<SQL
     SELECT contact_id FROM civicrm_contribution_recur
