@@ -15,6 +15,9 @@ class CRM_Commitcivi_Logic_StripeMigration {
 
         CRM_Core_Error::debug_log_message("Event received : {$event_as_json}");
 
+
+        // ********** Get data from CiviCRM, which was populated by the initial CommitChange donation
+
         $civicrm_recurring = civicrm_api3(
             'ContributionRecur',
             'get',
@@ -40,33 +43,23 @@ class CRM_Commitcivi_Logic_StripeMigration {
             $contactId = $this->find_contact_by_email($contact->email, $contact->firstname, $contact->lastname);
         }
 
+        // ********** Now get the data from Stripe and import it to CiviCRM, using the Contact ID to help
+        //            import it to the correct place.
+
+
         CRM_Core_Error::debug_log_message(
             "Importing Stripe subscription {$donation->stripeSubscriptionId} for civicrm_contact {$contactId}"
         );
 
-        # Handling the customer here is a workaround for a bug in the StripeSubscription.import
-        # API - the customer isn't created if it doesn't exist. The subscription is still
-        # created but later payments aren't attached.
-        $customerParams = [
-            'customer_id' => $donation->stripeCustomerId,
-            'contact_id' => $contactId,
-            'processor_id' => 1, # Live Stripe Account
-        ];
-        $customer = civicrm_api3('StripeCustomer', 'get', $customerParams);
-        if ($customer['count'] == 0) {
-            $customer = civicrm_api3('StripeCustomer', 'create', $customerParams);
-        }
-
         try {
             $date = date('Y-m-d');
             $result = civicrm_api3(
-                'StripeSubscription',
-                'import',
+                'Stripe',
+                'importsubscription',
                 [
-                    'subscription_id' => $donation->stripeSubscriptionId,
-                    'contact_id' => $contactId,
-                    'payment_processor_id' => 1, # Live Stripe Account
-                    'payment_instrument' => 'Debit Card',  # Name of payment instrument with label Stripe...
+                    'subscription'        => $donation->stripeSubscriptionId,
+                    'contact_id'          => $contactId,
+                    'ppid'                => 1, # Live Stripe Account
                     'contribution_source' => "Migrated from CommitChange {$date}",
                 ]
             );
