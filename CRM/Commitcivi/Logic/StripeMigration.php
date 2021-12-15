@@ -79,11 +79,10 @@ class CRM_Commitcivi_Logic_StripeMigration {
                 # keep going to make sure the previous recurring donation is cancelled
             }
             else {
+                CRM_Core_Error::debug_log_message("Exception trying to migrate recurring donation: {$e->getMessage()}. Re-throwing Exception.");
                 throw $e;
             }
         }
-
-
 
         if ($recurring_donation['id']) {
             CRM_Core_Error::debug_log_message("Cancelling {$recurring_donation['id']}");
