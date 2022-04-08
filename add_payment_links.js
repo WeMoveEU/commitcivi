@@ -21,8 +21,12 @@ function linkToStripe($, el) {
     var text = $(el).text();
     if (text.startsWith('ch_')) {
         stripe_section = 'payments';
+    } else if (text.startsWith('pi_')) {
+        stripe_section = 'payments';
     } else if (text.startsWith('sub_')) {
         stripe_section = 'subscriptions'
+    } else if (text.startsWith('in_')) {
+        stripe_section = 'invoices'
     } else {
         return
     }
