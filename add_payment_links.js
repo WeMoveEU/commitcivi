@@ -36,7 +36,9 @@ function linkToStripe($, el) {
         + stripe_section
         + '/'
         + $(el).text()
-        + '">View in Stripe</a>'
+        + '">View in Stripe (' 
+        + $(el).text() 
+        + ')</a>'
     );
 }
 
