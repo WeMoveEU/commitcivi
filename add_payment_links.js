@@ -19,14 +19,19 @@ function linkToStripe($, el) {
     var stripe_section = '';
 
     var text = $(el).text();
+    var link = "";
     if (text.startsWith('ch_')) {
         stripe_section = 'payments';
+        link = "Payment";
     } else if (text.startsWith('pi_')) {
         stripe_section = 'payments';
+        link = "Payment";
     } else if (text.startsWith('sub_')) {
         stripe_section = 'subscriptions'
+        link = "Subscription";
     } else if (text.startsWith('in_')) {
         stripe_section = 'invoices'
+        link = "Invoice";
     } else {
         return
     }
@@ -36,9 +41,9 @@ function linkToStripe($, el) {
         + stripe_section
         + '/'
         + $(el).text()
-        + '">View in Stripe (' 
-        + $(el).text() 
-        + ')</a>'
+        + '">View ' 
+        + link 
+        + '</a>'
     );
 }
 
