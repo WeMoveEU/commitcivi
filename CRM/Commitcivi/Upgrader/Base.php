@@ -302,6 +302,7 @@ class CRM_Commitcivi_Upgrader_Base {
         $this->executeCustomDataFileByAbsPath($file);
       }
     }
+    $this->executeCustomDataFile("xml/weekly_custom_fields.xml");
     if (is_callable(array($this, 'install'))) {
       $this->install();
     }
