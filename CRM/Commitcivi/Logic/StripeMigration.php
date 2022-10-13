@@ -174,12 +174,15 @@ class CRM_Commitcivi_Logic_StripeMigration {
    * @throws \CiviCRM_API3_Exception
    */
   protected function copyUTMS($canceled, $migrated) {
+    CRM_Core_Error::debug_log_message(
+      "Copying UTMs from $canceled to $migrated"
+    );
     CRM_Core_DAO::executeQuery(
-      "INSERT INTO civicrm_recur_value_utm
-      (entity_id, utm_source, utm_campaign, utm_medium, utm_content)
-      SELECT ${migrated}, utm_source, utm_campaign, utm_medium, utm_content
-      FROM civicrm_recur_value cancelled
-      WHERE cancelled.entity_id = ${canceled}"
+    "INSERT INTO civicrm_value_recur_utm
+     (entity_id, utm_source, utm_campaign, utm_medium, utm_content)
+     SELECT ${migrated}, utm_source, utm_campaign, utm_medium, utm_content
+     FROM civicrm_value_recur_utm cancelled
+     WHERE cancelled.entity_id = ${canceled}"
     );
   }
 }
